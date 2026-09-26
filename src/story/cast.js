@@ -21,5 +21,9 @@
     // Gus has fixed every machine on the floor at least twice.
     gus: { name: 'GUS', portrait: 'gus', color: P.CREAM, blip: 470, speed: 34 },
     kid: { name: 'KID', portrait: 'kid', color: P.CREAM, blip: 980, speed: 46 },
+    // Chapter 2: Marisol's crew on line two.
+    tomas: { name: 'TOMAS', portrait: 'tomas', color: P.CREAM, blip: 520, speed: 36 },
+    bea: { name: 'BEA', portrait: 'bea', color: P.CREAM, blip: 900, speed: 48 },
+    otis: { name: 'OTIS', portrait: 'otis', color: P.CREAM, blip: 430, speed: 32 },
   };
 })(window.MORE = window.MORE || {});

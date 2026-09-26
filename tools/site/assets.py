@@ -29,7 +29,6 @@ STAGES = [
 
 # Full scenes for chapters that aren't built yet, snapped to the game's frame.
 SCENES = [
-    ('scene-floor', 'factory_interior.png'),
     ('scene-town', 'town_map_consumed.png'),
 ]
 

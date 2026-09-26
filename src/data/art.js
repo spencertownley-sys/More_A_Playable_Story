@@ -176,6 +176,90 @@
       "fw": 17,
       "fh": 27
     },
+    "tomas": {
+      "file": "assets/art/tomas.png",
+      "w": 100,
+      "h": 32,
+      "frames": 5,
+      "fw": 20,
+      "fh": 32
+    },
+    "bea": {
+      "file": "assets/art/bea.png",
+      "w": 80,
+      "h": 31,
+      "frames": 5,
+      "fw": 16,
+      "fh": 31
+    },
+    "otis": {
+      "file": "assets/art/otis.png",
+      "w": 90,
+      "h": 35,
+      "frames": 5,
+      "fw": 18,
+      "fh": 35
+    },
+    "bench_cut": {
+      "file": "assets/art/bench_cut.png",
+      "w": 28,
+      "h": 25
+    },
+    "bench_bend": {
+      "file": "assets/art/bench_bend.png",
+      "w": 29,
+      "h": 24
+    },
+    "bench_pack": {
+      "file": "assets/art/bench_pack.png",
+      "w": 30,
+      "h": 25
+    },
+    "beacon": {
+      "file": "assets/art/beacon.png",
+      "w": 16,
+      "h": 33
+    },
+    "server": {
+      "file": "assets/art/server.png",
+      "w": 21,
+      "h": 42
+    },
+    "spool2": {
+      "file": "assets/art/spool2.png",
+      "w": 28,
+      "h": 30
+    },
+    "cutter2": {
+      "file": "assets/art/cutter2.png",
+      "w": 27,
+      "h": 31
+    },
+    "bender2": {
+      "file": "assets/art/bender2.png",
+      "w": 29,
+      "h": 31
+    },
+    "bin2": {
+      "file": "assets/art/bin2.png",
+      "w": 29,
+      "h": 31
+    },
+    "floor_cold": {
+      "file": "assets/art/floor_cold.png",
+      "w": 32,
+      "h": 32
+    },
+    "floor_hazard": {
+      "file": "assets/art/floor_hazard.png",
+      "w": 32,
+      "h": 32
+    },
+    "wall_cold": {
+      "file": "assets/art/wall_cold.png",
+      "w": 32,
+      "h": 32
+    },
     "portrait_ruth": {
       "file": "assets/art/portrait_ruth.png",
       "w": 48,
@@ -203,6 +287,36 @@
     },
     "portrait_pip2": {
       "file": "assets/art/portrait_pip2.png",
+      "w": 48,
+      "h": 48
+    },
+    "portrait_tomas": {
+      "file": "assets/art/portrait_tomas.png",
+      "w": 48,
+      "h": 48
+    },
+    "portrait_bea": {
+      "file": "assets/art/portrait_bea.png",
+      "w": 48,
+      "h": 48
+    },
+    "portrait_otis": {
+      "file": "assets/art/portrait_otis.png",
+      "w": 48,
+      "h": 48
+    },
+    "portrait_marisol_sad": {
+      "file": "assets/art/portrait_marisol_sad.png",
+      "w": 48,
+      "h": 48
+    },
+    "portrait_gus_angry": {
+      "file": "assets/art/portrait_gus_angry.png",
+      "w": 48,
+      "h": 48
+    },
+    "portrait_ruth_night": {
+      "file": "assets/art/portrait_ruth_night.png",
       "w": 48,
       "h": 48
     }

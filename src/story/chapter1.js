@@ -21,6 +21,9 @@
     title: 'THE LINE',
     quotas: Q,
 
+    // the chapter-end card, then on to Chapter 2
+    ending: () => ({ next: () => M.scenes.startChapter(2) }),
+
     // Objective line in the idle panel.
     objective(st) {
       if (st.sandbox) return 'THE NIGHT SHIFT';

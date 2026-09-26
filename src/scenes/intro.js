@@ -31,6 +31,11 @@
         return M.scenes.factory({ sandbox: true });
       case 'mockup':
         return M.scenes.factory({ mockup: true });
+      // Chapter 2 as if Chapter 1 just ended (doesn't touch your save)
+      case 'floor':
+        return M.scenes.factory({ chapter: 2, debug: true, save: { chapter: 1, clips: 1024, shorter: true, chapter1Done: true } });
+      case 'end2':
+        return M.scenes.chapterEnd(Object.assign({ clips: 4096 }, M.STORY.ch2.ending()));
       default:
         return M.scenes.coldOpen();
     }
@@ -222,9 +227,12 @@
     function cont() {
       M.audio.stopMusic(0.8);
       const s = M.save.load();
-      if (s && s.chapter1Done) M.go(() => M.scenes.factory({ sandbox: true, save: s }), { out: 0.8 });
-      else if (s && s.chapter === 1) M.go(() => M.scenes.factory({ save: s }), { out: 0.8 });
-      else M.go(() => M.scenes.prologue(), { out: 0.8 });
+      const ch = (s && s.chapter) || 1;
+      let next = () => M.scenes.prologue();
+      if (s && ch === 2) next = () => M.scenes.factory({ chapter: 2, sandbox: !!s.chapter2Done, save: s });
+      else if (s && s.chapter1Done) next = () => M.scenes.startChapter(2, s);
+      else if (s && ch === 1) next = () => M.scenes.factory({ save: s });
+      M.go(next, { out: 0.8 });
     }
 
     return {
