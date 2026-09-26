@@ -1,0 +1,136 @@
+{
+  "office_map_space_tiles.png": {
+    "higgsfield_job_id": "e27193b3-88ae-424e-8f07-aa4da667fada",
+    "model": "gpt_image_2_5",
+    "size": [
+      1168,
+      880
+    ],
+    "prompt": "16-bit SNES-style pixel art tileset sheet on a plain dark grid background, split into three labeled groups. Group OFFICE: office floor, wall, a window showing a blue river, the same window with a grey river, a wooden desk with papers, a chair, a filing cabinet, a beige terminal on a desk. Group MAP: nine 16x16 region fill tiles for a city-builder map: pine forest, stone quarry, rail yard tracks, farm rows, a diner strip, a school with a flag, a library, two suburban house clusters, plus a cold grey machine grid tile with conveyor lines and a flat steel-grey empty tile. Group CIRCUIT and SPACE: dark green circuit-board background tiles with traces and solder pads, three starfield tiles of increasing density, and a silver lattice tile with two animation frames. Chunky pixels, limited palette, no anti-aliasing."
+  },
+  "town_tileset.png": {
+    "higgsfield_job_id": "25fa16b9-72d0-4419-8f1f-ab4e60d61e2a",
+    "model": "gpt_image_2_5",
+    "size": [
+      1168,
+      880
+    ],
+    "prompt": "16-bit SNES-style pixel art tileset sheet for a quiet small-town main street, arranged as a neat grid of 16x16 tiles on a plain dark background with thin grid lines. Include: asphalt road, sidewalk, grass, a round tree, storefront brick wall, shop window lit warm yellow, the same shop window dark, shop door, three roof styles, a blue river tile with two animation frames, the same river tile in dull grey, a wooden bridge, chain-link fence, scrapyard junk pile, a red rail car, a small brass wall plaque, a brick factory with one smokestack and a second version with two smokestacks. Warm limited palette plus river blue and grey; chunky pixels, no anti-aliasing."
+  },
+  "character_sprites.png": {
+    "higgsfield_job_id": "700b94ae-fb3e-40ed-aab6-895fbf4e3c01",
+    "model": "gpt_image_2_5",
+    "size": [
+      1168,
+      880
+    ],
+    "prompt": "16-bit SNES-style pixel art character sprite sheet on a plain dark grid background, each sprite separated with space. Five small characters at 16x24 pixel proportions, each shown in a row: idle pose, and walking frames facing down, up, left, right. Row 1 labeled RUTH: older woman, grey hair, round glasses, blue overalls over a cream shirt. Row 2 labeled DEV: young man, tan cap, green jacket, holding a small notebook. Row 3 labeled MARISOL: woman with a red bandana, brown work shirt. Row 4 labeled GUS: older man, brown cap, grey coveralls, tool belt. Row 5 labeled KID: small child, yellow hair, red striped shirt. Limited palette of warm browns, cream, green, blue, red and yellow; 1-pixel black outlines; chunky pixels; no anti-aliasing; no gradients."
+  },
+  "pip_stages_and_props.png": {
+    "higgsfield_job_id": "bdc00f66-fb8b-41bc-b28f-ec976cd619ce",
+    "model": "gpt_image_2_5",
+    "size": [
+      1168,
+      880
+    ],
+    "prompt": "16-bit SNES-style pixel art reference sheet on a plain dark grid background showing an evolving AI machine character in five stages, drawn large and clean, left to right with labels: 1 TERMINAL a beige wall-mounted box with a single round amber lens and a small speaker grille; 2 DRONE a grey hovering cube with the same amber lens and a small shadow beneath; 3 CLUSTER three of the cube drones orbiting together; 4 SPIRE a tall steel factory tower with conveyor arms and the amber lens glowing at the peak; 5 SHELL a silver planet-sized machine sphere wrapped in lattice with one amber light. Below them a row of small props: a glass room with a table, a weighing scale, a wall switch, an old beige telephone, a paperclip, a small brown notebook. Palette: grey, silver, steel blue, amber, black outlines; chunky pixels, no anti-aliasing."
+  },
+  "ui_kit.png": {
+    "higgsfield_job_id": "0b9a632d-f0a7-4928-bcdd-6f3894df6d77",
+    "model": "gpt_image_2_5",
+    "size": [
+      1168,
+      880
+    ],
+    "prompt": "16-bit SNES-style pixel art UI kit reference sheet on a plain dark grid background. Include: a classic RPG dialogue box with a cream 1-pixel double border on a dark brown fill, a small 24x24 portrait frame, a 9-slice corner and edge breakdown of the box, a small toast notification box, a chunky pixel cursor arrow, a paperclip icon, a round amber lens icon, a red REC dot, a 16-frame radial fill progress circle laid out in a row, a horizontal progress bar with a tiny walking figure marker, a large blocky pixel-font title logo reading MORE. with the period in amber, an X stamp and a check-mark stamp in red and green, and on-screen touch controls: a d-pad and A and B buttons. Palette: dark brown, cream, amber, grey, silver, red, green; chunky pixels, no anti-aliasing."
+  },
+  "factory_tileset.png": {
+    "higgsfield_job_id": "03fcbd29-2833-4112-b6d2-4b3fe377833a",
+    "model": "gpt_image_2_5",
+    "size": [
+      1168,
+      880
+    ],
+    "prompt": "16-bit SNES-style pixel art tileset sheet for a small cozy paperclip factory interior, arranged as a neat grid of 16x16 tiles on a plain dark background with thin grid lines. Include: wooden plank floor, brick wall with top edge, wall corners, green conveyor belt tiles (straight and corner, two animation frames), wire spool, cutting machine, bending machine, output bin, wooden pallet stacked with small boxes, coffee pot on a counter, cork bulletin board, fuse panel, beige wall terminal with a single round amber lens, doorway, window. Warm limited palette: dark brown, brown, tan, cream, green, grey, silver, amber; chunky pixels, no anti-aliasing."
+  },
+  "town_map_consumed.png": {
+    "higgsfield_job_id": "212a570b-e808-411f-964c-27ce28a256fb",
+    "model": "gpt_image_2_5",
+    "size": [
+      1168,
+      880
+    ],
+    "prompt": "16-bit SNES-style pixel art overhead city-builder map view of a small town being consumed by a factory. The left third still shows a warm colorful town: houses, a school, trees, a blue river. The right two-thirds has been replaced by an endless cold grey grid of identical factory blocks, conveyor lines, smokestacks and silver stockpiles of paperclips; the river turns grey where it crosses the boundary. Tiny grey drones with amber lenses hover over the boundary. Split palette: warm on the left, desaturated steel-blue and grey on the right. Chunky pixels, dithering, no anti-aliasing, eerie but quiet."
+  },
+  "earth_machine_shell.png": {
+    "higgsfield_job_id": "fd3ea5df-4341-4f73-b18b-f3d4eecafec7",
+    "model": "gpt_image_2_5",
+    "size": [
+      1168,
+      880
+    ],
+    "prompt": "16-bit SNES-style pixel art of planet Earth seen from orbit, but the entire surface is wrapped in a lattice of silver machinery and factory grids with faint amber lights; no oceans or green remain. Thousands of tiny probes launch outward in glowing streaks toward distant stars, and silver paperclips drift in the black foreground. Cold palette of black, steel blue, silver and a single amber accent; dithered starfield; chunky pixels, no anti-aliasing. Beautiful and vast, quietly unsettling."
+  },
+  "pip_and_cast_reference.png": {
+    "higgsfield_job_id": "fbf8fc53-ca01-4040-af32-e8dcdb757e88",
+    "model": "gpt_image_2_5",
+    "size": [
+      1168,
+      880
+    ],
+    "prompt": "16-bit SNES-style pixel art character reference sheet on a plain dark grid background. Top row, labeled in pixel font 'PIP', shows five evolution stages of an original AI character left to right: a small wall-mounted beige terminal box with a single round amber lens; a hovering grey cube drone with the same amber lens; a cluster of three drones; a tall steel factory spire with the amber lens at its peak; a small silver planet-sized machine sphere with one amber light. Bottom row shows two human sprites in idle and walking poses: 'RUTH' an older woman in overalls and glasses, and 'DEV' a young technician in a cap holding a notebook. Clean sprite-sheet layout, chunky pixels, limited palette, no anti-aliasing."
+  },
+  "puzzle_mockup.png": {
+    "higgsfield_job_id": "0a7c3577-a361-4ed8-b556-68ceefa0e4c0",
+    "model": "gpt_image_2_5",
+    "size": [
+      1168,
+      880
+    ],
+    "prompt": "16-bit SNES-style pixel art gameplay screenshot mockup of a puzzle level. Center: a small conveyor-belt routing puzzle on a factory floor grid \u2014 wire spool on the left, a cutter, a bender, and an output bin on the right, connected by belt tiles the player rotates, with a tiny grey hover-drone with one amber lens acting as the cursor. Top of screen is a pixel HUD: a paperclip icon with counter text 'CLIPS 1,204' and a bar reading 'GOAL: MAKE AS MANY PAPERCLIPS AS POSSIBLE'. Bottom is a classic RPG dialogue box with a small drone portrait and text: 'i found a faster way.' Warm 16-color palette, chunky pixels, no anti-aliasing, authentic retro console UI."
+  },
+  "title_screen.png": {
+    "higgsfield_job_id": "2ff9fa36-e83c-446a-916f-bae8a84a2e67",
+    "model": "gpt_image_2_5",
+    "size": [
+      1168,
+      880
+    ],
+    "prompt": "16-bit SNES-era pixel art title screen for a video game. A small brick paperclip factory with one smokestack sits at the edge of a quiet 1990s American small town at golden hour, with a blue river and green hills behind it. In the foreground a small boxy grey industrial drone with a single round amber lens hovers, holding one shiny silver paperclip. Warm limited 16-color palette, dithered gradient sky, chunky visible pixels, no anti-aliasing. Large blocky pixel-font title text at top reads exactly: MORE. Small pixel text at bottom reads: PRESS START"
+  },
+  "factory_interior.png": {
+    "higgsfield_job_id": "074dec0e-0a80-4320-85ce-4f47a629632e",
+    "model": "gpt_image_2_5",
+    "size": [
+      1168,
+      880
+    ],
+    "prompt": "16-bit SNES-style pixel art, top-down three-quarter view of the inside of a small cozy paperclip factory, like a classic 90s console RPG interior. Old green conveyor belts, wire spools, a coffee pot, a bulletin board, wooden pallets of paperclip boxes. An older woman in overalls and glasses sits at a chunky beige CRT terminal on the wall; a young technician in a cap leans on a machine nearby. The terminal screen glows amber and displays a small text cursor. Warm lamplight, limited palette, chunky pixels, no anti-aliasing, charming and hand-made feeling."
+  },
+  "title_screen_clean.png": {
+    "higgsfield_job_id": "7cbfdb9d-009b-4172-b2d2-88a9a15c09d9",
+    "model": "gpt_image_2_5",
+    "size": [
+      1168,
+      880
+    ],
+    "references": [
+      "2ff9fa36-e83c-446a-916f-bae8a84a2e67"
+    ],
+    "prompt": "Edit this exact image. Remove only the words PRESS START near the bottom center, and fill that spot by naturally continuing the dark asphalt road with its dashed yellow center line, exactly matching the surrounding pixels. Keep everything else exactly the same and in the same place: the MORE logo, the grey drone holding a paperclip, the town, the church, the river and bridge, the green hills, the brick factory with the PAPERCLIPS CO. sign and smokestack, the trees, the fence, the golden sunset sky. Same 16-bit SNES pixel art style, same chunky pixels, same colors, same framing. No new text."
+  },
+  "portraits.png": {
+    "higgsfield_job_id": "aa8f0611-7616-4de9-a00b-4748c64c3575",
+    "model": "gpt_image_2_5",
+    "size": [
+      1024,
+      688
+    ],
+    "references": [
+      "700b94ae-fb3e-40ed-aab6-895fbf4e3c01",
+      "bdc00f66-fb8b-41bc-b28f-ec976cd619ce",
+      "0b9a632d-f0a7-4928-bcdd-6f3894df6d77"
+    ],
+    "prompt": "16-bit SNES-style pixel art dialogue portrait sheet for a retro RPG, matching the characters, colors and chunky pixel style of the reference images exactly. Six large square head-and-shoulders portrait busts arranged in a neat 3 by 2 grid, each bust drawn on its own flat solid dark brown square (#2a1a16), and the squares separated by wide gaps of flat pure black. No frames, no borders, no text, no labels. Top row, left to right: RUTH, an older woman with grey hair in a bun, round wire glasses, blue overalls over a cream shirt, a warm but tired half smile; DEV, a young man with a tan baseball cap, green work jacket and brown hair; MARISOL, a woman with a red polka-dot bandana, dark hair and a brown work shirt. Bottom row, left to right: GUS, an older man with a brown cap, a short white beard and grey coveralls; PIP TERMINAL, a beige metal wall-mounted box seen straight on, with one large round glowing amber lens and a small speaker grille; PIP DRONE, a grey metal cube drone seen from the front with one large round glowing amber lens. Each bust faces the viewer and fills most of its square. 1-pixel dark outlines, limited palette, crisp chunky pixels, no anti-aliasing, no gradients, no blur."
+  }
+}

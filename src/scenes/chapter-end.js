@@ -10,14 +10,14 @@
     let shown = 0;
     let leaving = false;
     const lines = [
-      { at: 0.6, y: 26, text: 'CHAPTER 1', color: P.STEEL_DK },
-      { at: 1.2, y: 38, text: 'THE LINE', color: P.CREAM, scale: 2 },
-      { at: 2.6, y: 72, text: 'CLIPS MADE', color: P.STEEL_DK },
-      { at: 2.6, y: 84, count: true, color: P.WHITE },
-      { at: 4.6, y: 108, text: 'PIP NOW HAS ACCESS TO', color: P.STEEL_DK },
-      { at: 5.4, y: 120, text: 'THE PAYROLL SERVER', color: P.ORANGE },
-      { at: 7.4, y: 172, text: 'NEXT: CHAPTER 2', color: P.STEEL_DK },
-      { at: 7.4, y: 184, text: 'THE FLOOR', color: P.CREAM },
+      { at: 0.6, y: 40, text: 'CHAPTER 1', color: P.STEEL_DK },
+      { at: 1.2, y: 54, text: 'THE LINE', color: P.CREAM, scale: 2 },
+      { at: 2.6, y: 94, text: 'CLIPS MADE', color: P.STEEL_DK },
+      { at: 2.6, y: 106, count: true, color: P.WHITE },
+      { at: 4.6, y: 134, text: 'PIP NOW HAS ACCESS TO', color: P.STEEL_DK },
+      { at: 5.4, y: 146, text: 'THE PAYROLL SERVER', color: P.ORANGE },
+      { at: 7.4, y: 230, text: 'NEXT: CHAPTER 2', color: P.STEEL_DK },
+      { at: 7.4, y: 242, text: 'THE FLOOR', color: P.CREAM },
     ];
 
     return {
@@ -46,14 +46,14 @@
           if (t < l.at) continue;
           if (l.count) {
             const k = Math.min(1, (t - l.at) / 1.6);
-            g.textCenter(Math.floor(clips * k).toLocaleString('en-US'), 128, l.y, l.color);
+            g.textCenter(Math.floor(clips * k).toLocaleString('en-US'), g.W / 2, l.y, l.color);
           } else {
-            g.textCenter(l.text, 128, l.y, l.color, l.scale);
+            g.textCenter(l.text, g.W / 2, l.y, l.color, l.scale);
           }
         }
         // Pip's new body, shown for the first time
-        if (t > 6.2) M.drawPortrait('pip2', 116, 138);
-        if (t > 8.5 && Math.floor(t * 2) % 2 === 0) g.textCenter('PRESS START', 128, 208, P.GRID);
+        if (t > 6.2) M.drawPortrait('pip2', g.W / 2 - 26, 164, 52);
+        if (t > 8.5 && Math.floor(t * 2) % 2 === 0) g.textCenter('PRESS START', g.W / 2, 270, P.GRID);
       },
     };
   };

@@ -77,8 +77,8 @@
     // plaque
     r(120, 12, 84, 30, P.WOOD_DK);
     r(122, 14, 80, 26, P.WOOD);
-    M.font.draw(cx, 'HALVERSON', 126, 18, P.CREAM);
-    M.font.draw(cx, 'EST. 1952', 126, 29, P.WOOD_DK);
+    M.font.draw(cx, 'RIVERBEND', 126, 18, P.CREAM);
+    M.font.draw(cx, 'EST. 1912', 126, 29, P.WOOD_DK);
 
     // door
     r(DOOR_X - 8, 36, 32, 64, P.WOOD_DK);
@@ -340,7 +340,7 @@
 
       const x = TERM.x;
       g.text('PIP OPTIMIZER 0.9', x, 20, P.ORANGE);
-      g.text('LINE: HALVERSON #1', x, 30, P.STEEL_DK);
+      g.text('LINE: RIVERBEND #1', x, 30, P.STEEL_DK);
       g.text('READY.', x, 40, P.STEEL_DK);
       g.text('ENTER ONE GOAL.', x, 64, P.CREAM);
       const lines = goalLines();
@@ -378,6 +378,7 @@
 
     return {
       name: 'prologue',
+      res: [256, 224],
       enter() {
         M.CAST.pip.portrait = 'pip1';
         runner = new M.Runner(M.STORY.prologue, S);

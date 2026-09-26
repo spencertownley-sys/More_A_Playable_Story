@@ -1,14 +1,18 @@
 // MORE. — graphics
-// Everything renders into a 256x224 canvas (SNES NTSC), scaled up by CSS
-// with nearest-neighbour filtering. Sprites are authored as rows of palette
-// characters (see palette.js) and baked into small canvases once.
+// Everything renders into a small canvas scaled up by CSS with nearest-neighbour
+// filtering. The game runs at 384x288 (4:3, the frame of the Higgsfield art);
+// scenes still on the original 256x224 SNES frame ask for it with `res`.
+// Art comes from two places: PNG sprites made by tools/art/build.py from the
+// Higgsfield images (M.ART_MANIFEST), and small palette-string sprites
+// (see palette.js) for the few things drawn in code.
 (function (M) {
   'use strict';
 
-  const W = 256;
-  const H = 224;
+  let W = 384;
+  let H = 288;
   let canvas = null;
   let ctx = null;
+  const images = {};
 
   function init(cv) {
     canvas = cv;
@@ -20,6 +24,64 @@
     window.addEventListener('resize', resize);
     if (window.ResizeObserver) new ResizeObserver(resize).observe(canvas.parentElement);
     M.gfx.ctx = ctx;
+  }
+
+  function setSize(w, h) {
+    if (w === W && h === H) return;
+    W = w;
+    H = h;
+    canvas.width = W;
+    canvas.height = H;
+    ctx.imageSmoothingEnabled = false;
+    resize();
+  }
+
+  // Load every image in the art manifest; calls done() once all have settled.
+  function loadArt(manifest, done) {
+    const names = Object.keys(manifest || {});
+    let left = names.length;
+    if (!left) return done();
+    const settle = () => {
+      if (--left === 0) done();
+    };
+    for (const name of names) {
+      const im = new Image();
+      im.onload = settle;
+      im.onerror = () => {
+        console.warn('missing art: ' + manifest[name].file);
+        settle();
+      };
+      im.src = manifest[name].file;
+      images[name] = im;
+    }
+  }
+
+  const art = (name) => images[name];
+
+  // Draw a whole image by name.
+  function draw(name, x, y, flip) {
+    const im = images[name];
+    if (im && im.complete && im.naturalWidth) spr(im, x, y, flip);
+  }
+
+  // Draw frame i of a horizontal strip (characters).
+  function frame(name, i, x, y, flip) {
+    const im = images[name];
+    const m = M.ART_MANIFEST && M.ART_MANIFEST[name];
+    if (!im || !m || !im.naturalWidth) return;
+    const fw = m.fw || m.w;
+    const fh = m.fh || m.h;
+    x = Math.round(x);
+    y = Math.round(y);
+    if (flip) {
+      ctx.save();
+      ctx.translate(x + fw, y);
+      ctx.scale(-1, 1);
+      ctx.drawImage(im, i * fw, 0, fw, fh, 0, 0, fw, fh);
+      ctx.restore();
+    } else {
+      ctx.drawImage(im, i * fw, 0, fw, fh, x, y, fw, fh);
+    }
   }
 
   // Largest scale that is a whole number of *device* pixels per game pixel, so
@@ -142,9 +204,18 @@
   }
 
   M.gfx = {
-    W,
-    H,
+    get W() {
+      return W;
+    },
+    get H() {
+      return H;
+    },
     init,
+    setSize,
+    loadArt,
+    art,
+    draw,
+    frame,
     resize,
     make,
     rows,

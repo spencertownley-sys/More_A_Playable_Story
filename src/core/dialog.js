@@ -1,30 +1,54 @@
 // MORE. — dialog window
-// Layout matches the mockup exactly: a double-bordered box at y=168, a 24x24
-// cream-framed portrait at (8,176), text from x=40. Pip speaks in orange;
-// people speak in cream and get a name tab.
+// A double-bordered box along the bottom of the screen with a framed portrait
+// on the left. Two layouts: the original mockup layout for the 256x224 frame
+// (24x24 portrait), and the 384x288 layout with the 48x48 Higgsfield
+// portraits. Pip speaks in orange; people speak in cream and get a name tab.
 (function (M) {
   'use strict';
 
-  const BOX_Y = 168;
-  const LINE_H = 12;
-  const LINES = 3;
-
   // Pause after punctuation, in seconds.
-  const PAUSE = { '.': 0.22, ',': 0.1, '?': 0.24, '!': 0.2, ':': 0.12, '…': 0.3, '—': 0.1 };
+  const PAUSE = { '.': 0.22, ',': 0.1, '?': 0.24, '!': 0.2, ':': 0.12, '\u2026': 0.3, '\u2014': 0.1 };
 
-  function drawFrame() {
-    M.gfx.box(0, BOX_Y, 256, 56);
+  function layout() {
+    const W = M.gfx.W;
+    const H = M.gfx.H;
+    if (H < 288) {
+      return { W, boxY: 168, boxH: 56, pf: 24, px: 8, py: 176, tx: 40, txBare: 16, ty: 178, lh: 12, lines: 3 };
+    }
+    const boxY = H - 76;
+    return { W, boxY, boxH: 76, pf: 52, px: 10, py: boxY + 12, tx: 74, txBare: 16, ty: boxY + 14, lh: 14, lines: 3 };
   }
 
-  function drawPortrait(key, x, y) {
+  function colsFor(L, portrait) {
+    return Math.floor((L.W - (portrait ? L.tx : L.txBare) - 14) / 8);
+  }
+
+  function drawFrame() {
+    const L = layout();
+    M.gfx.box(0, L.boxY, L.W, L.boxH);
+  }
+
+  // Framed portrait. On the 384x288 layout it uses the Higgsfield portrait
+  // (portrait_<key>); otherwise the small palette sprite.
+  function drawPortrait(key, x, y, size) {
     const P = M.PAL;
-    M.gfx.rect(x, y, 24, 24, P.FLOOR);
-    M.gfx.outline(x, y, 24, 24, P.CREAM);
-    const img = key && M.ART.portraits[key];
+    const L = layout();
+    const f = size || L.pf;
+    if (x == null) x = L.px;
+    if (y == null) y = L.py;
+    M.gfx.rect(x, y, f, f, P.SHADOW);
+    M.gfx.outline(x, y, f, f, P.CREAM);
+    if (!key) return;
+    const hd = M.gfx.art('portrait_' + key);
+    if (hd && hd.naturalWidth) {
+      if (f >= 48) M.gfx.spr(hd, x + Math.floor((f - hd.width) / 2), y + Math.floor((f - hd.height) / 2));
+      else M.gfx.ctx.drawImage(hd, x + 1, y + 1, f - 2, f - 2); // small frame: scale the portrait down
+      return;
+    }
+    const img = M.ART.portraits && M.ART.portraits[key];
     if (!img) return;
-    // bottom-aligned busts, centred small icons (Pip)
-    const ix = x + Math.floor((24 - img.width) / 2);
-    const iy = img.height >= 18 ? y + 23 - img.height : y + Math.floor((24 - img.height) / 2);
+    const ix = x + Math.floor((f - img.width) / 2);
+    const iy = img.height >= 18 ? y + f - 1 - img.height : y + Math.floor((f - img.height) / 2);
     M.gfx.spr(img, ix, iy);
   }
 
@@ -41,11 +65,13 @@
       this.opts = opts;
       const portrait = opts.portrait || this.cast.portrait;
       this.portrait = portrait;
-      this.tx = portrait ? 40 : 16;
-      this.cols = portrait ? 26 : 29;
+      const L = layout();
+      this.tx = portrait ? L.tx : L.txBare;
+      this.cols = colsFor(L, portrait);
       const lines = M.font.wrap(text, this.cols);
       // Balance pages so a long line never leaves one orphaned word on its own page.
       this.pages = [];
+      const LINES = L.lines;
       const nPages = Math.max(1, Math.ceil(lines.length / LINES));
       const per = Math.ceil(lines.length / nPages);
       for (let i = 0; i < lines.length; i += per) this.pages.push(lines.slice(i, i + per));
@@ -153,15 +179,17 @@
     draw() {
       if (!this.active) return;
       const P = M.PAL;
+      const L = layout();
       drawFrame();
-      if (this.portrait) drawPortrait(this.portrait, 8, 176);
+      if (this.portrait) drawPortrait(this.portrait);
 
       // name tab for people (Pip has none, as in the mockup)
       if (this.cast.name && !this.cast.noTab) {
         const w = this.cast.name.length * 8 + 9;
-        M.gfx.rect(6, 156, w + 2, 14, P.SHADOW);
-        M.gfx.outline(7, 157, w, 13, P.CREAM);
-        M.gfx.text(this.cast.name, 12, 160, P.ORANGE);
+        const ty = L.boxY - 12;
+        M.gfx.rect(6, ty - 1, w + 2, 14, P.SHADOW);
+        M.gfx.outline(7, ty, w, 13, P.CREAM);
+        M.gfx.text(this.cast.name, 12, ty + 3, P.ORANGE);
       }
 
       let left = Math.floor(this.chars);
@@ -170,13 +198,13 @@
         const l = lines[i];
         const shown = l.slice(0, Math.max(0, left));
         left -= l.length;
-        M.gfx.text(shown, this.tx, 178 + i * LINE_H, this.color);
+        M.gfx.text(shown, this.tx, L.ty + i * L.lh, this.color);
       }
 
       const typed = this.chars >= this.pageLen();
       const last = this.page >= this.pages.length - 1;
       if (typed && !(last && this.choices) && this.opts.auto == null && !this.opts.noSkip) {
-        if (Math.floor(this.t * 3) % 2 === 0) M.gfx.text('▼', 238, 208, P.CREAM);
+        if (Math.floor(this.t * 3) % 2 === 0) M.gfx.text('\u25bc', L.W - 18, L.boxY + L.boxH - 16, P.CREAM);
       }
       if (typed && last && this.choices) this.drawChoices();
     }
@@ -185,10 +213,12 @@
       const P = M.PAL;
       const n = this.choices.length;
       const maxLen = this.choices.reduce((m, c) => Math.max(m, c.length), 0);
+      const L = layout();
+      const LINE_H = 12;
       const w = maxLen * 8 + 30;
       const h = n * LINE_H + 12;
-      const x = 252 - w;
-      const y = BOX_Y - h + 3;
+      const x = L.W - 4 - w;
+      const y = L.boxY - h + 3;
       M.gfx.box(x, y, w, h);
       for (let i = 0; i < n; i++) {
         const ty = y + 7 + i * LINE_H;
@@ -202,6 +232,7 @@
   M.dialog = new Dialog();
   M.drawDialogFrame = drawFrame;
   M.drawPortrait = drawPortrait;
+  M.dialogLayout = layout;
 
   // Script commands --------------------------------------------------------------
   M.cmd.say = function (who, text, opts) {

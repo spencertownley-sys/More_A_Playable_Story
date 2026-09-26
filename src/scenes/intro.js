@@ -1,11 +1,12 @@
 // MORE. — boot screen, voicemail cold open, title, title cards
+// These run at 384x288 on the Higgsfield backgrounds (see tools/art/build.py).
 (function (M) {
   'use strict';
 
   const P = M.PAL;
   const G = () => M.gfx;
 
-  // Small deterministic RNG so starfields and planets look the same every time.
+  // Small deterministic RNG so starfields look the same every time.
   function rng(seed) {
     let s = seed >>> 0;
     return () => {
@@ -35,6 +36,14 @@
     }
   }
 
+  // Text with a 1px dark drop shadow, for reading over busy art.
+  function shadowText(str, x, y, color, center) {
+    const g = G();
+    const f = center ? g.textCenter : g.text;
+    f(str, x + 1, y + 1, P.SHADOW);
+    f(str, x, y, color);
+  }
+
   // --- boot: "press start" (browsers need a gesture before audio) ------------
   M.scenes.boot = function (start) {
     let t = 0;
@@ -51,9 +60,10 @@
       },
       draw() {
         const g = G();
+        const cx = g.W / 2;
         g.clear(P.INK);
-        if (Math.floor(t * 2) % 2 === 0) g.textCenter('PRESS START', 128, 84, P.CREAM);
-        g.textCenter('HEADPHONES ON', 128, 100, P.GRID);
+        if (Math.floor(t * 2) % 2 === 0) g.textCenter('PRESS START', cx, 96, P.CREAM);
+        g.textCenter('HEADPHONES ON', cx, 112, P.GRID);
         const rows = [
           ['ARROWS', 'MOVE'],
           ['Z', 'A  CONFIRM'],
@@ -62,51 +72,16 @@
           ['ENTER', 'START'],
         ];
         rows.forEach((r, i) => {
-          g.textRight(r[0], 116, 136 + i * 11, P.STEEL_DK);
-          g.text(r[1], 132, 136 + i * 11, P.STEEL_LT);
+          g.textRight(r[0], cx - 12, 150 + i * 12, P.STEEL_DK);
+          g.text(r[1], cx + 4, 150 + i * 12, P.STEEL_LT);
         });
-        g.textCenter('M MUTE   F FULLSCREEN', 128, 200, P.GRID);
+        g.textCenter('M MUTE   F FULLSCREEN', cx, 226, P.GRID);
+        g.textCenter("AFTER NICK BOSTROM'S PAPERCLIP MAXIMIZER", cx, 262, P.FLOOR);
       },
     };
   };
 
-  // --- cold open: the voicemail --------------------------------------------------------
-  function makePlanet(seed, n) {
-    const r = rng(seed);
-    const pts = [];
-    for (let i = 0; i < n; i++) {
-      pts.push({ lon: r() * Math.PI * 2, lat: Math.asin(r() * 2 - 1), dash: r() < 0.5, lit: r() < 0.04 });
-    }
-    return pts;
-  }
-
-  function drawPlanet(cx, cy, rad, rot, pts, t) {
-    const g = G();
-    // body, one span per row for a clean pixel circle
-    for (let y = -rad; y <= rad; y++) {
-      const w = Math.floor(Math.sqrt(rad * rad - y * y));
-      g.rect(cx - w, cy + y, w * 2 + 1, 1, P.PLANET);
-    }
-    // lit limb
-    for (let y = -rad; y <= rad; y++) {
-      const w = Math.floor(Math.sqrt(rad * rad - y * y));
-      if (y < rad * 0.6) g.rect(cx - w, cy + y, 1, 1, P.PLANET_LT);
-    }
-    for (const p of pts) {
-      const a = p.lon + rot;
-      const z = Math.cos(p.lat) * Math.cos(a);
-      if (z <= 0.05) continue;
-      const x = Math.round(cx + rad * Math.cos(p.lat) * Math.sin(a));
-      const y = Math.round(cy - rad * Math.sin(p.lat));
-      if (p.lit) {
-        if (Math.floor(t * 2 + p.lon * 5) % 3 !== 0) g.rect(x, y, 1, 1, P.ORANGE);
-        continue;
-      }
-      const col = z > 0.45 ? P.WHITE : P.STEEL_DK;
-      g.rect(x, y, p.dash && z > 0.3 ? 2 : 1, 1, col);
-    }
-  }
-
+  // --- cold open: the voicemail over the finished Earth ---------------------------
   function fmtTime(s) {
     s = Math.max(0, Math.floor(s));
     return Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0');
@@ -114,9 +89,8 @@
 
   M.scenes.coldOpen = function () {
     const V = M.VOICEMAIL;
-    const pts = makePlanet(7, 520);
     const r = rng(3);
-    const stars = Array.from({ length: 70 }, () => ({ x: Math.floor(r() * 256), y: Math.floor(r() * 120), p: r() * 6 }));
+    const twinkles = Array.from({ length: 40 }, () => ({ x: Math.floor(r() * 384), y: Math.floor(r() * 150), p: r() * 6 }));
     let t = 0;
     let phase = 'ring';
     let playT = 0;
@@ -171,18 +145,24 @@
 
       draw() {
         const g = G();
+        const W = g.W;
         g.clear(P.INK);
-        for (const s of stars) {
-          if (Math.floor(t * 1.5 + s.p) % 5 !== 0) g.rect(s.x, s.y, 1, 1, (s.p | 0) % 2 ? P.GRID : P.STEEL_DK);
+        g.draw('earth_bg', 0, 0);
+        for (const s of twinkles) {
+          if (Math.floor(t * 1.5 + s.p) % 6 === 0) g.rect(s.x, s.y, 1, 1, P.WHITE);
         }
-        drawPlanet(128, 64, 42, t * 0.05, pts, t);
+        // darken the lower third so the phone and captions read
+        g.ctx.globalAlpha = 0.62;
+        g.rect(0, 168, W, 120, P.INK);
+        g.ctx.globalAlpha = 1;
 
         // phone card
-        const x = 40;
-        const y = 122;
-        g.box(x, y, 176, 38);
+        const cw = 216;
+        const x = Math.round((W - cw) / 2);
+        const y = 178;
+        g.box(x, y, cw, 38);
         g.text('VOICEMAIL', x + 9, y + 8, P.STEEL_LT);
-        g.textRight(V.from, x + 167, y + 8, P.CREAM);
+        g.textRight(V.from, x + cw - 9, y + 8, P.CREAM);
         const dur = V.duration;
         const cur = phase === 'play' ? playT : phase === 'after' || phase === 'done' ? dur : 0;
         if (phase === 'ring' || phase === 'wait') {
@@ -190,12 +170,12 @@
         } else {
           g.text(fmtTime(cur), x + 9, y + 22, P.CREAM);
           const bx = x + 50;
-          const bw = 76;
+          const bw = cw - 104;
           g.rect(bx, y + 25, bw, 2, P.GRID);
           const fw = Math.round((bw * Math.min(cur, dur)) / dur);
           g.rect(bx, y + 25, fw, 2, P.ORANGE);
           g.rect(bx + fw - 1, y + 23, 3, 6, P.YELLOW);
-          g.textRight(fmtTime(dur), x + 167, y + 22, P.STEEL_DK);
+          g.textRight(fmtTime(dur), x + cw - 9, y + 22, P.STEEL_DK);
         }
 
         // captions
@@ -204,17 +184,16 @@
           for (const c of V.captions) if (playT >= c.t && playT < c.end + 0.25) cap = c;
           if (cap) {
             const n = Math.floor((playT - cap.t) * 45);
-            const lines = M.font.wrap(cap.text, 30);
+            const lines = M.font.wrap(cap.text, 40);
             let left = n;
             lines.forEach((l, i) => {
               const shown = l.slice(0, Math.max(0, left));
               left -= l.length;
-              const w = l.length * 8;
-              g.text(shown, 128 - w / 2, 180 + i * 12, P.CREAM);
+              shadowText(shown, W / 2 - (l.length * 8) / 2, 232 + i * 12, P.CREAM);
             });
           }
         }
-        if (phase !== 'done' && t > 3) g.textRight('START SKIP', 250, 212, P.GRID);
+        if (phase !== 'done' && t > 3) g.textRight('START SKIP', W - 6, g.H - 12, P.GRID);
       },
     };
   };
@@ -223,12 +202,10 @@
   M.scenes.title = function () {
     let t = 0;
     let sel = 0;
+    let menu = false;
     let confirming = false;
     let confirmSel = 1;
     const save = M.save.load();
-    const r = rng(11);
-    const dimClip = M.gfx.make(M.ART.src.clip, { W: P.FLOOR, ',': P.SHADOW });
-    const drift = Array.from({ length: 22 }, () => ({ x: r() * 256, y: r() * 224, v: 3 + r() * 6, flip: r() < 0.5 }));
     const items = () => [
       { id: 'new', label: 'NEW GAME' },
       { id: 'cont', label: 'CONTINUE', off: !save },
@@ -257,16 +234,16 @@
       },
       update(dt) {
         t += dt;
-        for (const d of drift) {
-          d.y += d.v * dt;
-          if (d.y > 230) {
-            d.y = -10;
-            d.x = Math.random() * 256;
-          }
-        }
         const I = M.input;
+        if (!menu) {
+          if (t > 0.6 && (I.pressed('start') || I.pressed('a'))) {
+            menu = true;
+            M.audio.sfx('confirm');
+          }
+          return;
+        }
         if (confirming) {
-          if (I.repeat('up') || I.repeat('down')) {
+          if (I.repeat('left') || I.repeat('right') || I.repeat('up') || I.repeat('down')) {
             confirmSel = 1 - confirmSel;
             M.audio.sfx('cursor');
           }
@@ -286,6 +263,11 @@
           return;
         }
         const list = items();
+        if (I.pressed('b')) {
+          menu = false;
+          M.audio.sfx('cancel');
+          return;
+        }
         if (I.repeat('up')) {
           do sel = (sel + list.length - 1) % list.length;
           while (list[sel].off);
@@ -318,33 +300,43 @@
       },
       draw() {
         const g = G();
-        g.clear(P.SHADOW);
-        for (const d of drift) g.spr(dimClip, d.x, d.y, d.flip);
+        const W = g.W;
+        g.draw('title_bg', 0, 0);
+        // the full stop after MORE, blinking like a cursor
+        if (t % 1.1 < 0.7) {
+          g.rect(300, 55, 10, 10, P.SHADOW);
+          g.rect(301, 56, 8, 8, P.ORANGE);
+          g.rect(301, 56, 8, 2, P.YELLOW);
+        }
 
-        g.text('MORE', 48, 48, P.CREAM, 4);
-        if (t % 1.1 < 0.7) g.text('.', 176, 48, P.ORANGE, 4);
-
+        if (!menu) {
+          if (Math.floor(t * 2) % 2 === 0) shadowText('PRESS START', W / 2, 262, P.CREAM, true);
+          return;
+        }
         const list = items();
+        const bw = 132;
+        const bh = list.length * 14 + 14;
+        const bx = Math.round((W - bw) / 2);
+        const by = 284 - bh;
+        g.box(bx, by, bw, bh);
         list.forEach((it, i) => {
-          const y = 116 + i * 14;
+          const y = by + 9 + i * 14;
           const on = i === sel && !confirming;
           const col = it.off ? P.GRID : on ? P.ORANGE : P.CREAM;
-          if (on) g.text('▶', 80, y, P.ORANGE);
-          g.text(it.label, 94, y, col);
+          if (on) g.text('▶', bx + 12, y, P.ORANGE);
+          g.text(it.label, bx + 26, y, col);
         });
 
-        g.textCenter("AFTER NICK BOSTROM'S", 128, 194, P.GRID);
-        g.textCenter('PAPERCLIP MAXIMIZER', 128, 205, P.GRID);
-
         if (confirming) {
-          g.box(48, 100, 160, 56);
-          g.textCenter('ERASE SAVE AND', 128, 110, P.CREAM);
-          g.textCenter('START OVER?', 128, 121, P.CREAM);
+          const cw = 176;
+          const cx = Math.round((W - cw) / 2);
+          g.box(cx, 110, cw, 58);
+          g.textCenter('ERASE SAVE AND', W / 2, 121, P.CREAM);
+          g.textCenter('START OVER?', W / 2, 132, P.CREAM);
           ['YES', 'NO'].forEach((l, i) => {
-            const y = 136;
-            const x = i === 0 ? 84 : 148;
-            if (i === confirmSel) g.text('▶', x - 12, y, P.ORANGE);
-            g.text(l, x, y, i === confirmSel ? P.ORANGE : P.CREAM);
+            const x = i === 0 ? W / 2 - 44 : W / 2 + 20;
+            if (i === confirmSel) g.text('▶', x - 12, 148, P.ORANGE);
+            g.text(l, x, 148, i === confirmSel ? P.ORANGE : P.CREAM);
           });
         }
       },
@@ -370,15 +362,15 @@
       },
       draw() {
         const g = G();
+        const cx = g.W / 2;
         g.clear(P.INK);
-        if (opts.small) g.textCenter(opts.small, 128, 84, P.STEEL_DK);
-        if (opts.big && t > 0.4) g.textCenter(opts.big, 128, 100, P.CREAM, 2);
-        if (opts.sub && t > 1.0) g.textCenter(opts.sub, 128, 130, P.ORANGE);
+        if (opts.small) g.textCenter(opts.small, cx, 118, P.STEEL_DK);
+        if (opts.big && t > 0.4) g.textCenter(opts.big, cx, 134, P.CREAM, 2);
+        if (opts.sub && t > 1.0) g.textCenter(opts.sub, cx, 164, P.ORANGE);
       },
     };
   };
 
-  M.drawPlanet = drawPlanet;
-  M.makePlanet = makePlanet;
   M.rng = rng;
+  M.shadowText = shadowText;
 })(window.MORE = window.MORE || {});
