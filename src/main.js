@@ -16,6 +16,8 @@
     scene = s;
     M.debug = M.debug || {};
     M.debug.scene = s.name || '?';
+    const res = s.res || [384, 288];
+    M.gfx.setSize(res[0], res[1]);
     M.input.consume();
     if (scene.enter) scene.enter();
   };
@@ -98,8 +100,11 @@
 
     // Debug/deep links: index.html#title, #prologue, #factory, #night, #end
     const start = (location.hash || '').slice(1);
-    M.setScene(M.scenes.boot(start));
-    requestAnimationFrame(frame);
+    M.gfx.clear(M.PAL.INK);
+    M.gfx.loadArt(M.ART_MANIFEST, () => {
+      M.setScene(M.scenes.boot(start));
+      requestAnimationFrame(frame);
+    });
   }
 
   function toggleFullscreen() {

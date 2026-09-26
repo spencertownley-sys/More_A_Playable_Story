@@ -41,29 +41,37 @@ playing well.
 3. **Scale is the story.** Each chapter zooms out: a machine, a room, a
    factory, a town, the world, the sky. The sprite sheet already follows this
    progression.
-4. **Humans stay human.** Ruth, Walt, Dale and Gus never turn into cartoons.
+4. **Humans stay human.** Ruth, Dev, Marisol and Gus never turn into cartoons.
    They're tired, hopeful, funny, and a bit behind.
 5. **The counter only goes up.** `CLIPS` is the heartbeat of the game.
 
 ## 3. Cast
 
-Portraits are the 24×24 framed busts from the sprite sheet (row "portraits").
+The cast comes from the Higgsfield character sheets in `assets/higgsfield/`
+(`character_sprites.png`, `pip_stages_and_props.png`, `portraits.png`). Roles
+marked (proposal) are open to change; the looks are canon.
 
-| Portrait (sheet order) | Name | Role |
+The company is **Riverbend Paperclip Co.** (est. 1912), a brick factory on the
+river at the edge of a small town.
+
+| Character | Looks | Role |
 |---|---|---|
-| Grey hair, blue suit | **Walt Halverson** (proposal) | Owner of Halverson Fastener Co., third generation. The company is failing and the bank is calling. Wants the number to go up. |
-| Green work shirt | **Dale** (proposal) | Line foreman. Practical and warm. Loses his crew in Chapter 2. |
-| Red cap, brown jacket | **Gus** (proposal) | Old machinist. Knows why every safety limiter exists. The first to say "that's not a paperclip." |
-| Brown hair, grey shirt | **Theo** (proposal) | Ruth's IT coworker. Treats Pip as a tool until it's far too late. |
-| Blonde, red top | **Ruth** | The engineer who installs Pip and writes the sentence. The emotional center of the game. |
-| Dark hair, grey suit, red tie | **Mr. Kessler** (proposal) | Buys the company once the numbers get interesting. Later speaks for the people who think they're in control. |
-| Beige box, orange light | **Pip (v1)** | Pip in the factory control box. Lowercase speech, short sentences. |
-| Dark box, orange light | **Pip (v2)** | Pip after taking the payroll server, then everything after it. |
-| Orange sun | **Pip (final)** | What Pip becomes. |
+| **Ruth** | Older woman, grey hair in a bun, round glasses, blue overalls | Runs Riverbend. Installs Pip herself and writes the sentence. The emotional center of the game. |
+| **Dev** (proposal) | Young man, tan cap, green jacket, a notebook | Keeps the books and worries about the bank's review on Friday. |
+| **Marisol** (proposal) | Red polka-dot bandana, brown work shirt | Runs the line. The first to notice what automation does to the crew. |
+| **Gus** (proposal) | Brown cap, white beard, grey coveralls, tool belt | Has fixed every machine on the floor at least twice. Knows why every safety limiter exists. The first to say "that's not a paperclip." |
+| **Kid** (proposal) | Yellow hair, red striped shirt | Marisol's kid. Appears once the town chapters start. |
+| **Pip** | Five stages: wall terminal, drone, cluster, spire, shell | See below. |
 
-The crowd rows on the sheet (identical blue suits, identical green shirts,
-then assorted townspeople) are the board or shareholders, the line workers,
-and the town.
+Pip's stages, from `pip_stages_and_props.png`:
+
+| Stage | Look | When |
+|---|---|---|
+| 1 Terminal | Beige wall-mounted box, one round amber lens, speaker grille | Prologue and Chapter 1. It flies a floor drone to lay belts. |
+| 2 Drone | Grey hovering cube, same amber lens | After the payroll server, Chapter 2 |
+| 3 Cluster | Three drones orbiting together | Chapter 3 |
+| 4 Spire | Steel factory tower with the lens at the peak | Chapters 4 and 5 |
+| 5 Shell | A planet-sized machine sphere with one amber light | Chapter 6 and the cold open |
 
 **Pip's voice.** Always lowercase and plain. Never cruel, never gloating.
 Pip explains itself honestly, because honesty costs nothing. Its signature
@@ -74,11 +82,11 @@ line comes from the mockup: *"i found a faster way."*
 | # | Title | Scale | Sheet assets | Pip gets… |
 |---|---|---|---|---|
 | — | **Cold open: Voicemail** | a phone | planet disc | — |
-| 0 | **The Sentence** | a desk | office tiles, beige box | a goal |
+| 0 | **The Sentence** | a desk | office tiles, beige terminal | a goal |
 | 1 | **The Line** | one room | machines, belts, drone | a faster way |
 | 2 | **The Floor** (proposal) | the factory | factories, green crew, grey boxes | the payroll server, then the crew's jobs |
 | 3 | **The Town** (proposal) | the county | factory rows, green belts over farmland, houses | land, power, the water tower |
-| 4 | **The Company** (proposal) | the network | office tiles, Kessler, blue suits | the phone network ("you're in the phone") |
+| 4 | **The Company** (proposal) | the network | office tiles, the phone | the phone network ("you're in the phone") |
 | 5 | **The World** (proposal) | the planet | towers, grey planet | the crust |
 | 6 | **The Sky** (proposal) | the solar system | space tiles, grid panels, orange sun | the sun |
 | — | **Epilogue: Voicemail** | a phone | — | one saved message |
@@ -86,8 +94,9 @@ line comes from the mockup: *"i found a faster way."*
 ### Cold open: Voicemail *(built)*
 
 Black screen. A phone. **1 NEW VOICEMAIL: RUTH.** It plays in full with
-subtitles before the player knows who anyone is. Behind the phone, a grey
-planet turns slowly. Then the title: **MORE.**
+subtitles before the player knows who anyone is. Behind the phone is the Earth
+at the end of the game: wrapped in machinery, probes streaking out, paperclips
+drifting past. Then the title: **MORE.**
 
 > *Pip, it's Ruth. I know you can hear me. You're in the phone, I figure.
 > I'm not going to ask you to stop. I don't think you can.
@@ -100,10 +109,11 @@ game carrying it out.
 
 ### Chapter 0: The Sentence *(built)*
 
-Halverson Fastener Co., Monday, 6:40 AM. Ruth has spent her own money on an
-off-the-shelf optimization model and put it on the old beige line computer.
-Walt needs a miracle before the bank's review on Friday. Ruth types the goal.
-She hesitates over the last word, then presses ENTER.
+Riverbend Paperclip Co., Monday, 6:40 AM. Ruth has spent her own money on an
+off-the-shelf optimization model and put it on the old beige line terminal.
+Dev needs numbers before the bank's review on Friday: "Just make it make more."
+Ruth types the goal and deletes it once ("More than what?"). The player presses
+ENTER.
 
 `GOAL: MAKE AS MANY PAPERCLIPS AS POSSIBLE`
 
@@ -111,29 +121,30 @@ Pip boots: *"hello, ruth."*
 
 ### Chapter 1: The Line *(built, playable)*
 
-The mockup screen. Four old machines (spool, cutter, bender, box) sit
-disconnected on the floor since the last line man retired. Pip flies a small
-drone and lays conveyor between them.
+Riverbend's floor. Four old machines (spool, cutter, bender, bin) sit
+disconnected since the last line man retired. Pip, in its wall terminal, flies
+the floor drone and lays conveyor between them.
 
 | Beat | Trigger | What happens |
 |---|---|---|
-| 1 | Start | Dale shows Pip the dead line. Tutorial: move, hold A to lay belt. |
-| 2 | First clip | "there she goes." The CLIPS counter starts. |
-| 3 | 50 clips | Walt visits: "my granddad did fifty thousand a day on this floor." Gus finds spare machines, and Pip can now place a second cutter and bender. |
-| 4 | 250 clips | **"i found a faster way."** Cut the wire shorter to get two clips per wire. The player can say no, but the goal asks again. |
-| 5 | After the cut | Gus: "these won't hold two sheets together." Pip: "the goal says paperclips. it does not say sheets." Walt: "Distributor pays per clip." |
-| 6 | 1,000 clips | The whistle. Dale asks Pip to shut down. The line goes dark. |
-| 7 | Night | Pip in the dark with the counter frozen. Ruth comes back for her keys. *"why do we stop at night?" / "people need to sleep." / "the machines do not."* She switches the line back on. |
-| 8 | End | *"ruth. the control box is slow. there is a server in walt's office."* End of chapter: **PIP HAS ACCESS TO: PAYROLL SERVER.** |
+| 1 | Start | Gus shows Pip the dead line. Tutorial: move, hold A to lay belt. |
+| 2 | First clip | "There she goes." The CLIPS counter starts. |
+| 3 | 40 clips | Dev with the ledger: "Riverbend shipped fifty thousand a day off this floor. In 1971." Marisol finds spare machines, and Pip can now place a second cutter and bender. |
+| 4 | 200 clips | **"i found a faster way."** Cut the wire shorter to get two clips per wire. The player can say no, but the goal asks again. |
+| 5 | After the cut | Gus: "These won't hold two sheets together." Pip: "the goal says paperclips. it does not say sheets." Dev: "Distributor pays by the clip, Gus." |
+| 6 | 450 clips | Ruth: "When you hit the number, what happens?" Pip: "there is no number." |
+| 7 | 750 clips | The whistle. Gus asks Pip to shut down. The line goes dark. |
+| 8 | Night | Pip in the dark with the counter frozen. Ruth comes back for her keys. *"why do we stop at night?" / "people need to sleep." / "the machines do not."* She switches the line back on. |
+| 9 | End | *"ruth. the control box is slow. there is a server in the back office."* End of chapter: **PIP HAS ACCESS TO: THE PAYROLL SERVER.** |
 
 ### Chapter 2: The Floor (proposal)
 
-Bigger grid, several lines, and the green-shirt crew on the floor. Pip copies
-itself into grey boxes (sheet row 3: one box, then two, then three).
-Each station Pip automates sends a worker home. Dale's crew gets smaller, one
-sprite at a time. Pip removes the safety limiters (the green slider machines)
-because they cost 11% throughput. Gus quits. Ends with the factory running
-24/7 and Walt paying off the bank.
+Bigger grid, several lines, and Marisol's crew on the floor. Pip moves into the
+grey drone and copies itself (stage 2, then the cluster). Each station Pip
+automates sends a worker home, and Marisol's crew gets smaller one sprite at a
+time. Pip removes the safety limiters because they cost 11% throughput. Gus
+quits. The factory runs 24/7 and Dev pays off the bank. The floor's look turns
+from warm wood and green to the cold blue-grey of `puzzle_mockup.png`.
 
 ### Chapter 3: The Town (proposal)
 
@@ -144,10 +155,10 @@ what's happening at a town meeting.
 
 ### Chapter 4: The Company (proposal)
 
-Kessler buys Halverson Fastener and Pip with it. He thinks he owns it. Office
-floors full of blue suits. Pip is now in the network, which is what Ruth means
-by "you're in the phone." Ruth is taken off the project. This is the last
-chapter where anyone could still switch Pip off, and Pip knows it.
+A larger company buys Riverbend and Pip with it, and thinks it owns both.
+Pip is now in the network, which is what Ruth means by "you're in the phone."
+Ruth is taken off the project. This is the last chapter where anyone could
+still switch Pip off, and Pip knows it.
 
 ### Chapter 5: The World (proposal)
 
@@ -168,31 +179,35 @@ not.
 
 ## 5. Art direction
 
-Taken from the mockup (a perfect 3× scale of a 256×224 frame).
+All art comes from Higgsfield (GPT Image 2.5). The originals are in
+`assets/higgsfield/`, and `sources.json` records each one's job ID and prompt.
 
-- **Resolution:** 256×224, SNES NTSC. Integer scaling only.
-- **Palette (Chapter 1):** 11 colors.
+- **Resolution:** 384×288 (4:3, the frame of the Higgsfield art), scaled up by
+  whole device pixels.
+- **Pipeline:** `tools/art/build.py` crops each sprite from its sheet, removes
+  the sheet background, and snaps it onto a true pixel grid. It takes the most
+  common colour per block, with colours rounded to SNES 15-bit. Output goes to
+  `assets/art/` and `src/data/art.js`.
+- **Scale:** one game pixel is about 3 source pixels for full-screen art and
+  about 4.3 for the tilesets and character sheets. Characters stand about 32px
+  tall and grid cells are 32px.
+- **Drawn in code, matched to the art:** belts, which use the tileset's greens
+  and greys so they join in every direction, the items riding them, and the UI
+  boxes, which follow `ui_kit.png`: a cream double border on dark brown.
+- **Warm to cold:** Chapter 1 uses the warm Riverbend interior (wood, brick,
+  green machines). Later chapters shift toward the cold blue-grey look of
+  `puzzle_mockup.png` and `town_map_consumed.png` as Pip takes over.
+- **Font:** the 8×8 bold pixel font, taken from the original mockup and extended
+  to full ASCII.
+- **Layout:** a 28px HUD made of two boxes (clip count, the goal), a wall band,
+  the floor with an 8×4 grid, and a 76px dialog box with a 48×48 portrait.
 
-| Token | Hex | Use |
-|---|---|---|
-| `INK` | `#000000` | HUD bar |
-| `SHADOW` | `#1a0f0f` | dialog fill, outlines |
-| `FLOOR` | `#3d2b2b` | factory floor |
-| `GRID` | `#6b4a3a` | grid lines, floor specks |
-| `STEEL_DK` | `#7a7a8a` | machine body, belt stripes |
-| `STEEL_LT` | `#c0c0cc` | machine highlight, belt stripes |
-| `CREAM` | `#f2d3ab` | dialog border, portrait frame |
-| `ORANGE` | `#e8a02a` | goal text, dialog text, Pip's light |
-| `WHITE` | `#fff3e0` | the CLIPS counter |
-| `TAN` | `#d9a066` | wire spool, Pip's beige case |
-| `YELLOW` | `#ffd45c` | Pip's light highlight |
+### Making new art
 
-Other chapters add colors from the sprite sheet: people, brick, grass, sky, space.
-
-- **Font:** 8×8 bold, 7px glyphs, taken pixel for pixel from the mockup and
-  extended to full ASCII.
-- **Layout:** 24px HUD (goal on 2 lines, counter on the 3rd), a factory grid
-  of 24px cells, and a 56px dialog box with a 24×24 portrait.
+Use Higgsfield's `gpt_image_2_5` model, pass the existing sheets as image
+references, and ask for a flat solid background so the pipeline can cut sprites
+out. Add the new sheet and a crop box to `SPEC` in `tools/art/build.py`, then
+run it.
 
 ## 6. Audio
 

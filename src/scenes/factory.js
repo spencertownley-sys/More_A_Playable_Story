@@ -1,16 +1,24 @@
 // MORE. — Chapter 1: the factory floor
-// The screen from the mockup: HUD, an 8x4 grid of 24px cells, four machines,
-// belts laid by Pip's drone, and the dialog window. Wire flows
-// spool > cutter > bender > box and every clip that reaches a box counts.
+// Riverbend's floor at 384x288, built from the Higgsfield factory tileset:
+// brick wall and plank floor, the old spool, cutter, bender and bin, Pip's
+// wall terminal and its floor drone. Pip lays conveyor between the machines
+// on an 8x4 grid of 32px cells. Wire flows spool > cutter > bender > bin and
+// every clip that reaches the bin counts.
 (function (M) {
   'use strict';
 
   const P = M.PAL;
-  const GX = 32;
-  const GY = 48;
-  const CELL = 24;
+  const CELL = 32;
+  const HALF = CELL / 2;
   const COLS = 8;
   const ROWS = 4;
+  const GX = 64;
+  const GY = 76;
+  const WALL_Y = 28; // top of the brick wall band (below the HUD)
+  const FLOOR_Y = 68; // where the wall meets the floor
+  const FEET_Y = 207; // baseline for people standing beside the line
+  const SPOTS = [42, 22, 2]; // standing spots left of the grid, nearest first
+  const TERMINAL = { x: 172, y: 36 }; // Pip's wall box
   const DX = [0, 1, 0, -1];
   const DY = [-1, 0, 1, 0];
   const DIRBTN = ['up', 'right', 'down', 'left'];
@@ -20,13 +28,13 @@
   const GAP = 0.45; // minimum spacing between items, in cells
 
   const MACH = {
-    spool: { name: 'SPOOL', period: 0.5, makes: 'wire', info: 'SPOOL: MAKES WIRE' },
-    cutter: { name: 'CUTTER', period: 0.5, takes: 'wire', makes: 'cut', info: 'CUTTER: WIRE > PIECES' },
-    bender: { name: 'BENDER', period: 0.8, takes: 'cut', makes: 'clip', info: 'BENDER: PIECES > CLIPS' },
-    box: { name: 'BOX', sink: true, takes: 'clip', info: 'BOX: COUNTS CLIPS' },
+    spool: { name: 'SPOOL', art: 'spool', period: 0.5, makes: 'wire', info: 'SPOOL: MAKES WIRE' },
+    cutter: { name: 'CUTTER', art: 'cutter', period: 0.5, takes: 'wire', makes: 'cut', info: 'CUTTER: WIRE > PIECES' },
+    bender: { name: 'BENDER', art: 'bender', period: 0.8, takes: 'cut', makes: 'clip', info: 'BENDER: PIECES > CLIPS' },
+    box: { name: 'BIN', art: 'bin', sink: true, takes: 'clip', info: 'BIN: COUNTS CLIPS' },
   };
 
-  // Where the old line's machines sit (matches the mockup).
+  // Where the old line's machines sit.
   const START_LAYOUT = [
     ['spool', 0, 0],
     ['cutter', 4, 1],
@@ -41,45 +49,156 @@
 
   const fmt = (n) => Math.floor(n).toLocaleString('en-US');
 
-  // --- static art -------------------------------------------------------------------
-  let floorCanvas = null;
-  function buildFloor() {
-    if (floorCanvas) return floorCanvas;
+  // Belt colours sampled from the Higgsfield factory tileset.
+  const BELT = {
+    green: '#306838',
+    slat: '#284830',
+    shine: '#3c7c44',
+    rail: '#787878',
+    railHi: '#a0a0a0',
+    railDk: '#303030',
+    rivet: '#c8c8c8',
+  };
+
+  // --- the room: wall, floor, props (painted once) -----------------------------------------
+  let roomCanvas = null;
+  function buildRoom() {
+    if (roomCanvas) return roomCanvas;
+    const g = M.gfx;
     const cv = document.createElement('canvas');
-    cv.width = 256;
-    cv.height = 144;
+    cv.width = 384;
+    cv.height = 212;
     const cx = cv.getContext('2d');
-    cx.fillStyle = P.FLOOR;
-    cx.fillRect(0, 0, 256, 144);
-    // 16x16 speck tile, sampled from the mockup floor
-    cx.fillStyle = P.GRID;
-    for (let ty = 0; ty < 224; ty += 16) {
-      for (let tx = 0; tx < 256; tx += 16) {
-        for (const [sx, sy, h] of [
-          [10, 3, 1],
-          [8, 9, 2],
-          [2, 12, 1],
-        ]) {
-          const y = ty + sy - 24;
-          if (y >= 0 && y < 144) cx.fillRect(tx + sx, y, 1, h);
-        }
+    cx.imageSmoothingEnabled = false;
+    const img = (n) => g.art(n);
+    const put = (n, x, y) => {
+      const im = img(n);
+      if (im && im.naturalWidth) cx.drawImage(im, x, y);
+    };
+
+    // plank floor: the long strip from the tileset, staggered row to row
+    const floor = img('floor_long') || img('floor');
+    if (floor) {
+      for (let y = FLOOR_Y, row = 0; y < 212; y += floor.height, row++) {
+        for (let x = -((row * 41) % floor.width); x < 384; x += floor.width) cx.drawImage(floor, x, y);
       }
     }
-    // cell outlines (adjacent cells make the 2px lines)
-    for (let r = 0; r < ROWS; r++) {
-      for (let c = 0; c < COLS; c++) {
-        const x = GX + c * CELL;
-        const y = GY + r * CELL - 24;
-        cx.fillRect(x, y, CELL, 1);
-        cx.fillRect(x, y + CELL - 1, CELL, 1);
-        cx.fillRect(x, y, 1, CELL);
-        cx.fillRect(x + CELL - 1, y, 1, CELL);
+    // brick wall: first row with its cream cap, then brick only down to the floor
+    const wall = img('wall');
+    if (wall) {
+      const ww = wall.width;
+      const wh = wall.height;
+      for (let x = 0; x < 384; x += ww) {
+        cx.drawImage(wall, x, WALL_Y);
+        for (let y = WALL_Y + wh; y < FLOOR_Y; y += wh - 5) cx.drawImage(wall, 0, 5, ww, wh - 5, x, y, ww, wh - 5);
       }
     }
-    floorCanvas = cv;
+    cx.fillStyle = '#402818';
+    cx.fillRect(0, FLOOR_Y - 2, 384, 2);
+    cx.fillStyle = 'rgba(0,0,0,0.25)';
+    cx.fillRect(0, FLOOR_Y, 384, 3);
+
+    // the grid: faint seams so placement reads without fighting the art
+    cx.fillStyle = 'rgba(40,20,10,0.45)';
+    for (let c = 0; c <= COLS; c++) cx.fillRect(GX + c * CELL - (c === COLS ? 1 : 0), GY, 1, ROWS * CELL);
+    for (let r = 0; r <= ROWS; r++) cx.fillRect(GX, GY + r * CELL - (r === ROWS ? 1 : 0), COLS * CELL, 1);
+    cx.fillStyle = 'rgba(232,160,42,0.35)';
+    for (let r = 0; r <= ROWS; r++) {
+      for (let c = 0; c <= COLS; c++) {
+        const x = GX + c * CELL - (c === COLS ? 1 : 0);
+        const y = GY + r * CELL - (r === ROWS ? 1 : 0);
+        cx.fillRect(x - 1, y, 3, 1);
+        cx.fillRect(x, y - 1, 1, 3);
+      }
+    }
+
+    // wall props
+    put('window', 14, FLOOR_Y - 36);
+    put('board', 98, FLOOR_Y - 34);
+    put('panel', 240, FLOOR_Y - 36);
+    put('door', 334, FLOOR_Y - 37);
+    // floor props on the right
+    put('coffee', 338, FLOOR_Y + 2);
+    put('pallet', 336, 166);
+    roomCanvas = cv;
     return cv;
   }
 
+  // --- belts, drawn in the tileset's look so they join in every direction ------------------
+  const beltCache = new Map();
+  function beltTile(sides, out, phase) {
+    const mask = (sides[0] ? 1 : 0) | (sides[1] ? 2 : 0) | (sides[2] ? 4 : 0) | (sides[3] ? 8 : 0);
+    const key = mask + ':' + out + ':' + phase;
+    let cv = beltCache.get(key);
+    if (cv) return cv;
+    cv = document.createElement('canvas');
+    cv.width = CELL;
+    cv.height = CELL;
+    const cx = cv.getContext('2d');
+    const straight = mask === 10 || mask === 5;
+    const A0 = 6; // belt band spans 6..25 across the cell
+    const A1 = 25;
+    const inBand = (a) => a >= A0 && a <= A1;
+    const px = (x, y, c) => {
+      cx.fillStyle = c;
+      cx.fillRect(x, y, 1, 1);
+    };
+    // rail shading across the band: outline, rail, rail, [surface], rail, rail, outline
+    const railAt = (a) => (a === A0 || a === A1 ? BELT.railDk : a === A0 + 1 || a === A1 - 1 ? BELT.rail : a === A0 + 2 || a === A1 - 2 ? BELT.railHi : null);
+    const surface = (along, sgn, a) => {
+      const k = (((along - sgn * phase) % 6) + 6) % 6;
+      if (k === 0) return BELT.slat;
+      return a === A0 + 3 ? BELT.shine : BELT.green;
+    };
+    // outer corner of a turn, for rounding
+    let corner = null;
+    if ([3, 6, 12, 9].includes(mask)) corner = [sides[3] ? A1 : A0, sides[0] ? A1 : A0];
+    for (let y = 0; y < CELL; y++) {
+      for (let x = 0; x < CELL; x++) {
+        let col = null;
+        const inPlate = !straight && inBand(x) && inBand(y);
+        if (inPlate) {
+          // turntable plate: rails on the edges that aren't connected
+          const edgeN = !sides[0] && y <= A0 + 2;
+          const edgeS = !sides[2] && y >= A1 - 2;
+          const edgeW = !sides[3] && x <= A0 + 2;
+          const edgeE = !sides[1] && x >= A1 - 2;
+          if (edgeN) col = railAt(y);
+          else if (edgeS) col = railAt(y);
+          if (edgeW) col = railAt(x) || col;
+          else if (edgeE) col = railAt(x) || col;
+          if (!col) col = y === A0 + 3 || x === A0 + 3 ? BELT.shine : BELT.green;
+          if (corner) {
+            const d = Math.abs(x - corner[0]) + Math.abs(y - corner[1]);
+            if (d <= 1) col = null;
+            else if (d === 2) col = BELT.railDk;
+          }
+        } else {
+          // half strips from each connected edge
+          const h = inBand(y) && ((x < HALF && sides[3]) || (x >= HALF && sides[1]));
+          const v = inBand(x) && ((y < HALF && sides[0]) || (y >= HALF && sides[2]));
+          if (h) {
+            const side = x < HALF ? 3 : 1;
+            const toward = side === out ? side : opp(side);
+            const sgn = toward === 1 ? 1 : -1;
+            col = railAt(y) || surface(x, sgn, y);
+            if (railAt(y) === BELT.rail && y === A0 + 1 && (x + 4) % 8 === 0) col = BELT.rivet;
+          } else if (v) {
+            const side = y < HALF ? 0 : 2;
+            const toward = side === out ? side : opp(side);
+            const sgn = toward === 2 ? 1 : -1;
+            col = railAt(x) || surface(y, sgn, x);
+            if (railAt(x) === BELT.rail && x === A0 + 1 && (y + 4) % 8 === 0) col = BELT.rivet;
+          }
+        }
+        if (col) px(x, y, col);
+      }
+    }
+    beltCache.set(key, cv);
+    return cv;
+  }
+
+  // --- items riding the belts (small palette sprites in the art's colours) -----------------
   function transpose(rows) {
     const h = rows.length;
     const w = rows.reduce((m, r) => Math.max(m, r.length), 0);
@@ -96,49 +215,16 @@
   function buildItems() {
     if (itemArt) return itemArt;
     const S = M.ART.src;
-    const mk = (r) => M.gfx.make(r);
+    const map = { t: '#c8773f', W: '#e0e8ee', ',': '#1c1c20' };
+    const mk = (r) => M.gfx.make(r, map);
     itemArt = {
       wire: { h: mk(S.wire), v: mk(transpose(S.wire)) },
       cut: { h: mk(S.cut), v: mk(transpose(S.cut)) },
       cutSmall: { h: mk(S.cutSmall), v: mk(transpose(S.cutSmall)) },
       clip: { h: mk(S.clip), v: mk(transpose(S.clip)) },
       clipSmall: { h: mk(S.clipSmall), v: mk(transpose(S.clipSmall)) },
-      ghost: {},
     };
     return itemArt;
-  }
-
-  // --- belt rendering (procedural, matches the mockup's belts) ---------------------------
-  function beltColor(coord, sign, off) {
-    return (((coord - sign * off) % 4) + 4) % 4 < 2 ? P.STEEL_LT : P.STEEL_DK;
-  }
-
-  function drawHalf(g, x0, y0, side, moveDir, off) {
-    const sign = moveDir === 1 || moveDir === 2 ? 1 : -1;
-    if (side === 1 || side === 3) {
-      const xs = side === 1 ? x0 + 12 : x0;
-      g.rect(xs, y0 + 6, 12, 1, P.SHADOW);
-      g.rect(xs, y0 + 17, 12, 1, P.SHADOW);
-      for (let x = xs; x < xs + 12; x++) g.rect(x, y0 + 7, 1, 10, beltColor(x, sign, off));
-    } else {
-      const ys = side === 2 ? y0 + 12 : y0;
-      g.rect(x0 + 6, ys, 1, 12, P.SHADOW);
-      g.rect(x0 + 17, ys, 1, 12, P.SHADOW);
-      for (let y = ys; y < ys + 12; y++) g.rect(x0 + 7, y, 10, 1, beltColor(y, sign, off));
-    }
-  }
-
-  function drawJunction(g, x0, y0) {
-    const x = x0 + 6;
-    const y = y0 + 6;
-    g.outline(x, y, 12, 12, P.SHADOW);
-    for (let r = 0; r < 10; r++) {
-      const pat = (r + 1) % 4 < 2;
-      for (let c = 0; c < 10; c++) {
-        const col = pat && (c % 4 === 0 || c % 4 === 3) ? P.STEEL_DK : P.STEEL_LT;
-        g.rect(x + 1 + c, y + 1 + r, 1, 1, col);
-      }
-    }
   }
 
   // --- the scene ------------------------------------------------------------------------
@@ -204,12 +290,12 @@
     }
     if (opts.debugNight) {
       st.clips = story.quotas.whistle - 3;
-      Object.assign(st.flags, { intro: true, firstClip: true, walt: true, faster: true, ruth: true });
+      Object.assign(st.flags, { intro: true, firstClip: true, ledger: true, faster: true, ruth: true });
       st.shorter = true;
     }
     if (opts.mockup) {
       st.clips = 1204;
-      st.flags = { intro: true, firstClip: true, walt: true };
+      st.flags = { intro: true, firstClip: true, ledger: true };
     }
     if (st.sandbox || st.chapter1Done) {
       st.sandbox = true;
@@ -219,11 +305,11 @@
       M.CAST.pip.portrait = 'pip1';
     }
 
-    const drone = { c: 2, r: 1, x: 0, y: 0, move: null, queued: -1, blink: 0 };
+    const drone = { c: 2, r: 1, x: 0, y: 0, move: null, queued: -1, blink: 0, flip: false };
     // For playtesting from the console: MORE.debug.factory.st.clips = 199
     M.debug = M.debug || {};
     M.debug.factory = { st, cells };
-    const cellCenter = (c, r) => [GX + c * CELL + 12, GY + r * CELL + 12];
+    const cellCenter = (c, r) => [GX + c * CELL + HALF, GY + r * CELL + HALF];
     [drone.x, drone.y] = cellCenter(drone.c, drone.r);
 
     const npcs = {};
@@ -442,7 +528,7 @@
 
     // --- NPCs ------------------------------------------------------------------------------
     function npc(who) {
-      if (!npcs[who]) npcs[who] = { who, x: -14, tx: -14, walkT: 0, flip: false };
+      if (!npcs[who]) npcs[who] = { who, x: -24, tx: -24, walkT: 0, gone: true };
       return npcs[who];
     }
 
@@ -455,12 +541,14 @@
       call: M.cmd.call,
       all: M.cmd.all,
       until: M.cmd.until,
-      enter(who, x, delay) {
+      // Walk someone in from the left to a standing spot beside the line.
+      enter(who, spot, delay) {
         let d = delay || 0;
+        const x = SPOTS[Math.max(0, Math.min(SPOTS.length - 1, spot || 0))];
         return {
           start() {
             const n = npc(who);
-            if (n.gone || n.x < -10) n.x = -14;
+            if (n.gone) n.x = -24;
             n.gone = false;
           },
           update(dt) {
@@ -477,9 +565,9 @@
           update(dt) {
             if ((d -= dt) > 0) return false;
             const n = npcs[who];
-            if (!n) return true;
-            n.tx = -16;
-            if (n.x <= -15.5) {
+            if (!n || n.gone) return true;
+            n.tx = -26;
+            if (n.x <= -25.5) {
               n.gone = true;
               return true;
             }
@@ -528,8 +616,8 @@
           draw() {
             const a = Math.min(1, k / 0.4, (dur - k) / 0.4);
             g.ctx.globalAlpha = Math.max(0, a);
-            g.rect(0, 84, 256, 28, P.INK);
-            g.textCenter(text, 128, 94, P.CREAM);
+            g.rect(0, 112, g.W, 30, P.INK);
+            g.textCenter(text, g.W / 2, 123, P.CREAM);
             g.ctx.globalAlpha = 1;
           },
         };
@@ -597,6 +685,8 @@
       const nc = drone.c + DX[d];
       const nr = drone.r + DY[d];
       st.facing = d;
+      if (d === 1) drone.flip = false;
+      if (d === 3) drone.flip = true;
       if (at(nc, nr) === undefined) return;
       if (I.down('a') && st.tool === 'belt') {
         const cur = at(drone.c, drone.r);
@@ -728,16 +818,11 @@
     }
 
     function drawBelts() {
-      const off = Math.floor(beltOff);
+      const phase = Math.floor(beltOff) % 6;
       for (let r = 0; r < ROWS; r++) for (let c = 0; c < COLS; c++) {
         const b = at(c, r);
         if (!b || b.t !== 'belt') continue;
-        const x0 = GX + c * CELL;
-        const y0 = GY + r * CELL;
-        const s = beltSides(c, r, b);
-        const straight = (s[1] && s[3] && !s[0] && !s[2]) || (s[0] && s[2] && !s[1] && !s[3]);
-        for (let d = 0; d < 4; d++) if (s[d]) drawHalf(g, x0, y0, d, d === b.dir ? d : opp(d), off);
-        if (!straight) drawJunction(g, x0, y0);
+        g.spr(beltTile(beltSides(c, r, b), b.dir, phase), GX + c * CELL, GY + r * CELL);
       }
     }
 
@@ -753,61 +838,53 @@
           let axis;
           if (it.p < 0.5) {
             const k = it.p * 2;
-            x = cx + DX[it.from] * 12 * (1 - k);
-            y = cy + DY[it.from] * 12 * (1 - k);
+            x = cx + DX[it.from] * HALF * (1 - k);
+            y = cy + DY[it.from] * HALF * (1 - k);
             axis = it.from % 2 === 1 ? 'h' : 'v';
           } else {
             const k = (it.p - 0.5) * 2;
-            x = cx + DX[b.dir] * 12 * k;
-            y = cy + DY[b.dir] * 12 * k;
+            x = cx + DX[b.dir] * HALF * k;
+            y = cy + DY[b.dir] * HALF * k;
             axis = b.dir % 2 === 1 ? 'h' : 'v';
           }
           const key = it.k === 'wire' ? 'wire' : it.small ? it.k + 'Small' : it.k;
           const img = art[key][axis];
           g.spr(img, Math.round(x - img.width / 2), Math.round(y - img.height / 2));
-          if (it.jam && Math.floor(t * 4) % 2 === 0) g.spr(M.ART.spr.jam, Math.round(x - 3), Math.round(y - 9));
+          if (it.jam && Math.floor(t * 4) % 2 === 0) g.spr(M.ART.spr.jam, Math.round(x - 3), Math.round(y - 11));
         }
       }
     }
 
-    const BOX_PILE = [];
-    {
-      const r = M.rng(5);
-      for (let i = 0; i < 48; i++) BOX_PILE.push([4 + Math.floor(r() * 14), 17 - Math.floor(r() * (1 + i / 10))]);
-    }
-
-    function drawMachines() {
-      const A = M.ART.spr;
-      for (let r = 0; r < ROWS; r++) for (let c = 0; c < COLS; c++) {
-        const m = at(c, r);
-        if (!m || m.t !== 'm') continue;
-        const x = GX + c * CELL + 1;
-        const y = GY + r * CELL + 1;
-        let f = Math.floor(m.frame) % 2;
-        if (m.kind === 'box') f = m.flash > 0 ? 1 : 0;
-        if (!st.powered) f = 0;
-        g.spr(A[m.kind + f], x, y);
-        if (m.kind === 'box') {
-          const n = Math.min(BOX_PILE.length, Math.floor(st.boxCount / 12));
-          for (let i = 0; i < n; i++) g.rect(x + BOX_PILE[i][0], y + BOX_PILE[i][1], 2, 1, i % 3 ? P.STEEL_LT : P.WHITE);
-        }
-        if (!m.fixed) {
-          // placed spares get a small cream rivet so they read as movable
-          g.rect(x + 19, y + 18, 1, 1, P.CREAM);
-        }
+    // Machines stand on the bottom of their cell and may rise into the row above.
+    function drawMachine(m, c, r) {
+      const def = MACH[m.kind];
+      const im = g.art(def.art);
+      if (!im || !im.naturalWidth) return;
+      const busy = st.powered && (m.busy > 0 || (def.takes == null && m.frame > 0 && Math.floor(m.frame) % 2 === 1));
+      const shake = busy && Math.floor(t * 20) % 2 === 0 ? 1 : 0;
+      const x = GX + c * CELL + Math.floor((CELL - im.width) / 2);
+      const y = GY + (r + 1) * CELL - im.height - 1 - shake;
+      // contact shadow
+      g.ctx.globalAlpha = 0.35;
+      g.rect(x + 2, GY + (r + 1) * CELL - 3, im.width - 4, 2, P.INK);
+      g.ctx.globalAlpha = 1;
+      g.spr(im, x, y);
+      if (m.kind === 'box' && m.flash > 0) {
+        g.rect(x + im.width / 2 - 1, y - 3, 2, 2, P.WHITE);
       }
+      if (!m.fixed) g.rect(x + im.width - 3, y + im.height - 4, 2, 2, P.ORANGE);
     }
 
     function drawCursor() {
       const x0 = GX + drone.c * CELL;
       const y0 = GY + drone.r * CELL;
       const col = Math.floor(t * 3) % 2 ? P.ORANGE : P.YELLOW;
-      const L = 4;
+      const L = 6;
       for (const [cx, cy, sx, sy] of [
         [x0, y0, 1, 1],
-        [x0 + 23, y0, -1, 1],
-        [x0, y0 + 23, 1, -1],
-        [x0 + 23, y0 + 23, -1, -1],
+        [x0 + CELL - 1, y0, -1, 1],
+        [x0, y0 + CELL - 1, 1, -1],
+        [x0 + CELL - 1, y0 + CELL - 1, -1, -1],
       ]) {
         g.rect(sx > 0 ? cx : cx - L + 1, cy, L, 1, col);
         g.rect(cx, sy > 0 ? cy : cy - L + 1, 1, L, col);
@@ -817,55 +894,99 @@
         if (st.tool === 'belt') {
           // facing arrow on the cell edge
           const d = st.facing;
-          const ax = x0 + 12 + DX[d] * 9;
-          const ay = y0 + 12 + DY[d] * 9;
-          for (let i = 0; i < 3; i++) {
+          const ax = x0 + HALF + DX[d] * 12;
+          const ay = y0 + HALF + DY[d] * 12;
+          for (let i = 0; i < 4; i++) {
             if (d % 2 === 1) g.rect(ax - DX[d] * i, ay - i, 1, i * 2 + 1, P.ORANGE);
             else g.rect(ax - i, ay - DY[d] * i, i * 2 + 1, 1, P.ORANGE);
           }
         } else {
-          g.ctx.globalAlpha = 0.45;
-          g.spr(M.ART.spr[st.tool + '0'], x0 + 1, y0 + 1);
-          g.ctx.globalAlpha = 1;
+          const im = g.art(MACH[st.tool].art);
+          if (im) {
+            g.ctx.globalAlpha = 0.5;
+            g.spr(im, x0 + Math.floor((CELL - im.width) / 2), y0 + CELL - im.height - 1);
+            g.ctx.globalAlpha = 1;
+          }
         }
       }
     }
 
-    function drawDrone(eyeOnly) {
-      const A = M.ART.spr;
-      const bob = Math.round(Math.sin(t * 3.2) * 0.8) - 0;
-      const x = Math.round(drone.x) - 6;
-      const y = Math.round(drone.y) - 6;
-      if (eyeOnly) {
-        if (drone.blink <= 0) g.spr(A.droneEye, x + 4, y + 5 + bob);
-        return;
+    function droneXY() {
+      const bob = Math.round(Math.sin(t * 3.2) * 1.2);
+      return [Math.round(drone.x) - 12, Math.round(drone.y) - 20 + bob];
+    }
+
+    function drawDrone() {
+      const [x, y] = droneXY();
+      // soft shadow on the floor
+      g.ctx.globalAlpha = 0.35;
+      g.rect(Math.round(drone.x) - 7, Math.round(drone.y) + 8, 14, 3, P.INK);
+      g.rect(Math.round(drone.x) - 5, Math.round(drone.y) + 7, 10, 5, P.INK);
+      g.ctx.globalAlpha = 1;
+      g.draw('drone', x, y, drone.flip);
+    }
+
+    // After the night tint: put back the amber lens pixels so they still glow.
+    function relight(name, x, y, flip) {
+      const im = g.art(name);
+      const m = M.ART_MANIFEST[name];
+      if (!im || !m || !m.glow) return;
+      const [gx, gy, gw, gh] = m.glow;
+      const sx = flip ? m.w - gx - gw : gx;
+      g.ctx.save();
+      if (flip) {
+        g.ctx.translate(x + m.w, y);
+        g.ctx.scale(-1, 1);
+        g.ctx.drawImage(im, gx, gy, gw, gh, gx, gy, gw, gh);
+      } else {
+        g.ctx.drawImage(im, gx, gy, gw, gh, x + sx, y + gy, gw, gh);
       }
-      g.spr(A.droneShadow, x, y + 12);
-      g.spr(drone.blink > 0 ? A.droneBlink : A.drone, x, y + bob);
+      g.ctx.restore();
+    }
+
+    function drawTerminal() {
+      g.draw('terminal', TERMINAL.x, TERMINAL.y);
+      // a slow pulse on the lens while Pip thinks
+      if (Math.floor(t * 1.5) % 4 === 0) {
+        const m = M.ART_MANIFEST.terminal;
+        if (m && m.glow) g.rect(TERMINAL.x + m.glow[0] + 1, TERMINAL.y + m.glow[1] + 1, 1, 1, P.YELLOW);
+      }
     }
 
     function drawNPCs() {
-      for (const k in npcs) {
-        const n = npcs[k];
-        if (n.gone) continue;
-        const frames = M.ART.people[k] || M.ART.people.worker;
+      const list = Object.values(npcs).filter((n) => !n.gone).sort((a, b) => a.x - b.x);
+      for (const n of list) {
         const walking = Math.abs(n.tx - n.x) > 0.5;
-        const f = walking ? Math.floor(n.walkT * 7) % 2 : 0;
-        const talking = runner && M.dialog.active && M.dialog.who === k && M.dialog.chars < M.dialog.pageLen();
+        const talking = runner && M.dialog.active && M.dialog.who === n.who && M.dialog.chars < M.dialog.pageLen();
+        const m = M.ART_MANIFEST[n.who];
+        if (!m) continue;
+        let f = 0;
+        let flip = false;
+        if (walking) {
+          f = Math.floor(n.walkT * 6) % 2 ? 4 : 3; // side view; the art faces left
+          flip = n.tx > n.x;
+        }
         const by = talking && Math.floor(t * 8) % 2 ? -1 : 0;
-        g.spr(frames[f], Math.round(n.x), 149 + by, n.flip);
+        g.ctx.globalAlpha = 0.3;
+        g.rect(Math.round(n.x) + 3, FEET_Y - 1, m.fw - 6, 2, P.INK);
+        g.ctx.globalAlpha = 1;
+        g.frame(n.who, f, n.x, FEET_Y - m.fh + by, flip);
       }
     }
 
     function drawHUD() {
-      g.rect(0, 0, 256, 24, P.INK);
-      g.text('GOAL: MAKE AS MANY', 2, 0, P.ORANGE);
-      const hide = st.goalBlink > 0 && Math.floor(t * 5) % 2 === 0;
-      g.text(hide ? 'PAPERCLIPS AS' : 'PAPERCLIPS AS POSSIBLE', 2, 8, P.ORANGE);
-      g.text('CLIPS ' + fmt(st.clips), 2, 16, P.WHITE);
+      g.box(0, 0, 112, 28);
+      g.draw('clip_icon', 9, 6);
+      g.text('CLIPS', 26, 6, P.STEEL_LT);
+      g.text(fmt(st.clips), 26, 15, P.WHITE);
       const rt = rate();
-      if (!st.powered) g.textRight('LINE OFF', 254, 16, P.GRID);
-      else if (rt > 0) g.textRight(rt.toFixed(1) + '/S', 254, 16, P.STEEL_DK);
+      if (!st.powered) g.textRight('OFF', 104, 6, P.GRID);
+      else if (rt > 0) g.textRight(rt.toFixed(1) + '/S', 104, 6, P.STEEL_DK);
+
+      g.box(112, 0, 272, 28);
+      g.text('GOAL: MAKE AS MANY', 122, 6, P.ORANGE);
+      const hide = st.goalBlink > 0 && Math.floor(t * 5) % 2 === 0;
+      g.text(hide ? 'PAPERCLIPS AS' : 'PAPERCLIPS AS POSSIBLE', 122, 15, P.ORANGE);
     }
 
     function hintLine(cur) {
@@ -881,45 +1002,46 @@
     }
 
     function drawPanel() {
+      const L = M.dialogLayout();
       M.drawDialogFrame();
-      const blink = Math.floor(t * 10) % 37 === 0;
-      const key = M.CAST.pip.portrait;
-      M.drawPortrait(key === 'pip1' && blink ? 'pip1Blink' : key, 8, 176);
+      M.drawPortrait(M.CAST.pip.portrait);
       const list = tools();
-      let l1 = 'PART: ' + (st.tool === 'belt' ? 'BELT' : MACH[st.tool].name + ' ×' + st.inv[st.tool]);
-      g.text(l1, 40, 178, P.ORANGE);
-      if (list.length > 1) g.textRight(M.input.label('sel'), 244, 178, P.STEEL_DK);
-      g.text(hintLine(at(drone.c, drone.r)), 40, 190, P.CREAM);
-      g.text(story.objective(st), 40, 202, P.STEEL_LT);
+      const l1 = 'PART: ' + (st.tool === 'belt' ? 'BELT' : MACH[st.tool].name + ' ×' + st.inv[st.tool]);
+      g.text(l1, L.tx, L.ty, P.ORANGE);
+      if (list.length > 1) g.textRight(M.input.label('sel') + ': SWAP', L.W - 14, L.ty, P.STEEL_DK);
+      g.text(hintLine(at(drone.c, drone.r)), L.tx, L.ty + L.lh, P.CREAM);
+      g.text(story.objective(st), L.tx, L.ty + L.lh * 2, P.STEEL_LT);
     }
 
     function drawToasts() {
       toasts.forEach((to, i) => {
         const a = Math.min(1, (2.2 - to.t) / 0.4);
         g.ctx.globalAlpha = Math.max(0, a);
-        const y = 155 - Math.min(3, to.t * 12) - i * 11;
-        const w = to.text.length * 8 + 8;
-        g.rect(252 - w, y - 2, w, 11, P.SHADOW);
-        g.textRight(to.text, 248, y, to.color);
+        const y = 194 - Math.min(3, to.t * 12) - i * 12;
+        const w = to.text.length * 8 + 10;
+        g.rect(g.W - 6 - w, y - 3, w, 13, P.SHADOW);
+        g.textRight(to.text, g.W - 11, y, to.color);
         g.ctx.globalAlpha = 1;
       });
     }
 
     function drawPause() {
       const items = pauseItems();
-      g.box(64, 72, 128, 72);
-      g.textCenter('PAUSED', 128, 82, P.STEEL_LT);
+      const w = 150;
+      const x = Math.round((g.W - w) / 2);
+      g.box(x, 92, w, 74);
+      g.textCenter('PAUSED', g.W / 2, 102, P.STEEL_LT);
       items.forEach((l, i) => {
-        const y = 100 + i * 13;
-        if (i === pause.sel) g.text('▶', 74, y, P.ORANGE);
-        g.text(l, 86, y, i === pause.sel ? P.ORANGE : P.CREAM);
+        const y = 120 + i * 13;
+        if (i === pause.sel) g.text('▶', x + 12, y, P.ORANGE);
+        g.text(l, x + 24, y, i === pause.sel ? P.ORANGE : P.CREAM);
       });
     }
 
     return {
       name: 'factory',
       enter() {
-        buildFloor();
+        buildRoom();
         buildItems();
         if (opts.mockup) runner = new M.Runner(function* () {
           yield S.say('pip', 'i found a faster way.');
@@ -961,10 +1083,8 @@
           if (Math.abs(d) > 0.5) {
             n.x += Math.sign(d) * Math.min(Math.abs(d), 46 * dt);
             n.walkT += dt;
-            n.flip = d < 0;
           } else {
             n.x = n.tx;
-            n.flip = false;
           }
         }
 
@@ -995,17 +1115,25 @@
         if (!ended) checkBeats();
       },
       draw() {
-        g.clear(P.FLOOR);
-        g.spr(floorCanvas, 0, 24);
+        g.clear(P.INK);
+        g.spr(roomCanvas, 0, 0);
+        drawTerminal();
         drawBelts();
         drawItems();
-        drawMachines();
+        for (let r = 0; r < ROWS; r++) {
+          for (let c = 0; c < COLS; c++) {
+            const m = at(c, r);
+            if (m && m.t === 'm') drawMachine(m, c, r);
+          }
+        }
         if (!runner) drawCursor();
-        drawDrone(false);
         drawNPCs();
+        drawDrone();
         if (st.night > 0) {
           g.tint(P.NIGHT, st.night);
-          drawDrone(true);
+          const [dx, dy] = droneXY();
+          relight('drone', dx, dy, drone.flip);
+          relight('terminal', TERMINAL.x, TERMINAL.y, false);
         }
         drawHUD();
         if (runner && M.dialog.active) runner.draw();
