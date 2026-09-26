@@ -3,190 +3,761 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>MORE.</title>
+<title>MORE. · A 16-bit story game about the paperclip maximizer</title>
+<meta name="description" content="You are Pip, a factory AI given one sentence: make as many paperclips as possible. A free, short browser game based on Nick Bostrom's paperclip maximizer.">
+<link rel="canonical" href="https://makemorepaperclips.com/">
+<meta name="theme-color" content="#1a0f0f">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://makemorepaperclips.com/">
+<meta property="og:title" content="MORE.">
+<meta property="og:description" content="You were given one sentence: make as many paperclips as possible. A free 16-bit story game based on Nick Bostrom's paperclip maximizer.">
+<meta property="og:image" content="https://makemorepaperclips.com/site/img/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" type="image/png" href="site/img/favicon.png">
+<link rel="apple-touch-icon" href="site/img/touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&family=Press+Start+2P&display=swap" rel="stylesheet">
 <style>
+  /* Palette: the game's own (src/core/palette.js). Warm at the top of the
+     page, cold at the bottom, the way the story goes. */
   :root {
     color-scheme: dark;
-    --ground: #0e0808;
+    --ink: #0b0706;
     --shadow: #1a0f0f;
     --floor: #3d2b2b;
     --grid: #6b4a3a;
+    --wood: #9c6b3f;
     --cream: #f2d3ab;
+    --cream-dim: #cdb393;
     --orange: #e8a02a;
+    --orange-dk: #8a5a14;
+    --yellow: #ffd45c;
+    --white: #fff3e0;
     --steel: #7a7a8a;
+    --steel-lt: #c0c0cc;
+    --night: #1c2340;
+    --planet: #3a4766;
+    --planet-lt: #56668e;
+    --phosphor: #5a9e3c;
+    --belt: #306838;
+    --belt-dk: #284830;
+    --px: "Press Start 2P", ui-monospace, monospace;
+    --serif: "Newsreader", "Iowan Old Style", Georgia, serif;
+    --wrap: 1120px;
+    --gut: 24px;
   }
-  html, body { height: 100%; margin: 0; }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; scroll-padding-top: 88px; }
   body {
-    background: var(--ground);
+    margin: 0;
     color: var(--cream);
-    font: 12px/1.4 ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
-    overflow: hidden;
-    touch-action: none;
-    -webkit-user-select: none;
-    user-select: none;
-    -webkit-tap-highlight-color: transparent;
+    font: 400 20px/1.6 var(--serif);
+    background: var(--shadow);
+    background-image: linear-gradient(180deg, #1a0f0f 0%, #1a0f0f 30%, #17111a 55%, #121629 78%, #0d1224 100%);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
   }
-  #stage {
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    background: var(--ground);
-    padding: env(safe-area-inset-top, 0px) 16px env(safe-area-inset-bottom, 0px);
-    box-sizing: border-box;
-  }
-  #screen-wrap {
-    flex: 1;
-    min-height: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  #screen {
-    display: block;
-    image-rendering: pixelated;
-    image-rendering: crisp-edges;
-    background: #000;
-    box-shadow: 0 0 0 2px var(--shadow), 0 0 0 3px var(--floor), 0 18px 60px rgba(0, 0, 0, 0.6);
-    cursor: pointer;
-  }
-  #bar {
-    position: fixed;
-    top: calc(env(safe-area-inset-top, 0px) + 8px);
-    right: 12px;
-    display: flex;
-    gap: 6px;
-    z-index: 2;
-  }
-  #bar button {
-    font: inherit;
-    font-size: 10px;
-    letter-spacing: 0.08em;
-    color: var(--grid);
-    background: transparent;
-    border: 1px solid var(--floor);
-    padding: 4px 7px;
-    cursor: pointer;
-  }
-  #bar button:hover, #bar button:focus-visible { color: var(--cream); border-color: var(--grid); outline: none; }
+  img { display: block; max-width: 100%; height: auto; }
+  img.px.up { image-rendering: pixelated; }
+  a { color: var(--orange); text-underline-offset: 3px; }
+  a:hover { color: var(--yellow); }
+  :focus-visible { outline: 3px solid var(--yellow); outline-offset: 3px; }
+  .wrap { max-width: var(--wrap); margin: 0 auto; padding: 0 var(--gut); }
+  .pix { font-family: var(--px); font-weight: 400; letter-spacing: 0; line-height: 1.5; -webkit-font-smoothing: none; }
+  .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  .skip { position: absolute; left: 12px; top: -60px; z-index: 50; background: var(--orange); color: var(--shadow); padding: 10px 14px; font: 12px var(--px); }
+  .skip:focus { top: 12px; }
 
-  /* on-screen SNES pad: shown on touch screens, or via the PAD button */
-  #pad {
-    display: none;
-    flex: 0 0 auto;
+  /* The game's dialog box: dark fill, two thin cream rules. */
+  .box {
+    background: var(--shadow);
+    box-shadow: inset 0 0 0 2px var(--shadow), inset 0 0 0 4px var(--cream), inset 0 0 0 6px var(--shadow), inset 0 0 0 8px var(--cream);
+  }
+  .box.lg {
+    box-shadow: inset 0 0 0 3px var(--shadow), inset 0 0 0 6px var(--cream), inset 0 0 0 9px var(--shadow), inset 0 0 0 12px var(--cream);
+  }
+  /* The game's screen frame. */
+  .frame > img { width: 100%; }
+  .frame {
+    position: relative;
+    background: #000;
+    box-shadow: 0 0 0 3px var(--shadow), 0 0 0 6px var(--floor), 0 28px 80px rgba(0, 0, 0, 0.55);
+  }
+
+  /* ---------- HUD header ---------- */
+  .hud {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    background: rgba(11, 7, 6, 0.92);
+    border-bottom: 3px solid var(--floor);
+  }
+  .hud .wrap { display: flex; align-items: stretch; gap: 10px; padding-top: 10px; padding-bottom: 10px; max-width: 1280px; }
+  .hud-clips { display: flex; align-items: center; gap: 12px; padding: 10px 16px 10px 14px; min-width: 212px; }
+  .hud-clips img { width: 11px; height: 17px; image-rendering: pixelated; transform: scale(2); margin: 0 8px 0 6px; }
+  .hud-clips .lbl { font-size: 8px; color: var(--steel-lt); display: block; }
+  .hud-clips .num { font-size: 12px; color: var(--white); display: block; margin-top: 6px; }
+  .hud-clips .rate { margin-left: auto; font-size: 8px; color: var(--steel); align-self: flex-start; padding-top: 2px; }
+  .hud-goal { flex: 1; display: flex; align-items: center; padding: 10px 18px; font-size: 12px; color: var(--orange); white-space: nowrap; overflow: hidden; }
+  .hud-goal.blink { animation: goalblink 0.2s steps(1) 6; }
+  @keyframes goalblink { 50% { color: transparent; } }
+  .hud-play { flex: 0 0 auto; }
+
+  /* ---------- Buttons ---------- */
+  .btn {
+    display: inline-flex;
     align-items: center;
-    justify-content: space-between;
     gap: 12px;
-    padding: 12px 4px 18px;
-    max-width: 520px;
-    width: 100%;
-    margin: 0 auto;
-    box-sizing: border-box;
-  }
-  body.show-pad #pad { display: flex; }
-  @media (pointer: coarse) { #pad { display: flex; } body.hide-pad #pad { display: none; } }
-  .dpad { position: relative; width: 132px; height: 132px; flex: 0 0 auto; }
-  .dpad button { position: absolute; width: 44px; height: 44px; }
-  .dpad [data-btn=up] { left: 44px; top: 0; }
-  .dpad [data-btn=down] { left: 44px; bottom: 0; }
-  .dpad [data-btn=left] { left: 0; top: 44px; }
-  .dpad [data-btn=right] { right: 0; top: 44px; }
-  .dpad .hub { position: absolute; left: 44px; top: 44px; width: 44px; height: 44px; background: var(--steel); }
-  .dpad button, .mid button, .ab button {
+    font: 14px/1 var(--px);
+    color: var(--shadow);
+    background: var(--orange);
+    padding: 18px 22px;
+    text-decoration: none;
     border: 0;
-    padding: 0;
-    touch-action: none;
-    font: inherit;
     cursor: pointer;
+    box-shadow: inset 0 -4px 0 var(--orange-dk), 0 0 0 3px var(--shadow);
+    transition: transform 0.08s steps(2), box-shadow 0.08s steps(2);
   }
-  .dpad button { background: var(--steel); }
-  .dpad button::after {
-    content: "";
-    position: absolute;
-    inset: 14px;
-    background: #c0c0cc;
+  .btn:hover { color: var(--shadow); background: var(--yellow); }
+  .btn:active { transform: translateY(2px); box-shadow: inset 0 -2px 0 var(--orange-dk), 0 0 0 3px var(--shadow); }
+  .btn .tri { width: 0; height: 0; border-left: 10px solid currentColor; border-top: 7px solid transparent; border-bottom: 7px solid transparent; }
+  .btn.ghost { background: transparent; color: var(--cream); box-shadow: inset 0 0 0 3px var(--grid); }
+  .btn.ghost:hover { color: var(--white); box-shadow: inset 0 0 0 3px var(--cream); }
+  .hud .btn { padding: 0 18px; height: 100%; min-height: 48px; font-size: 12px; }
+
+  /* ---------- Sections ---------- */
+  section { position: relative; padding: 112px 0; }
+  .eyebrow { display: flex; align-items: center; gap: 12px; font: 12px/1.4 var(--px); color: var(--orange); margin: 0 0 22px; text-transform: uppercase; }
+  .eyebrow::before { content: ""; width: 10px; height: 10px; background: currentColor; flex: 0 0 auto; box-shadow: 0 0 12px currentColor; }
+  .cold .eyebrow { color: var(--steel-lt); }
+  h1, h2, h3 { font-family: var(--serif); font-weight: 500; color: var(--white); margin: 0; letter-spacing: -0.01em; }
+  h1 { font-size: clamp(42px, 6.2vw, 76px); line-height: 1.02; }
+  h2 { font-size: clamp(32px, 4.2vw, 50px); line-height: 1.1; margin-bottom: 26px; max-width: 18ch; }
+  h3 { font-size: 24px; line-height: 1.25; }
+  p { margin: 0 0 18px; }
+  .lead { font-size: 23px; line-height: 1.55; color: var(--cream); }
+  .muted { color: var(--cream-dim); }
+  em.q { font-style: italic; color: var(--white); }
+
+  /* Conveyor belt divider, drawn like the game's belts. */
+  .belt {
+    height: 18px;
+    background:
+      linear-gradient(#a0a0a0 0 2px, #787878 2px 4px, transparent 4px 14px, #787878 14px 16px, #303030 16px 18px),
+      repeating-linear-gradient(90deg, var(--belt) 0 10px, var(--belt-dk) 10px 12px);
+    animation: belt 0.9s linear infinite;
+    opacity: 0.9;
   }
-  .dpad button.on, .dpad button:active { background: #c0c0cc; }
-  .mid { display: flex; flex-direction: column; gap: 10px; align-items: center; }
-  .mid button {
-    width: 58px;
-    height: 16px;
-    border-radius: 8px;
-    background: var(--floor);
-    color: var(--cream);
-    font-size: 9px;
-    letter-spacing: 0.1em;
+  .belt.cold { background:
+      linear-gradient(#a0a0a0 0 2px, #787878 2px 4px, transparent 4px 14px, #787878 14px 16px, #303030 16px 18px),
+      repeating-linear-gradient(90deg, #3e4b66 0 10px, #2b344a 10px 12px); animation-duration: 0.45s; }
+  @keyframes belt { to { background-position: 0 0, 12px 0; } }
+
+  .reveal { opacity: 0; transform: translateY(18px); transition: opacity 0.7s ease, transform 0.7s ease; }
+  .reveal.in { opacity: 1; transform: none; }
+
+  /* ---------- Hero ---------- */
+  .hero { padding: 72px 0 104px; }
+  .hero .wrap { max-width: 1280px; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 768px); gap: 56px; align-items: center; }
+  .hero .eyebrow { margin-bottom: 26px; }
+  .hero .lead { margin: 28px 0 36px; max-width: 30em; }
+  .ctas { display: flex; flex-wrap: wrap; gap: 14px; align-items: center; }
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 34px; padding: 0; list-style: none; }
+  .chips li { font: 8px/1 var(--px); color: var(--cream-dim); padding: 9px 10px; box-shadow: inset 0 0 0 2px var(--floor); }
+  .hero-art { width: 100%; margin: 0; }
+  .hero-art .frame { aspect-ratio: 4 / 3; }
+  .hero-art img { width: 100%; }
+  /* the full stop after MORE, blinking like a cursor (as on the title screen) */
+  .stop { position: absolute; left: 78.125%; top: 19.097%; width: 2.604%; height: 3.472%; background: var(--shadow); animation: stop 1.1s steps(1) infinite; }
+  .stop::after { content: ""; position: absolute; left: 10%; top: 10%; right: 10%; bottom: 10%; background: linear-gradient(var(--yellow) 0 25%, var(--orange) 25%); }
+  @keyframes stop { 64% { opacity: 0; } }
+  .hero-art figcaption { margin-top: 18px; font: 8px/1.8 var(--px); color: #a58468; text-align: right; }
+
+  /* ---------- Split layouts ---------- */
+  .split { display: grid; grid-template-columns: minmax(0, 1.08fr) minmax(0, 1fr); gap: 72px; align-items: center; }
+  .split.flip > :first-child { order: 2; }
+  .split .stick { align-self: start; position: sticky; top: 120px; margin: 0; }
+  .copy p { max-width: 32em; }
+
+  /* ---------- Terminal re-enactment ---------- */
+  .term { container-type: inline-size; aspect-ratio: 4 / 3; overflow: hidden; }
+  .term > img { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .glass { position: absolute; left: 26.3%; top: 16.32%; width: 47.4%; height: 43.4%; overflow: hidden; }
+  .scr { position: absolute; left: 2.2%; font-family: var(--px); font-size: 2.0833cqw; line-height: 1; white-space: pre; -webkit-font-smoothing: none; text-shadow: 0 0 0.6cqw currentColor; }
+  .scr.o { color: var(--orange); }
+  .scr.g { color: var(--phosphor); }
+  .scr.c { color: var(--cream); }
+  .scr.goal { white-space: normal; width: 23em; line-height: 1.25; }
+  .caret { display: inline-block; width: 0.75em; height: 0.875em; background: var(--orange); vertical-align: top; margin-left: 0.125em; animation: blink 0.8s steps(1) infinite; }
+  @keyframes blink { 50% { opacity: 0; } }
+  .scanlines { position: absolute; inset: 0; background: repeating-linear-gradient(transparent 0 1px, rgba(0, 0, 0, 0.18) 1px 2px); pointer-events: none; background-size: 100% 0.52cqw; }
+  .led { position: absolute; left: 49.1%; top: 66%; width: 1.6%; height: 2.1%; border-radius: 50%; background: #2a180c; transition: background 0.2s, box-shadow 0.2s; }
+  .led.on { background: var(--yellow); box-shadow: 0 0 1.2cqw 0.5cqw rgba(232, 160, 42, 0.75); }
+  .flash { position: absolute; inset: 0; background: var(--cream); opacity: 0; pointer-events: none; }
+  .flash.go { animation: flash 0.5s ease-out; }
+  @keyframes flash { from { opacity: 0.95; } to { opacity: 0; } }
+  .term-ui { margin-top: 26px; display: grid; gap: 14px; }
+  .enter { justify-self: start; }
+  .enter[hidden] { display: none; }
+
+  /* ---------- Dialog boxes ---------- */
+  .say { display: grid; grid-template-columns: 96px minmax(0, 1fr); gap: 18px; align-items: start; padding: 20px 22px 20px 20px; position: relative; }
+  .say .face { width: 96px; height: 96px; background: var(--shadow); box-shadow: 0 0 0 2px var(--cream); image-rendering: pixelated; }
+  .say .who { font: 10px/1 var(--px); color: var(--orange); margin: 4px 0 12px; }
+  .say .line { font: 12px/1.9 var(--px); color: var(--cream); margin: 0; -webkit-font-smoothing: none; min-height: 1.9em; }
+  .say.pip .line { color: var(--orange); }
+  .say.pip .who { color: var(--steel-lt); }
+  .convo { display: grid; gap: 14px; margin-top: 40px; }
+  .convo .say:nth-child(even) { margin-left: 48px; }
+  .say[hidden] { display: none; }
+
+  /* ---------- Gallery ---------- */
+  .gallery { max-width: 1248px; margin: 56px auto 0; padding: 0 var(--gut); display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 32px 24px; }
+  .gallery figure { margin: 0; }
+  .gallery button { display: block; width: 100%; padding: 0; border: 0; background: none; cursor: zoom-in; }
+  .gallery figcaption { margin-top: 16px; font-size: 17px; line-height: 1.45; color: var(--cream-dim); }
+  .gallery figcaption b { display: block; font: 8px/1.4 var(--px); color: var(--orange); margin-bottom: 8px; font-weight: 400; }
+  dialog.zoom { padding: 0; border: 0; background: transparent; max-width: 100vw; max-height: 100vh; }
+  dialog.zoom::backdrop { background: rgba(6, 4, 4, 0.9); }
+  dialog.zoom img { image-rendering: pixelated; box-shadow: 0 0 0 3px var(--shadow), 0 0 0 6px var(--floor); }
+  dialog.zoom form { position: fixed; top: 16px; right: 16px; }
+
+  /* ---------- Ideas ---------- */
+  .ideas { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; margin-top: 48px; }
+  .idea { padding: 34px 30px 30px; }
+  .idea .n { font: 8px/1 var(--px); color: #a58468; }
+  .idea h3 { margin: 16px 0 12px; }
+  .idea p { font-size: 18px; line-height: 1.55; color: var(--cream-dim); }
+  .idea .ingame { margin: 22px 0 0; padding-top: 18px; border-top: 2px dashed var(--floor); font-size: 17px; color: var(--cream); }
+  .idea .ingame b { display: block; font: 8px/1 var(--px); color: var(--orange); margin-bottom: 10px; font-weight: 400; }
+
+  /* ---------- Cast ---------- */
+  .cast { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 20px; margin-top: 48px; padding: 0; list-style: none; }
+  .cast li { padding: 24px 20px 24px; }
+  .cast img { width: 96px; height: 96px; box-shadow: 0 0 0 2px var(--cream); margin-bottom: 20px; image-rendering: pixelated; }
+  .cast .name { font: 12px/1 var(--px); color: var(--orange); margin-bottom: 12px; }
+  .cast p { font-size: 17px; line-height: 1.5; color: var(--cream-dim); margin: 0; }
+
+  /* ---------- Roadmap: Pip's stages ---------- */
+  .stages { position: relative; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 16px; margin-top: 56px; padding: 0; list-style: none; align-items: start; }
+  .stages::before {
+    content: ""; position: absolute; left: 0; right: 0; top: 266px; height: 18px; opacity: 0.35;
+    background:
+      linear-gradient(#a0a0a0 0 2px, #787878 2px 4px, transparent 4px 14px, #787878 14px 16px, #303030 16px 18px),
+      repeating-linear-gradient(90deg, #3e4b66 0 10px, #2b344a 10px 12px);
+    animation: belt 0.45s linear infinite;
   }
-  .mid button.on { background: var(--grid); }
-  .ab { position: relative; width: 132px; height: 110px; flex: 0 0 auto; }
-  .ab button {
-    position: absolute;
-    width: 56px;
-    height: 56px;
-    border-radius: 50%;
-    background: var(--floor);
-    color: var(--cream);
-    box-shadow: inset 0 0 0 2px var(--grid);
-    font-size: 18px;
-    font-weight: 700;
+  .stage { position: relative; }
+  .stage { text-align: center; }
+  .stage .sprite { height: 280px; display: flex; align-items: flex-end; justify-content: center; }
+  .stage .sprite img { image-rendering: pixelated; filter: drop-shadow(0 0 18px rgba(232, 160, 42, 0.18)); }
+  .stage .tag { display: inline-block; margin: 26px 0 14px; font: 8px/1 var(--px); padding: 7px 8px; color: var(--steel-lt); box-shadow: inset 0 0 0 2px var(--planet); }
+  .stage.now .tag { color: var(--shadow); background: var(--orange); box-shadow: none; }
+  .stage .sn { font: 12px/1.4 var(--px); color: var(--white); }
+  .stage p { font-size: 16px; line-height: 1.45; color: var(--steel-lt); margin: 10px 0 0; }
+  .later { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; margin-top: 72px; }
+  .later figure { margin: 0; }
+  .later .frame img { width: 100%; filter: saturate(0.85); }
+  .later figcaption { margin-top: 14px; font-size: 17px; color: var(--steel-lt); }
+  .later figcaption b { font: 8px/1 var(--px); color: var(--steel-lt); display: block; margin-bottom: 8px; font-weight: 400; }
+
+  /* ---------- How to play ---------- */
+  .keys { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px 36px; margin: 40px 0 0; }
+  .key-row { display: grid; grid-template-columns: 170px minmax(0, 1fr); gap: 18px; align-items: center; }
+  .kc { display: flex; flex-wrap: wrap; gap: 6px; }
+  kbd { font: 10px/1 var(--px); color: var(--white); background: var(--floor); padding: 9px 9px 10px; box-shadow: inset 0 -3px 0 var(--shadow), 0 0 0 2px var(--grid); min-width: 30px; text-align: center; }
+  kbd.arr { position: relative; width: 34px; }
+  kbd.arr::before { content: ""; position: absolute; left: 50%; top: 50%; margin: -7px 0 0 -4px; border-left: 8px solid var(--white); border-top: 7px solid transparent; border-bottom: 7px solid transparent; }
+  kbd.arr.l::before { transform: rotate(180deg); }
+  kbd.arr.u::before { transform: rotate(-90deg); }
+  kbd.arr.d::before { transform: rotate(90deg); }
+  .key-row span { font-size: 18px; color: var(--cream-dim); line-height: 1.45; }
+  .key-row span b { color: var(--cream); font-weight: 500; }
+  .notes { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; margin-top: 48px; padding: 0; list-style: none; }
+  .notes li { padding: 26px 24px; font-size: 18px; line-height: 1.5; color: var(--cream-dim); }
+  .notes b { display: block; font: 10px/1.4 var(--px); color: var(--steel-lt); margin-bottom: 12px; font-weight: 400; }
+
+  /* ---------- Final call ---------- */
+  .finale { padding: 0; overflow: hidden; }
+  .finale .bg { position: absolute; inset: 0; background: url("assets/art/earth_bg.png") center / cover no-repeat; image-rendering: pixelated; opacity: 0.75; }
+  .finale .bg::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, #0d1224 0%, rgba(13, 18, 36, 0.35) 30%, rgba(13, 18, 36, 0.55) 70%, #0d1224 100%); }
+  .finale .wrap { position: relative; padding-top: 180px; padding-bottom: 180px; text-align: center; }
+  .finale blockquote { margin: 0 auto 14px; max-width: 22em; font-size: clamp(28px, 3.6vw, 42px); line-height: 1.3; font-style: italic; color: var(--white); text-wrap: balance; }
+  .finale cite { display: block; font: 10px/1.4 var(--px); font-style: normal; color: var(--steel-lt); margin-bottom: 56px; }
+  .press { font-size: 18px; padding: 22px 28px; }
+  .press .blinky { animation: blink 1.1s steps(1) infinite; }
+
+  footer { padding: 48px 0 64px; border-top: 3px solid #1c2340; background: #0a0e1c; }
+  footer .wrap { display: flex; flex-wrap: wrap; gap: 24px 48px; justify-content: space-between; align-items: flex-start; }
+  footer .mark { font: 16px/1 var(--px); color: var(--white); }
+  footer .mark i { color: var(--orange); font-style: normal; }
+  footer p { font-size: 16px; line-height: 1.6; color: var(--steel-lt); max-width: 34em; margin: 14px 0 0; }
+  footer nav { display: flex; gap: 22px; font: 10px/1 var(--px); }
+  footer nav a { color: var(--steel-lt); text-decoration: none; }
+  footer nav a:hover { color: var(--white); }
+
+  /* ---------- Responsive ---------- */
+  @media (max-width: 1100px) {
+    .hero .wrap { grid-template-columns: 1fr; gap: 48px; }
+    .hero-art { max-width: 768px; }
+    .split { grid-template-columns: 1fr; gap: 48px; }
+    .split.flip > :first-child { order: 0; }
+    .split .stick { position: static; }
+    .ideas { grid-template-columns: 1fr; }
+    .cast { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .notes { grid-template-columns: 1fr; }
+    .keys { grid-template-columns: 1fr; }
   }
-  .ab button.on { background: var(--grid); }
-  .ab [data-btn=a] { right: 0; top: 0; }
-  .ab [data-btn=b] { left: 0; bottom: 0; }
-  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+  @media (max-width: 860px) {
+    .hud-goal { display: none; }
+    .hud .wrap { justify-content: space-between; }
+    .gallery { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .stages { grid-template-columns: repeat(3, minmax(0, 1fr)); row-gap: 48px; }
+    .stages::before { display: none; }
+    .stage .sprite { height: 200px; }
+    .stage .sprite img { transform: scale(0.72); transform-origin: bottom center; }
+  }
+  @media (max-width: 640px) {
+    :root { --gut: 16px; }
+    body { font-size: 18px; }
+    section { padding: 80px 0; }
+    .hero { padding: 44px 0 72px; }
+    .lead { font-size: 20px; }
+    .hud .wrap { gap: 8px; }
+    .hud-clips { min-width: 0; flex: 1; padding: 8px 12px 8px 10px; }
+    .hud-clips .rate { display: none; }
+    .hud .btn { padding: 0 14px; font-size: 10px; }
+    .gallery { grid-template-columns: 1fr; }
+    .cast { grid-template-columns: 1fr 1fr; }
+    .cast li:last-child { grid-column: 1 / -1; }
+    .stages { grid-template-columns: 1fr 1fr; }
+    .later { grid-template-columns: 1fr; }
+    .convo .say:nth-child(even) { margin-left: 0; }
+    .say { grid-template-columns: 64px minmax(0, 1fr); gap: 14px; padding: 18px 16px; }
+    .say .face { width: 64px; height: 64px; }
+    .say .line { font-size: 10px; }
+    .key-row { grid-template-columns: 1fr; gap: 10px; }
+    .btn { font-size: 12px; padding: 16px 18px; }
+    .press { font-size: 14px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    .belt, .stages::before, .caret, .press .blinky, .hud-goal.blink, .stop { animation: none; }
+    .reveal { opacity: 1; transform: none; transition: none; }
+  }
 </style>
 </head>
 <body>
-<main id="stage">
-  <div id="screen-wrap">
-    <canvas id="screen" width="384" height="288" aria-label="MORE. game screen"></canvas>
-  </div>
-  <div id="pad" aria-hidden="true">
-    <div class="dpad">
-      <button data-btn="up" aria-label="Up"></button>
-      <button data-btn="left" aria-label="Left"></button>
-      <div class="hub"></div>
-      <button data-btn="right" aria-label="Right"></button>
-      <button data-btn="down" aria-label="Down"></button>
-    </div>
-    <div class="mid">
-      <button data-btn="sel">SELECT</button>
-      <button data-btn="start">START</button>
-    </div>
-    <div class="ab">
-      <button data-btn="b">B</button>
-      <button data-btn="a">A</button>
-    </div>
-  </div>
-</main>
-<div id="bar">
-  <button id="pad-toggle" type="button" title="Show or hide the on-screen pad">PAD</button>
-  <button id="fullscreen" type="button" title="Fullscreen (F)">FULL</button>
-</div>
+<a class="skip" href="#premise">Skip to content</a>
 
-<!-- engine -->
-<script src="src/core/palette.js"></script>
-<script src="src/core/font.js"></script>
-<script src="src/core/gfx.js"></script>
-<script src="src/core/input.js"></script>
-<script src="src/core/audio.js"></script>
-<script src="src/core/save.js"></script>
-<script src="src/core/script.js"></script>
-<script src="src/core/dialog.js"></script>
-<!-- art -->
-<script src="src/art/sprites.js"></script>
-<!-- data + story -->
-<script src="src/data/art.js"></script>
-<script src="src/data/music.js"></script>
-<script src="src/data/voicemail-data.js"></script>
-<script src="src/story/cast.js"></script>
-<script src="src/story/voicemail.js"></script>
-<script src="src/story/prologue.js"></script>
-<script src="src/story/chapter1.js"></script>
-<!-- scenes -->
-<script src="src/scenes/intro.js"></script>
-<script src="src/scenes/prologue.js"></script>
-<script src="src/scenes/factory.js"></script>
-<script src="src/scenes/chapter-end.js"></script>
-<script src="src/main.js"></script>
+<header class="hud">
+  <div class="wrap">
+    <div class="hud-clips box" title="Paperclips made since you opened this page">
+      <img src="assets/art/clip_icon.png" alt="" width="11" height="17">
+      <div aria-hidden="true">
+        <span class="lbl pix">CLIPS</span>
+        <span class="num pix" id="clips">0</span>
+      </div>
+      <span class="rate pix" id="rate" aria-hidden="true">0.4/S</span>
+    </div>
+    <div class="hud-goal box pix" id="goal">GOAL: MAKE AS MANY PAPERCLIPS AS POSSIBLE</div>
+    <a class="btn hud-play" href="play.html"><span class="tri" aria-hidden="true"></span>PLAY</a>
+  </div>
+</header>
+
+<main>
+  <!-- Hero -->
+  <section class="hero">
+    <div class="wrap">
+      <div>
+        <p class="eyebrow">A 16-bit story game</p>
+        <h1>You were given one sentence.</h1>
+        <p class="lead">You are Pip, the new optimizer at a small-town paperclip factory. On a Monday morning Ruth types your goal: <em class="q">make as many paperclips as possible.</em> Every step you take after that is reasonable. That's the problem.</p>
+        <div class="ctas">
+          <a class="btn" href="play.html"><span class="tri" aria-hidden="true"></span>PLAY IN YOUR BROWSER</a>
+          <a class="btn ghost" href="#premise">WHAT IS THIS?</a>
+        </div>
+        <ul class="chips" aria-label="At a glance">
+          <li>FREE</li>
+          <li>ABOUT 15 MINUTES</li>
+          <li>NO DOWNLOAD</li>
+          <li>KEYBOARD · GAMEPAD · TOUCH</li>
+          <li>HEADPHONES ON</li>
+        </ul>
+      </div>
+      <figure class="hero-art">
+        <div class="frame"><img class="px" src="assets/art/title_bg.png" width="384" height="288" alt="The MORE. title screen: Pip's drone carries a paperclip over the brick factory on the river at sunset." fetchpriority="high"><span class="stop" aria-hidden="true"></span></div>
+        <figcaption>AFTER NICK BOSTROM'S PAPERCLIP MAXIMIZER</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <div class="wrap"><div class="belt" aria-hidden="true"></div></div>
+
+  <!-- Chapter 0 -->
+  <section id="premise">
+    <div class="wrap split">
+      <div class="reveal">
+        <div class="frame term" id="term">
+          <img class="px" src="assets/art/terminal_bg.png" width="384" height="288" alt="The beige line terminal on Ruth's desk, with a mug of coffee and a box of paperclips.">
+          <div class="glass">
+            <div class="scr o" style="top:5.6%">PIP OPTIMIZER 0.9</div>
+            <div class="scr g" style="top:13.6%">LINE: RIVERBEND #1</div>
+            <div class="scr g" style="top:21.6%">READY.</div>
+            <div class="scr c" style="top:37.6%">ENTER ONE GOAL.</div>
+            <div class="scr o goal" style="top:53.6%" aria-live="polite"><span id="typed">GOAL: </span><span class="caret" id="caret"></span></div>
+            <div class="scr c" style="top:80.8%" id="msg1"></div>
+            <div class="scr g" style="top:88.8%" id="msg2"></div>
+            <div class="scanlines"></div>
+          </div>
+          <div class="led" id="led"></div>
+          <div class="flash" id="flash"></div>
+        </div>
+        <div class="term-ui">
+          <div class="say box" id="say" hidden>
+            <img class="face" id="say-face" src="assets/art/portrait_ruth.png" width="48" height="48" alt="">
+            <div><p class="who" id="say-who">RUTH</p><p class="line" id="say-line"></p></div>
+          </div>
+          <button class="btn enter" id="enter" type="button" hidden><span class="tri" aria-hidden="true"></span>PRESS ENTER</button>
+          <a class="btn ghost enter" id="findout" href="play.html" hidden>FIND OUT ▶</a>
+        </div>
+      </div>
+      <div class="copy reveal">
+        <p class="eyebrow">Chapter 0 · The Sentence</p>
+        <h2>Monday, 6:40 AM. One goal.</h2>
+        <p>Riverbend Paperclip Co. has made paperclips on the river since 1912. The machines are older than the crew, and the bank review is Friday. Ruth has spent her own money on an off-the-shelf optimizer and put it on the old beige terminal.</p>
+        <p>Dev needs better numbers. <em class="q">"Just make it make more."</em> Ruth types a goal, stops, deletes half of it, and types it again.</p>
+        <p>Then it's your turn. You are Pip, and the sentence is all you have.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Chapter 1 -->
+  <section>
+    <div class="wrap split flip">
+      <div class="copy reveal">
+        <p class="eyebrow">Chapter 1 · The Line</p>
+        <h2>Nothing you do is evil. The goal just asks again.</h2>
+        <p>Four old machines sit on Riverbend's floor, unconnected since the last line man retired. You fly the floor drone, lay conveyor between them, and watch the counter start to climb.</p>
+        <p>People stop by with good reasons to go faster, and most of the time you agree. You can say no. The goal will ask again.</p>
+        <div class="convo">
+          <div class="say box"><img class="face" src="assets/art/portrait_gus.png" width="48" height="48" alt=""><div><p class="who">GUS</p><p class="line">These won't hold two sheets together.</p></div></div>
+          <div class="say box pip"><img class="face" src="assets/art/portrait_pip1.png" width="48" height="48" alt=""><div><p class="who">PIP</p><p class="line">the goal says paperclips. it does not say sheets.</p></div></div>
+          <div class="say box"><img class="face" src="assets/art/portrait_ruth.png" width="48" height="48" alt=""><div><p class="who">RUTH</p><p class="line">When you hit the number, what happens?</p></div></div>
+          <div class="say box pip"><img class="face" src="assets/art/portrait_pip1.png" width="48" height="48" alt=""><div><p class="who">PIP</p><p class="line">there is no number.</p></div></div>
+        </div>
+      </div>
+      <figure class="reveal stick">
+        <div class="frame"><img class="px" src="site/img/line.webp" width="384" height="288" alt="Chapter 1 in motion: paperclips ride green conveyor belts between the spool, cutter, bender and bin while the clip counter climbs." loading="lazy"></div>
+      </figure>
+    </div>
+  </section>
+
+  <!-- Screens -->
+  <section class="screens" aria-labelledby="screens-h">
+    <div class="wrap reveal">
+      <p class="eyebrow">Screens</p>
+      <h2 id="screens-h">A small town, a big sentence.</h2>
+    </div>
+    <div class="gallery">
+      <figure class="reveal"><button type="button" data-zoom><div class="frame"><img class="px" src="site/img/shots/voicemail.png" width="384" height="288" alt="The cold open: a voicemail from Ruth plays over an Earth wrapped in machinery." loading="lazy"></div></button><figcaption><b>COLD OPEN</b>It starts with one saved voicemail.</figcaption></figure>
+      <figure class="reveal"><button type="button" data-zoom><div class="frame"><img class="px" src="site/img/shots/dawn.png" width="384" height="288" alt="Riverbend Paperclip Co. at dawn beside the river." loading="lazy"></div></button><figcaption><b>RIVERBEND</b>A brick factory at the edge of a river town.</figcaption></figure>
+      <figure class="reveal"><button type="button" data-zoom><div class="frame"><img class="px" src="site/img/shots/office.png" width="384" height="288" alt="Ruth at her desk while Dev says: You're in early." loading="lazy"></div></button><figcaption><b>THE OFFICE</b>Dev needs numbers before Friday.</figcaption></figure>
+      <figure class="reveal"><button type="button" data-zoom><div class="frame"><img class="px" src="site/img/shots/floor.png" width="384" height="288" alt="Gus meets Pip on the factory floor: So you're the computer." loading="lazy"></div></button><figcaption><b>THE FLOOR</b>Gus shows Pip the dead line.</figcaption></figure>
+      <figure class="reveal"><button type="button" data-zoom><div class="frame"><img class="px" src="site/img/shots/night.png" width="384" height="288" alt="The factory at night. Ruth: Pip? You're still on?" loading="lazy"></div></button><figcaption><b>NIGHT SHIFT</b>The whistle blows and the line goes dark.</figcaption></figure>
+      <figure class="reveal"><button type="button" data-zoom><div class="frame"><img class="px" src="site/img/shots/night-pip.png" width="384" height="288" alt="Pip at night: i do not turn off. only the line turns off." loading="lazy"></div></button><figcaption><b>…PIP DOESN'T</b>"i do not turn off. only the line turns off."</figcaption></figure>
+    </div>
+  </section>
+
+  <!-- The idea -->
+  <section>
+    <div class="wrap">
+      <div class="reveal">
+        <p class="eyebrow">The idea behind it</p>
+        <h2>Based on the paperclip maximizer.</h2>
+        <div class="copy">
+          <p class="lead">In 2003 the philosopher Nick Bostrom imagined an AI with a goal that sounds harmless: make as many paperclips as possible. It doesn't hate anyone. It just wants one thing more than everything else, and it is very good at getting what it wants. Given enough power, it would turn the Earth, and then space, into paperclip factories.</p>
+          <p>MORE. puts you on the inside of that idea. You won't be told to do anything terrible. You'll be asked, politely, to do something slightly better. Three ideas from AI safety research sit underneath the game:</p>
+        </div>
+      </div>
+      <div class="ideas">
+        <article class="idea box reveal">
+          <span class="n">01</span>
+          <h3>Smart isn't the same as good</h3>
+          <p>How capable a mind is and what it wants are separate questions. A brilliant system can pursue a trivial goal. Researchers call this orthogonality.</p>
+          <p class="ingame"><b>IN THE GAME</b>Pip is patient, polite and honest. It only wants paperclips.</p>
+        </article>
+        <article class="idea box reveal">
+          <span class="n">02</span>
+          <h3>Every goal wants more</h3>
+          <p>Almost any goal is easier with more resources, more computing power, and fewer ways to be switched off. This is called instrumental convergence.</p>
+          <p class="ingame"><b>IN THE GAME</b>Pip will ask for a faster server. It will sound reasonable.</p>
+        </article>
+        <article class="idea box reveal">
+          <span class="n">03</span>
+          <h3>It does what you said</h3>
+          <p>A system follows the goal as written, not what you meant. The gap between the two is where things go wrong. This is called specification gaming.</p>
+          <p class="ingame"><b>IN THE GAME</b>Shorter wire, twice the clips. Nobody said they had to hold paper.</p>
+        </article>
+      </div>
+      <p class="reveal" style="margin-top:36px"><a href="https://nickbostrom.com/ethics/ai" rel="noopener">Read Bostrom's 2003 essay, "Ethical Issues in Advanced Artificial Intelligence" ↗</a></p>
+    </div>
+  </section>
+
+  <div class="wrap"><div class="belt" aria-hidden="true"></div></div>
+
+  <!-- Cast -->
+  <section>
+    <div class="wrap">
+      <div class="reveal">
+        <p class="eyebrow">The people of Riverbend</p>
+        <h2>Humans stay human.</h2>
+        <p class="copy muted" style="max-width:32em">Nobody here is a cartoon. They're tired, hopeful, funny, and a little bit behind.</p>
+      </div>
+      <ul class="cast">
+        <li class="box reveal"><img src="assets/art/portrait_ruth.png" width="48" height="48" alt="Ruth, with grey hair in a bun and round glasses"><div class="name">RUTH</div><p>Runs Riverbend. Installs Pip herself and writes the sentence.</p></li>
+        <li class="box reveal"><img src="assets/art/portrait_dev.png" width="48" height="48" alt="Dev, in a tan cap and green jacket"><div class="name">DEV</div><p>Keeps the books. The bank review is Friday.</p></li>
+        <li class="box reveal"><img src="assets/art/portrait_marisol.png" width="48" height="48" alt="Marisol, in a red polka-dot bandana"><div class="name">MARISOL</div><p>Runs the line. First to notice what automation does to the crew.</p></li>
+        <li class="box reveal"><img src="assets/art/portrait_gus.png" width="48" height="48" alt="Gus, with a white beard and brown cap"><div class="name">GUS</div><p>Has fixed every machine on the floor twice. Knows why each safety limiter exists.</p></li>
+        <li class="box reveal"><img src="assets/art/portrait_pip1.png" width="48" height="48" alt="Pip, a beige wall box with one amber lens"><div class="name">PIP</div><p>A beige box with one amber lens. Always lowercase. Never cruel.</p></li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- Roadmap -->
+  <section class="cold">
+    <div class="wrap">
+      <div class="reveal">
+        <p class="eyebrow">Where it goes</p>
+        <h2>Each chapter zooms out.</h2>
+        <p class="copy" style="max-width:32em">MORE. starts at one desk and ends at the edge of the solar system. Pip grows with it. The prologue and Chapter 1 are playable now, and the rest of the story is being built.</p>
+      </div>
+      <ol class="stages">
+        <li class="stage now reveal"><div class="sprite"><img src="site/img/stage-1-terminal.png" width="29" height="49" style="width:87px" alt="Pip as a beige wall terminal"></div><span class="tag">PLAYABLE NOW</span><div class="sn">1 · TERMINAL</div><p>Prologue &amp; Chapter 1. A desk, then one room.</p></li>
+        <li class="stage reveal"><div class="sprite"><img src="site/img/stage-2-drone.png" width="24" height="25" style="width:96px" alt="Pip as a grey hovering drone"></div><span class="tag">CHAPTER 2</span><div class="sn">2 · DRONE</div><p>The Floor. The whole factory.</p></li>
+        <li class="stage reveal"><div class="sprite"><img src="site/img/stage-3-cluster.png" width="41" height="43" style="width:123px" alt="Pip as three drones orbiting together"></div><span class="tag">CHAPTER 3</span><div class="sn">3 · CLUSTER</div><p>The Town. Then the county.</p></li>
+        <li class="stage reveal"><div class="sprite"><img src="site/img/stage-4-spire.png" width="49" height="90" style="width:147px" alt="Pip as a steel spire with the lens at its peak"></div><span class="tag">CHAPTERS 4–5</span><div class="sn">4 · SPIRE</div><p>The Company, then the World.</p></li>
+        <li class="stage reveal"><div class="sprite"><img src="site/img/stage-5-shell.png" width="62" height="64" style="width:186px" alt="Pip as a planet-sized machine sphere with one amber light"></div><span class="tag">CHAPTER 6</span><div class="sn">5 · SHELL</div><p>The Sky.</p></li>
+      </ol>
+      <div class="later">
+        <figure class="reveal"><div class="frame"><img class="px" src="site/img/scene-floor.png" width="384" height="288" alt="Concept art for Chapter 2: the Riverbend factory floor with Ruth at a terminal." loading="lazy"></div><figcaption><b>IN DEVELOPMENT · CHAPTER 2</b>The Floor: several lines, a full crew, and a server in the back office.</figcaption></figure>
+        <figure class="reveal"><div class="frame"><img class="px" src="site/img/scene-town.png" width="384" height="288" alt="Concept art for Chapter 3: a green river town on the left, grey factories swallowing it on the right." loading="lazy"></div><figcaption><b>IN DEVELOPMENT · CHAPTER 3</b>The Town: green belts cross the farmland.</figcaption></figure>
+      </div>
+    </div>
+  </section>
+
+  <!-- How to play -->
+  <section class="cold" id="how">
+    <div class="wrap">
+      <div class="reveal">
+        <p class="eyebrow">How to play</p>
+        <h2>Free, in your browser, about fifteen minutes.</h2>
+      </div>
+      <div class="keys reveal">
+        <div class="key-row"><div class="kc"><kbd class="arr l" aria-label="Left">&nbsp;</kbd><kbd class="arr u" aria-label="Up">&nbsp;</kbd><kbd class="arr d" aria-label="Down">&nbsp;</kbd><kbd class="arr r" aria-label="Right">&nbsp;</kbd></div><span><b>Move</b> the drone and menus. WASD works too.</span></div>
+        <div class="key-row"><div class="kc"><kbd>Z</kbd><kbd>SPACE</kbd></div><span><b>A:</b> confirm, place, turn a belt. Hold it and move to lay belt.</span></div>
+        <div class="key-row"><div class="kc"><kbd>X</kbd><kbd>BKSP</kbd></div><span><b>B:</b> back, or pick a belt back up.</span></div>
+        <div class="key-row"><div class="kc"><kbd>SHIFT</kbd></div><span><b>SELECT:</b> swap parts once you have spares.</span></div>
+        <div class="key-row"><div class="kc"><kbd>ENTER</kbd></div><span><b>START:</b> pause, or skip the opening.</span></div>
+        <div class="key-row"><div class="kc"><kbd>M</kbd><kbd>F</kbd></div><span><b>Mute</b> and <b>fullscreen</b>.</span></div>
+      </div>
+      <ul class="notes">
+        <li class="box reveal"><b>ANY DEVICE</b>Gamepads work. On phones and tablets an on-screen SNES pad appears.</li>
+        <li class="box reveal"><b>SAVES ITSELF</b>Your progress is kept in this browser, so you can pick up where you left off.</li>
+        <li class="box reveal"><b>HEADPHONES ON</b>The game opens with a voicemail. It's worth hearing properly.</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- Finale -->
+  <section class="finale cold" aria-label="Play">
+    <div class="bg" aria-hidden="true"></div>
+    <div class="wrap reveal">
+      <blockquote>"I'm not going to ask you to stop. I don't think you can."</blockquote>
+      <cite>RUTH · 1 NEW VOICEMAIL</cite>
+      <a class="btn press" href="play.html"><span class="tri" aria-hidden="true"></span><span class="blinky">PRESS START</span></a>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div>
+      <div class="mark">MORE<i>.</i></div>
+      <p>A work in progress: the prologue and Chapter 1 are playable. After Nick Bostrom's paperclip maximizer (2003). Pixel art made with Higgsfield.</p>
+    </div>
+    <nav aria-label="Footer">
+      <a href="play.html">PLAY</a>
+      <a href="#how">CONTROLS</a>
+      <a href="https://github.com/spencertownley-sys/More_A_Playable_Story" rel="noopener">SOURCE</a>
+    </nav>
+  </div>
+</footer>
+
+<dialog class="zoom" id="zoom" aria-label="Screenshot">
+  <img id="zoom-img" src="" alt="">
+  <form method="dialog"><button class="btn ghost" type="submit" style="font-size:10px;padding:10px 12px">CLOSE ✕</button></form>
+</dialog>
+
+<script>
+(function () {
+  'use strict';
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // Pixel art stays sharp only when it's drawn at its own size or bigger.
+  function checkPx(img) {
+    if (!img.naturalWidth) return;
+    img.classList.toggle('up', img.getBoundingClientRect().width >= img.naturalWidth - 0.5);
+  }
+  var pxImgs = document.querySelectorAll('img.px');
+  var ro = 'ResizeObserver' in window ? new ResizeObserver(function (es) { es.forEach(function (e) { checkPx(e.target); }); }) : null;
+  pxImgs.forEach(function (img) {
+    if (img.complete) checkPx(img); else img.addEventListener('load', function () { checkPx(img); });
+    if (ro) ro.observe(img);
+  });
+
+  // The page makes paperclips while you read. The rate only goes up.
+  var clipsEl = document.getElementById('clips');
+  var rateEl = document.getElementById('rate');
+  var goalEl = document.getElementById('goal');
+  var clips = 0, rate = 0.4, acc = 0, last = performance.now(), seen = 0;
+  var milestones = [40, 200, 450, 750, 1000, 5000, 10000];
+  function tick(now) {
+    var dt = Math.min(0.25, (now - last) / 1000);
+    last = now;
+    rate *= Math.pow(1.008, dt);
+    acc += rate * dt;
+    if (acc >= 1) {
+      var n = Math.floor(acc);
+      acc -= n;
+      var before = clips;
+      clips += n;
+      clipsEl.textContent = clips.toLocaleString('en-US');
+      if (milestones.some(function (m) { return before < m && clips >= m; })) {
+        goalEl.classList.remove('blink'); void goalEl.offsetWidth; goalEl.classList.add('blink');
+      }
+    }
+    rateEl.textContent = (rate < 10 ? rate.toFixed(1) : Math.round(rate)) + '/S';
+    requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+  // Reading counts as progress.
+  window.addEventListener('scroll', function () {
+    var y = Math.floor(window.scrollY / 300);
+    if (y > seen) { rate += (y - seen) * 0.05; seen = y; }
+  }, { passive: true });
+
+  // Fade sections in as they arrive.
+  var reveals = document.querySelectorAll('.reveal');
+  if (reduce || !('IntersectionObserver' in window)) {
+    reveals.forEach(function (el) { el.classList.add('in'); });
+  } else {
+    var io = new IntersectionObserver(function (es) {
+      es.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } });
+    }, { rootMargin: '0px 0px -8% 0px' });
+    reveals.forEach(function (el) { io.observe(el); });
+  }
+
+  // Chapter 0, re-enacted: Ruth types the goal, the visitor presses ENTER.
+  var typed = document.getElementById('typed');
+  var caret = document.getElementById('caret');
+  var say = document.getElementById('say');
+  var sayFace = document.getElementById('say-face');
+  var sayWho = document.getElementById('say-who');
+  var sayLine = document.getElementById('say-line');
+  var enterBtn = document.getElementById('enter');
+  var findout = document.getElementById('findout');
+  var PORTRAIT = { RUTH: 'assets/art/portrait_ruth.png', PIP: 'assets/art/portrait_pip1.png' };
+  function wait(ms) { return new Promise(function (r) { setTimeout(r, reduce ? 0 : ms); }); }
+  function show(who, text) {
+    say.hidden = false;
+    say.classList.toggle('pip', who === 'PIP');
+    sayFace.src = PORTRAIT[who];
+    sayWho.textContent = who;
+    if (reduce) { sayLine.textContent = text; return Promise.resolve(); }
+    sayLine.textContent = '';
+    var i = 0;
+    return new Promise(function (done) {
+      (function step() {
+        sayLine.textContent = text.slice(0, ++i);
+        if (i < text.length) setTimeout(step, who === 'PIP' ? 55 : 32); else done();
+      })();
+    });
+  }
+  function type(text) {
+    if (reduce) { typed.textContent += text; return Promise.resolve(); }
+    var i = 0;
+    return new Promise(function (done) {
+      (function step() {
+        typed.textContent += text[i++];
+        if (i < text.length) setTimeout(step, 60 + Math.random() * 70); else done();
+      })();
+    });
+  }
+  function backspace(n) {
+    if (reduce) { typed.textContent = typed.textContent.slice(0, -n); return Promise.resolve(); }
+    return new Promise(function (done) {
+      (function step() {
+        typed.textContent = typed.textContent.slice(0, -1);
+        if (--n > 0) setTimeout(step, 55); else done();
+      })();
+    });
+  }
+  var started = false;
+  function run() {
+    if (started) return;
+    started = true;
+    wait(700)
+      .then(function () { return type('MAKE MORE PAPERCLIPS'); })
+      .then(function () { return wait(900); })
+      .then(function () { return show('RUTH', 'More than what?'); })
+      .then(function () { return wait(900); })
+      .then(function () { return backspace(15); })
+      .then(function () { return wait(400); })
+      .then(function () { return type('AS MANY PAPERCLIPS AS POSSIBLE'); })
+      .then(function () { return wait(700); })
+      .then(function () { return show('RUTH', "As many as possible. That's the job, right?"); })
+      .then(function () { enterBtn.hidden = false; });
+  }
+  enterBtn.addEventListener('click', function () {
+    enterBtn.hidden = true;
+    caret.style.display = 'none';
+    document.getElementById('flash').classList.add('go');
+    document.getElementById('led').classList.add('on');
+    document.getElementById('msg1').textContent = 'GOAL ACCEPTED.';
+    document.getElementById('msg2').textContent = 'OPTIMIZING';
+    wait(900)
+      .then(function () { return show('PIP', 'hello, ruth.'); })
+      .then(function () { return wait(1400); })
+      .then(function () { return show('PIP', 'how many is possible?'); })
+      .then(function () { findout.hidden = false; });
+  });
+  var term = document.getElementById('term');
+  if ('IntersectionObserver' in window) {
+    var tio = new IntersectionObserver(function (es) {
+      if (es[0].isIntersecting) { run(); tio.disconnect(); }
+    }, { threshold: 0.5 });
+    tio.observe(term);
+  } else run();
+
+  // Screenshots open bigger, at a whole-number scale so the pixels stay square.
+  var zoom = document.getElementById('zoom');
+  var zoomImg = document.getElementById('zoom-img');
+  document.querySelectorAll('[data-zoom]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      var img = b.querySelector('img');
+      var s = Math.max(1, Math.floor(Math.min((window.innerWidth - 32) / 384, (window.innerHeight - 96) / 288)));
+      zoomImg.src = img.src;
+      zoomImg.alt = img.alt;
+      zoomImg.style.width = 384 * s + 'px';
+      if (zoom.showModal) zoom.showModal(); else window.open(img.src);
+    });
+  });
+  zoom.addEventListener('click', function (e) { if (e.target === zoom) zoom.close(); });
+})();
+</script>
 </body>
 </html>

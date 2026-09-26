@@ -1,6 +1,6 @@
 // Regenerates src/data/voicemail-data.js from assets/audio/ruth_voicemail.mp3.
 // Embedding the clip as base64 lets the game decode it with WebAudio even when
-// index.html is opened straight from disk (file://), where fetch() is blocked.
+// play.html is opened straight from disk (file://), where fetch() is blocked.
 //
 //   node tools/embed-voicemail.mjs
 import { readFileSync, writeFileSync } from 'node:fs';

@@ -10,8 +10,10 @@ The story, cast and chapter plan are in [`docs/STORY.md`](docs/STORY.md).
 
 ## Play
 
-Open `index.html` in a browser. No build step or server needed: it runs
-straight from disk.
+Play it at **[makemorepaperclips.com](https://makemorepaperclips.com)**.
+
+To run it locally, open `play.html` in a browser. No build step or server
+needed: it runs straight from disk.
 
 | SNES | Keyboard | What it does |
 |---|---|---|
@@ -41,7 +43,9 @@ the line for the night shift (free play).
 ## Layout
 
 ```
-index.html            page shell, touch pad, script order
+index.html            the landing page (makemorepaperclips.com)
+play.html             the game: page shell, touch pad, script order
+site/img/             landing page images: screenshots, Pip's stages, share card, icons
 src/core/             engine: palette, font, gfx, input, audio, save, script runner, dialog
 src/art/              small palette-string sprites (items riding the belts)
 src/data/             art manifest (generated), music patterns, embedded voicemail
@@ -51,13 +55,13 @@ assets/higgsfield/    the Higgsfield originals, plus sources.json (job IDs and p
 assets/art/           game-ready sprites cut from them by tools/art/build.py
 assets/audio/         ruth_voicemail.mp3 (source for src/data/voicemail-data.js)
 assets/reference/     the first pre-work: concept sprite sheet and factory mockup
-tools/                art/build.py, embed-voicemail.mjs, build.mjs
+tools/                art/build.py, site/assets.py, embed-voicemail.mjs, build.mjs
 docs/STORY.md         story bible
 ```
 
 Everything renders into a 384×288 canvas (4:3, the frame of the Higgsfield
 art) scaled up by whole pixels. The art is the Higgsfield images, snapped onto a
-true pixel grid by `tools/art/build.py` (see "Art" below). Open `index.html#mockup`
+true pixel grid by `tools/art/build.py` (see "Art" below). Open `play.html#mockup`
 to see the puzzle screen from the original mockup rebuilt in this style.
 
 Images load from `assets/art/`, so keep the folder together when you copy it.
@@ -105,3 +109,15 @@ In the console, `MORE.debug.factory.st.clips = 199` jumps the clip count.
 node tools/embed-voicemail.mjs   # after replacing assets/audio/ruth_voicemail.mp3
 node tools/build.mjs             # writes dist/more.html, everything inlined
 ```
+
+## Website
+
+The site is served by GitHub Pages straight from the root of `main`, with the
+custom domain in `CNAME`. There is no build step: `index.html` is the landing
+page and `play.html` is the game, both running from the same `src/` and
+`assets/` folders. `.nojekyll` tells Pages to serve the files as they are.
+
+`python3 tools/site/assets.py` rebuilds Pip's stages, the "in development"
+scenes and the icons in `site/img/`. The screenshots in `site/img/shots/` and
+the factory loop (`site/img/line.webp`) are captures of the running game.
+

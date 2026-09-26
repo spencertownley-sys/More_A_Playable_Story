@@ -975,18 +975,18 @@
     }
 
     function drawHUD() {
-      g.box(0, 0, 112, 28);
+      g.box(0, 0, 136, 28);
       g.draw('clip_icon', 9, 6);
       g.text('CLIPS', 26, 6, P.STEEL_LT);
       g.text(fmt(st.clips), 26, 15, P.WHITE);
       const rt = rate();
-      if (!st.powered) g.textRight('OFF', 104, 6, P.GRID);
-      else if (rt > 0) g.textRight(rt.toFixed(1) + '/S', 104, 6, P.STEEL_DK);
+      if (!st.powered) g.textRight('OFF', 128, 6, P.GRID);
+      else if (rt > 0) g.textRight(rt.toFixed(1) + '/S', 128, 6, P.STEEL_DK);
 
-      g.box(112, 0, 272, 28);
-      g.text('GOAL: MAKE AS MANY', 122, 6, P.ORANGE);
+      g.box(136, 0, 248, 28);
+      g.text('GOAL: MAKE AS MANY', 146, 6, P.ORANGE);
       const hide = st.goalBlink > 0 && Math.floor(t * 5) % 2 === 0;
-      g.text(hide ? 'PAPERCLIPS AS' : 'PAPERCLIPS AS POSSIBLE', 122, 15, P.ORANGE);
+      g.text(hide ? 'PAPERCLIPS AS' : 'PAPERCLIPS AS POSSIBLE', 146, 15, P.ORANGE);
     }
 
     function hintLine(cur) {
