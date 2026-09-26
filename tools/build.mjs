@@ -10,7 +10,8 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
-const html = readFileSync(join(root, 'index.html'), 'utf8');
+// The ABOUT link points at the landing page, which the single file doesn't have.
+const html = readFileSync(join(root, 'play.html'), 'utf8').replace(/\s*<a id="home"[^>]*>[^<]*<\/a>/, '');
 
 let count = 0;
 const bundled = html.replace(/<script src="([^"]+)"><\/script>/g, (_, src) => {

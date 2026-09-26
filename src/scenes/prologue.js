@@ -10,7 +10,7 @@
   // The terminal's screen in terminal_bg is (101,47)-(282,171).
   const TERM = { x: 105, cols: 22, sys: 54, prompt: 94, goal: 114, lh: 10, msg: 148, screen: [101, 47, 182, 125], led: [191, 192] };
   const WALL_LENS = [278, 55]; // Pip's lens in the wall box, office_bg
-  const HUD_GOAL = [122, 6];
+  const HUD_GOAL = [146, 6];
   const PHOSPHOR = '#5a9e3c';
 
   // Dust in the window light on the office floor.
@@ -312,10 +312,10 @@
     }
 
     function drawHUDFrame() {
-      g.box(0, 0, 112, 28);
+      g.box(0, 0, 136, 28);
       g.draw('clip_icon', 9, 6);
       g.text('CLIPS', 26, 6, P.STEEL_LT);
-      g.box(112, 0, 272, 28);
+      g.box(136, 0, 248, 28);
     }
 
     function drawClips() {

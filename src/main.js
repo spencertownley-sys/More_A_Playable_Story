@@ -98,7 +98,7 @@
       });
     }
 
-    // Debug/deep links: index.html#title, #prologue, #factory, #night, #end
+    // Debug/deep links: play.html#title, #prologue, #factory, #night, #end
     const start = (location.hash || '').slice(1);
     M.gfx.clear(M.PAL.INK);
     M.gfx.loadArt(M.ART_MANIFEST, () => {
