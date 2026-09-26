@@ -132,5 +132,59 @@
       "0b9a632d-f0a7-4928-bcdd-6f3894df6d77"
     ],
     "prompt": "16-bit SNES-style pixel art dialogue portrait sheet for a retro RPG, matching the characters, colors and chunky pixel style of the reference images exactly. Six large square head-and-shoulders portrait busts arranged in a neat 3 by 2 grid, each bust drawn on its own flat solid dark brown square (#2a1a16), and the squares separated by wide gaps of flat pure black. No frames, no borders, no text, no labels. Top row, left to right: RUTH, an older woman with grey hair in a bun, round wire glasses, blue overalls over a cream shirt, a warm but tired half smile; DEV, a young man with a tan baseball cap, green work jacket and brown hair; MARISOL, a woman with a red polka-dot bandana, dark hair and a brown work shirt. Bottom row, left to right: GUS, an older man with a brown cap, a short white beard and grey coveralls; PIP TERMINAL, a beige metal wall-mounted box seen straight on, with one large round glowing amber lens and a small speaker grille; PIP DRONE, a grey metal cube drone seen from the front with one large round glowing amber lens. Each bust faces the viewer and fills most of its square. 1-pixel dark outlines, limited palette, crisp chunky pixels, no anti-aliasing, no gradients, no blur."
+  },
+  "office.png": {
+    "higgsfield_job_id": "54651d6b-2ef2-4f41-bed2-f4c56d2bde01",
+    "model": "gpt_image_2_5",
+    "size": [
+      1168,
+      880
+    ],
+    "references": [
+      "074dec0e-0a80-4320-85ce-4f47a629632e",
+      "e27193b3-88ae-424e-8f07-aa4da667fada",
+      "700b94ae-fb3e-40ed-aab6-895fbf4e3c01"
+    ],
+    "prompt": "16-bit SNES-style pixel art, top-down three-quarter view of a small cozy office inside an old brick paperclip factory at dawn ... Ruth ... sits at a wooden desk on the left, typing on a beige 1980s CRT terminal ... (see Higgsfield job for the full prompt)"
+  },
+  "office_dev.png": {
+    "higgsfield_job_id": "9b3429f5-8051-498a-89f5-04ad35f50bf9",
+    "model": "gpt_image_2_5",
+    "size": [
+      1168,
+      880
+    ],
+    "references": [
+      "54651d6b-2ef2-4f41-bed2-f4c56d2bde01",
+      "700b94ae-fb3e-40ed-aab6-895fbf4e3c01",
+      "aa8f0611-7616-4de9-a00b-4748c64c3575"
+    ],
+    "prompt": "Edit of office.png adding Dev standing in the middle of the room facing Ruth, same scale; everything else unchanged."
+  },
+  "terminal_closeup.png": {
+    "higgsfield_job_id": "b4c45d2b-1e69-4453-8b48-88bcf385a685",
+    "model": "gpt_image_2_5",
+    "size": [
+      1168,
+      880
+    ],
+    "references": [
+      "e27193b3-88ae-424e-8f07-aa4da667fada",
+      "074dec0e-0a80-4320-85ce-4f47a629632e"
+    ],
+    "prompt": "Close-up straight-on view of a beige 1980s CRT terminal on a wooden desk at dawn, large blank dark screen, unlit amber power light, keyboard, coffee mug, box of paperclips."
+  },
+  "dawn_exterior.png": {
+    "higgsfield_job_id": "1783aa29-779f-4f25-a33a-18af38be81f0",
+    "model": "gpt_image_2_5",
+    "size": [
+      1168,
+      880
+    ],
+    "references": [
+      "2ff9fa36-e83c-446a-916f-bae8a84a2e67",
+      "25fa16b9-72d0-4419-8f1f-ab4e60d61e2a"
+    ],
+    "prompt": "Establishing shot at dawn: the Riverbend Paperclip Co. brick factory on the riverbank at 6:40 AM, one lit office window, pickup truck, streetlights, mist on the river."
   }
 }

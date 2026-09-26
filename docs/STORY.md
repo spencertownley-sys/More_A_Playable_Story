@@ -183,8 +183,7 @@ All art comes from Higgsfield (GPT Image 2.5). The originals are in
 `assets/higgsfield/`, and `sources.json` records each one's job ID and prompt.
 
 - **Resolution:** 384×288 (4:3, the frame of the Higgsfield art), scaled up by
-  whole device pixels. The prologue still runs on the first build's 256×224
-  frame until its office art is converted.
+  whole device pixels.
 - **Pipeline:** `tools/art/build.py` crops each sprite from its sheet, removes
   the sheet background, and snaps it onto a true pixel grid. It takes the most
   common colour per block, with colours rounded to SNES 15-bit. Output goes to

@@ -31,7 +31,7 @@ the PAD button toggles it anywhere.
 |---|---|
 | Cold open: Ruth's voicemail over the machine-Earth, with subtitles and a phone-line filter | done, Higgsfield art |
 | Title screen, save/continue | done, Higgsfield art |
-| Chapter 0 *The Sentence*: Ruth's office, the terminal, the player presses ENTER | playable; still on the first-draft art |
+| Chapter 0 *The Sentence*: the factory at dawn, Ruth's office, the terminal, the player presses ENTER | done, Higgsfield art |
 | Chapter 1 *The Line*: the factory puzzle at Riverbend, nine story beats, night scene | done, Higgsfield art |
 | Chapters 2–6 and the epilogue | planned in `docs/STORY.md` |
 
@@ -43,7 +43,7 @@ the line for the night shift (free play).
 ```
 index.html            page shell, touch pad, script order
 src/core/             engine: palette, font, gfx, input, audio, save, script runner, dialog
-src/art/              small palette-string sprites (items on belts, first-draft prologue art)
+src/art/              small palette-string sprites (items riding the belts)
 src/data/             art manifest (generated), music patterns, embedded voicemail
 src/story/            cast, voicemail captions, and each chapter's script
 src/scenes/           boot/cold open/title, prologue, factory, chapter end

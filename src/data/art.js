@@ -11,6 +11,28 @@
       "w": 384,
       "h": 288
     },
+    "dawn_bg": {
+      "file": "assets/art/dawn_bg.png",
+      "w": 384,
+      "h": 288
+    },
+    "office_bg": {
+      "file": "assets/art/office_bg.png",
+      "w": 384,
+      "h": 288
+    },
+    "terminal_bg": {
+      "file": "assets/art/terminal_bg.png",
+      "w": 384,
+      "h": 288
+    },
+    "dev_office": {
+      "file": "assets/art/dev_office.png",
+      "w": 34,
+      "h": 82,
+      "x": 205,
+      "y": 92
+    },
     "floor": {
       "file": "assets/art/floor.png",
       "w": 32,

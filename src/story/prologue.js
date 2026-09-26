@@ -7,14 +7,14 @@
   M.STORY = M.STORY || {};
 
   M.STORY.prologue = function* (S) {
-    yield S.card(['RIVERBEND PAPERCLIP CO.', 'MONDAY  6:40 AM'], 3.4);
+    yield S.card(['RIVERBEND PAPERCLIP CO.', 'MONDAY  6:40 AM'], 4.4);
     yield S.music('office');
     yield S.tween(S.view, 'room', 1, 1.2);
     yield S.wait(0.8);
     yield S.say('ruth', 'Okay. Okay, okay.');
     yield S.wait(0.6);
     yield S.sfx('door');
-    yield S.enter('dev', 150);
+    yield S.enter('dev');
     yield S.say('dev', "You're in early.");
     yield S.say('ruth', 'Wanted it running before the floor gets here.');
     yield S.say('dev', "So that's the thing.");

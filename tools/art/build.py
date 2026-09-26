@@ -52,6 +52,12 @@ SPEC = [
     # full-screen backgrounds (384x288, the game's frame)
     dict(name='title_bg', src='title_screen_clean.png', size=(384, 288)),
     dict(name='earth_bg', src='earth_machine_shell.png', size=(384, 288)),
+    dict(name='dawn_bg', src='dawn_exterior.png', size=(384, 288)),
+    dict(name='office_bg', src='office.png', size=(384, 288)),
+    dict(name='terminal_bg', src='terminal_closeup.png', size=(384, 288)),
+    # Dev standing in the office: cut out of an edited copy of the office art
+    # by comparing it with the original, so he lines up with office_bg exactly.
+    dict(name='dev_office', src='office_dev.png', base='office.png', size=(384, 288), region=(196, 88, 248, 178)),
     # factory tiles and props
     dict(name='floor', src=TILESET, box=(26, 33, 133, 131), size=(32, 32)),
     dict(name='floor_long', src=TILESET, box=(25, 725, 480, 135), size=(112, 32)),
@@ -188,6 +194,28 @@ def portraits():
     return result
 
 
+def cutout(spec):
+    """Pixels that differ between an edited image and its original, as a sprite.
+
+    Both images are snapped onto the same grid first, so the result sits on the
+    original background exactly. Returns (rgba, x, y) in game pixels."""
+    w, h = spec['size']
+    a = snap(load(spec['base']), None, w, h)[..., :3].astype(int)
+    b = snap(load(spec['src']), None, w, h)
+    d = np.abs(b[..., :3].astype(int) - a).sum(-1)
+    x0, y0, x1, y1 = spec['region']
+    m = ndimage.binary_opening(d[y0:y1, x0:x1] > spec.get('thr', 35), structure=np.ones((3, 3)))
+    lab, n = ndimage.label(m)
+    sizes = ndimage.sum(m, lab, range(1, n + 1))
+    keep = lab == (int(np.argmax(sizes)) + 1)
+    keep = ndimage.binary_fill_holes(ndimage.binary_closing(keep, iterations=2))
+    keep |= ndimage.binary_dilation(keep, iterations=1) & (d[y0:y1, x0:x1] > 25)
+    out = b[y0:y1, x0:x1].copy()
+    out[..., 3] = keep * 255
+    ys, xs = np.nonzero(keep)
+    return out[ys.min(): ys.max() + 1, xs.min(): xs.max() + 1], x0 + int(xs.min()), y0 + int(ys.min())
+
+
 def glow_box(rgba):
     r, g, b, a = [rgba[..., i].astype(int) for i in range(4)]
     amber = (a > 0) & (r > 180) & (g > 90) & (g < 200) & (b < 90)
@@ -218,6 +246,10 @@ def main():
             img = load(spec['src'])
             cache[spec['src']] = (img, sheet_bg(img))
         img, bg = cache[spec['src']]
+        if 'base' in spec:
+            rgba, x, y = cutout(spec)
+            save(spec['name'], rgba, manifest, x=x, y=y)
+            continue
         if 'frames' in spec:
             frames = [extract(img, bg, b, spec.get('scale'), None, True) for b in spec['frames']]
             fw = max(f.shape[1] for f in frames)
