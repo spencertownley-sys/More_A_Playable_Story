@@ -12,15 +12,17 @@ The story, cast and chapter plan are in [`docs/STORY.md`](docs/STORY.md).
 
 Play it at **[makemorepaperclips.com](https://makemorepaperclips.com)**.
 
-To run it locally, open `play.html` in a browser. No build step or server
-needed: it runs straight from disk.
+To run it locally, open `play.html` in a browser. No server needed: it runs
+straight from disk. If you edit anything under `src/`, run
+`node tools/bundle.mjs` to refresh `site/play.bundle.js` (the page loads that one
+file; `node tools/bundle.mjs --check` tells you if it is stale).
 
 | SNES | Keyboard | What it does |
 |---|---|---|
 | D-pad | Arrows / WASD | Move the drone, menus |
 | A | Z / Space | Confirm, place, turn a belt. **Hold A and move to lay belt.** |
 | B | X / Backspace | Back, remove a belt, pick up a placed machine |
-| SELECT | Shift / Tab | Swap part (belt, spare cutter, spare bender) |
+| SELECT | Shift / C | Swap part (belt, spare cutter, spare bender) |
 | START | Enter / Esc | Pause, skip the cold open |
 | | M / F | Mute / fullscreen |
 
@@ -44,8 +46,9 @@ the line for the night shift (free play).
 
 ```
 index.html            the landing page (makemorepaperclips.com)
-play.html             the game: page shell, touch pad, script order
+play.html             the game: page shell and touch pad; loads site/play.bundle.js
 site/img/             landing page images: screenshots, Pip's stages, share card, icons
+site/play.bundle.js   src/**/*.js concatenated in load order (node tools/bundle.mjs)
 src/core/             engine: palette, font, gfx, input, audio, save, script runner, dialog
 src/art/              small palette-string sprites (items riding the belts)
 src/data/             art manifest (generated), music patterns, embedded voicemail
@@ -55,7 +58,7 @@ assets/higgsfield/    the Higgsfield originals, plus sources.json (job IDs and p
 assets/art/           game-ready sprites cut from them by tools/art/build.py
 assets/audio/         ruth_voicemail.mp3 (source for src/data/voicemail-data.js)
 assets/reference/     the first pre-work: concept sprite sheet and factory mockup
-tools/                art/build.py, site/assets.py, embed-voicemail.mjs, build.mjs
+tools/                art/build.py, site/assets.py, embed-voicemail.mjs, bundle.mjs, build.mjs
 docs/STORY.md         story bible
 ```
 
