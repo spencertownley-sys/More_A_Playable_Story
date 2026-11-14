@@ -17,6 +17,7 @@
 <meta name="twitter:card" content="summary_large_image">
 <link rel="icon" type="image/png" href="site/img/favicon.png">
 <link rel="apple-touch-icon" href="site/img/touch-icon.png">
+<link rel="stylesheet" href="site/cookie-banner.css">
 <style>
   /* Fonts are self-hosted (site/fonts/), so no request leaves this origin. */
   @font-face { font-family: "Newsreader"; font-style: normal; font-weight: 400 500; font-display: swap; src: url(site/fonts/newsreader-latin.woff2) format("woff2"); }
@@ -349,6 +350,8 @@
     .belt, .stages::before, .caret, .press .blinky, .hud-goal.blink, .stop { animation: none; }
     .reveal { opacity: 1; transform: none; transition: none; }
   }
+  /* Cookie notice theme (site/cookie-banner.css) */
+  .cb { --cb-bg: #0a0e1c; --cb-fg: #f2d3ab; --cb-muted: #cdb393; --cb-border: #1c2340; --cb-accent: #e8a02a; --cb-accent-fg: #1a0f0f; --cb-radius: 0; --cb-font: "Newsreader", "Iowan Old Style", Georgia, serif; }
 </style>
 </head>
 <body>
@@ -760,5 +763,6 @@
   zoom.addEventListener('click', function (e) { if (e.target === zoom) zoom.close(); });
 })();
 </script>
+<script src="site/cookie-banner.js" defer data-cookie-banner data-mode="notice" data-policy-url="/#privacy"></script>
 </body>
 </html>
