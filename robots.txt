@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+Disallow: /tools/
+Disallow: /docs/
+Disallow: /assets/higgsfield/
+Disallow: /assets/reference/
+
+Sitemap: https://makemorepaperclips.com/sitemap.xml
