@@ -17,10 +17,11 @@
 <meta name="twitter:card" content="summary_large_image">
 <link rel="icon" type="image/png" href="site/img/favicon.png">
 <link rel="apple-touch-icon" href="site/img/touch-icon.png">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&family=Press+Start+2P&display=swap" rel="stylesheet">
 <style>
+  /* Fonts are self-hosted (site/fonts/), so no request leaves this origin. */
+  @font-face { font-family: "Newsreader"; font-style: normal; font-weight: 400 500; font-display: swap; src: url(site/fonts/newsreader-latin.woff2) format("woff2"); }
+  @font-face { font-family: "Newsreader"; font-style: italic; font-weight: 400; font-display: swap; src: url(site/fonts/newsreader-italic-latin.woff2) format("woff2"); }
+  @font-face { font-family: "Press Start 2P"; font-style: normal; font-weight: 400; font-display: swap; src: url(site/fonts/press-start-2p-latin.woff2) format("woff2"); }
   /* Palette: the game's own (src/core/palette.js). Warm at the top of the
      page, cold at the bottom, the way the story goes. */
   :root {
