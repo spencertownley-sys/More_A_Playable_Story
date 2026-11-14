@@ -69,16 +69,17 @@
   }
   #bar button, #bar a {
     font: inherit;
-    font-size: 10px;
+    font-size: 12px;
     letter-spacing: 0.08em;
-    color: var(--grid);
-    background: transparent;
-    border: 1px solid var(--floor);
-    padding: 4px 7px;
+    color: #fff3e0; /* 4.5:1 or better on the #1a0f0f page background */
+    background: var(--shadow);
+    border: 1px solid var(--grid);
+    padding: 6px 9px;
     cursor: pointer;
     text-decoration: none;
   }
-  #bar button:hover, #bar button:focus-visible, #bar a:hover, #bar a:focus-visible { color: var(--cream); border-color: var(--grid); outline: none; }
+  #bar button:hover, #bar a:hover { color: var(--orange); border-color: var(--orange); }
+  #bar button:focus-visible, #bar a:focus-visible { color: var(--orange); border-color: var(--orange); outline: 2px solid var(--orange); outline-offset: 2px; }
 
   /* on-screen SNES pad: shown on touch screens, or via the PAD button */
   #pad {
@@ -149,7 +150,7 @@
 <body>
 <main id="stage">
   <div id="screen-wrap">
-    <canvas id="screen" width="384" height="288" aria-label="MORE. game screen"></canvas>
+    <canvas id="screen" width="384" height="288" role="img" aria-label="MORE. game screen. Use the arrow keys to move and Z or Space to confirm; the story is told in on-screen text."></canvas>
   </div>
   <div id="pad" aria-hidden="true">
     <div class="dpad">

@@ -20,7 +20,7 @@ needed: it runs straight from disk.
 | D-pad | Arrows / WASD | Move the drone, menus |
 | A | Z / Space | Confirm, place, turn a belt. **Hold A and move to lay belt.** |
 | B | X / Backspace | Back, remove a belt, pick up a placed machine |
-| SELECT | Shift / Tab | Swap part (belt, spare cutter, spare bender) |
+| SELECT | Shift / C | Swap part (belt, spare cutter, spare bender) |
 | START | Enter / Esc | Pause, skip the cold open |
 | | M / F | Mute / fullscreen |
 
