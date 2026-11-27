@@ -2,8 +2,12 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; base-uri 'none'; form-action 'self'; object-src 'none'; media-src 'self' data: blob:">
+<meta name="referrer" content="strict-origin-when-cross-origin">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>MORE. · Play</title>
+<link rel="canonical" href="https://makemorepaperclips.com/play.html">
+<meta property="og:url" content="https://makemorepaperclips.com/play.html">
 <meta name="description" content="Play MORE., a 16-bit story game about the paperclip maximizer, in your browser.">
 <meta property="og:title" content="MORE.">
 <meta property="og:description" content="You were given one sentence: make as many paperclips as possible.">
@@ -65,16 +69,17 @@
   }
   #bar button, #bar a {
     font: inherit;
-    font-size: 10px;
+    font-size: 12px;
     letter-spacing: 0.08em;
-    color: var(--grid);
-    background: transparent;
-    border: 1px solid var(--floor);
-    padding: 4px 7px;
+    color: #fff3e0; /* 4.5:1 or better on the #1a0f0f page background */
+    background: var(--shadow);
+    border: 1px solid var(--grid);
+    padding: 6px 9px;
     cursor: pointer;
     text-decoration: none;
   }
-  #bar button:hover, #bar button:focus-visible, #bar a:hover, #bar a:focus-visible { color: var(--cream); border-color: var(--grid); outline: none; }
+  #bar button:hover, #bar a:hover { color: var(--orange); border-color: var(--orange); }
+  #bar button:focus-visible, #bar a:focus-visible { color: var(--orange); border-color: var(--orange); outline: 2px solid var(--orange); outline-offset: 2px; }
 
   /* on-screen SNES pad: shown on touch screens, or via the PAD button */
   #pad {
@@ -145,7 +150,7 @@
 <body>
 <main id="stage">
   <div id="screen-wrap">
-    <canvas id="screen" width="384" height="288" aria-label="MORE. game screen"></canvas>
+    <canvas id="screen" width="384" height="288" role="img" aria-label="MORE. game screen. Use the arrow keys to move and Z or Space to confirm; the story is told in on-screen text."></canvas>
   </div>
   <div id="pad" aria-hidden="true">
     <div class="dpad">
@@ -171,31 +176,7 @@
   <button id="fullscreen" type="button" title="Fullscreen (F)">FULL</button>
 </div>
 
-<!-- engine -->
-<script src="src/core/palette.js"></script>
-<script src="src/core/font.js"></script>
-<script src="src/core/gfx.js"></script>
-<script src="src/core/input.js"></script>
-<script src="src/core/audio.js"></script>
-<script src="src/core/save.js"></script>
-<script src="src/core/script.js"></script>
-<script src="src/core/dialog.js"></script>
-<!-- art -->
-<script src="src/art/sprites.js"></script>
-<!-- data + story -->
-<script src="src/data/art.js"></script>
-<script src="src/data/music.js"></script>
-<script src="src/data/voicemail-data.js"></script>
-<script src="src/story/cast.js"></script>
-<script src="src/story/voicemail.js"></script>
-<script src="src/story/prologue.js"></script>
-<script src="src/story/chapter1.js"></script>
-<script src="src/story/chapter2.js"></script>
-<!-- scenes -->
-<script src="src/scenes/intro.js"></script>
-<script src="src/scenes/prologue.js"></script>
-<script src="src/scenes/factory.js"></script>
-<script src="src/scenes/chapter-end.js"></script>
-<script src="src/main.js"></script>
+<!-- One bundle of src/**/*.js in load order; regenerate with: node tools/bundle.mjs -->
+<script src="site/play.bundle.js"></script>
 </body>
 </html>

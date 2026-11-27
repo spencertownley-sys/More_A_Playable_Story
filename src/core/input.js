@@ -13,7 +13,7 @@
     ArrowRight: 'right', KeyD: 'right',
     KeyZ: 'a', KeyJ: 'a', Space: 'a',
     KeyX: 'b', KeyK: 'b', Backspace: 'b',
-    ShiftLeft: 'sel', ShiftRight: 'sel', Tab: 'sel', KeyC: 'sel',
+    ShiftLeft: 'sel', ShiftRight: 'sel', KeyC: 'sel', // Tab stays free so keyboard users can reach ABOUT, PAD and FULL
     Enter: 'start', Escape: 'start', KeyP: 'start',
     KeyQ: 'l', KeyE: 'r',
   };
@@ -30,6 +30,8 @@
   function onKey(e, down) {
     const b = KEYMAP[e.code];
     if (!b) return;
+    // A focused page control (ABOUT, PAD, FULL) keeps Space and Enter for itself.
+    if (e.target && e.target.closest && e.target.closest('#bar')) return;
     if (e.metaKey || e.ctrlKey || e.altKey) return;
     e.preventDefault();
     if (down && !keyDown[b]) tapped[b] = true;
