@@ -35,10 +35,12 @@ the PAD button toggles it anywhere.
 | Title screen, save/continue | done, Higgsfield art |
 | Chapter 0 *The Sentence*: the factory at dawn, Ruth's office, the terminal, the player presses ENTER | done, Higgsfield art |
 | Chapter 1 *The Line*: the factory puzzle at Riverbend, nine story beats, night scene | done, Higgsfield art |
-| Chapters 2–6 and the epilogue | planned in `docs/STORY.md` |
+| Chapter 2 *The Floor*: a wider floor, Marisol's crew at hand benches, the new steel machines, the safety limiters, the night shift | done, Higgsfield art |
+| Chapters 3–6 and the epilogue | planned in `docs/STORY.md` |
 
-Chapter 1 takes about 10 minutes. After it ends, CONTINUE drops you back on
-the line for the night shift (free play).
+Chapters 1 and 2 take about 10 and 15 minutes. Chapter 1's ending leads
+straight into Chapter 2, carrying the clip count over. After Chapter 2 ends,
+CONTINUE drops you back on the floor for the night shift (free play).
 
 ## Layout
 
@@ -90,8 +92,9 @@ yield S.say('ruth', 'Faster how?');
 const pick = yield S.choose('pip', 'two clips per wire.', ['CUT SHORTER', 'KEEP SIZE']);
 ```
 
-- Cast (Ruth, Dev, Marisol, Gus, Kid, Pip), portraits, text colors and voice pitches: `src/story/cast.js`
+- Cast (Ruth, Dev, Marisol, Gus, Kid, the crew, Pip), portraits, text colors and voice pitches: `src/story/cast.js`
 - Chapter 1 beats and the clip counts that trigger them: `src/story/chapter1.js`
+- Chapter 2 beats, quotas and the crew's lines: `src/story/chapter2.js`
 - The prologue: `src/story/prologue.js`
 
 Pip always speaks in lowercase.
@@ -99,7 +102,8 @@ Pip always speaks in lowercase.
 ## Dev shortcuts
 
 Deep links skip straight to a scene (press START on the boot screen):
-`#title`, `#prologue`, `#factory`, `#night`, `#end`, `#sandbox`, `#mockup`.
+`#title`, `#prologue`, `#factory`, `#night`, `#end`, `#sandbox`, `#mockup`,
+`#floor` (Chapter 2, without touching your save), `#end2`.
 
 In the console, `MORE.debug.factory.st.clips = 199` jumps the clip count.
 

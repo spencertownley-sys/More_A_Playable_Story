@@ -186,5 +186,55 @@
       "25fa16b9-72d0-4419-8f1f-ab4e60d61e2a"
     ],
     "prompt": "Establishing shot at dawn: the Riverbend Paperclip Co. brick factory on the riverbank at 6:40 AM, one lit office window, pickup truck, streetlights, mist on the river."
+  },
+  "crew_sprites.png": {
+    "higgsfield_job_id": "634b1139-070d-4719-a4fa-3ee0a4ed8651",
+    "model": "gpt_image_2_5",
+    "size": [
+      1168,
+      880
+    ],
+    "references": [
+      "700b94ae-fb3e-40ed-aab6-895fbf4e3c01"
+    ],
+    "prompt": "16-bit SNES-style pixel art character sprite sheet on a plain dark grid background, matching the reference sprite sheet's size, proportions, outline style and palette exactly. Each sprite separated with plenty of space. Three small factory-worker characters at 16x24 pixel proportions, each shown in its own row with a text label on the left, and five frames per row: idle facing down, walking down, walking up, walking left, walking right. Row 1 labeled TOMAS: a stocky middle-aged man with a thick black mustache and short black hair, rolled-up navy blue work shirt, dark jeans, brown boots. Row 2 labeled BEA: a young woman with a curly auburn ponytail, mustard yellow shirt under a teal canvas apron, grey trousers. Row 3 labeled OTIS: a tall older man with dark brown skin and a short grey beard, grey flat cap, burgundy sweater, brown trousers. Limited palette of warm browns, cream, navy, teal, mustard, burgundy and grey; 1-pixel black outlines; chunky pixels; no anti-aliasing; no gradients."
+  },
+  "floor_props.png": {
+    "higgsfield_job_id": "0bd6c8e5-7fe1-4127-a62d-62cd3f9d8399",
+    "model": "gpt_image_2_5",
+    "size": [
+      1168,
+      880
+    ],
+    "references": [
+      "03fcbd29-2833-4112-b6d2-4b3fe377833a"
+    ],
+    "prompt": "16-bit SNES-style pixel art prop sheet for the same small paperclip factory as the reference tileset, matching its tile size, 3/4 top-down view, outline style and warm palette exactly. Six separate props arranged in a neat 3 by 2 grid, each on the plain dark background with thin grid lines and lots of empty space around it, no text, no labels. Top row, left to right: (1) a small wooden workbench with a coil of copper-colored wire and a pair of big red-handled wire snips on top; (2) a small wooden workbench with a little iron vise, a pair of pliers and a tin tray of bent silver paperclips; (3) a small wooden packing table with an open cardboard box full of silver paperclips and a stack of flat folded boxes. Bottom row, left to right: (4) a yellow-and-black striped metal safety guard cage, empty; (5) a round red rotating warning beacon light on a short grey post, lit and glowing; (6) a tall dark steel server rack cabinet with rows of tiny green and amber status lights. Chunky pixels, 1-pixel dark outlines, no anti-aliasing, no gradients."
+  },
+  "crew_portraits.png": {
+    "higgsfield_job_id": "621bce60-b8c1-4d7c-95eb-cda3db639392",
+    "model": "gpt_image_2_5",
+    "size": [
+      1024,
+      688
+    ],
+    "references": [
+      "aa8f0611-7616-4de9-a00b-4748c64c3575",
+      "634b1139-070d-4719-a4fa-3ee0a4ed8651"
+    ],
+    "prompt": "16-bit SNES-style pixel art dialogue portrait sheet for a retro RPG, matching the portrait style, framing, colors and chunky pixels of the first reference image exactly, and the characters of the second reference image. Six large square head-and-shoulders portrait busts arranged in a neat 3 by 2 grid, each bust drawn on its own flat solid dark brown square (#2a1a16), and the squares separated by wide gaps of flat pure black. No frames, no borders, no text, no labels. Top row, left to right: TOMAS, a stocky middle-aged man with a thick black mustache and short black hair, navy blue work shirt, a patient steady expression; BEA, a young woman with a curly auburn ponytail, mustard yellow shirt under a teal apron, a bright friendly expression; OTIS, an older man with dark brown skin, a short grey beard, grey flat cap and burgundy sweater, a calm wry expression. Bottom row, left to right: MARISOL, a woman with a red polka-dot bandana, dark hair and a brown work shirt, looking serious and hurt, not smiling; GUS, an older man with a brown cap, a short white beard and grey coveralls, frowning and angry; RUTH, an older woman with grey hair in a bun, round wire glasses and blue overalls, looking tired and worried, lit by cool night-blue light. Each bust faces the viewer and fills most of its square. 1-pixel dark outlines, limited palette, crisp chunky pixels, no anti-aliasing, no gradients, no blur."
+  },
+  "machines_modern.png": {
+    "higgsfield_job_id": "61fb062e-b7e1-45ac-9361-5e1a0e555022",
+    "model": "gpt_image_2_5",
+    "size": [
+      1168,
+      880
+    ],
+    "references": [
+      "0a7c3577-a361-4ed8-b556-68ceefa0e4c0",
+      "03fcbd29-2833-4112-b6d2-4b3fe377833a"
+    ],
+    "prompt": "16-bit SNES-style pixel art tileset sheet of modern automated factory machines, drawn in the cold steel-blue style of the machines in the first reference image and at the same tile size, 3/4 top-down view and outline weight as the second reference tileset. Arranged as a neat grid on a plain flat dark background with thin grid lines and lots of empty space around each item, no text, no labels. Top row, left to right: (1) a modern steel-blue wire spool machine with a glowing orange copper coil and a yellow-and-black hazard-striped base; (2) a modern steel-blue cutting machine with a scissors icon panel and a red top bar, hazard-striped base; (3) a modern steel-blue bending machine with a paperclip icon panel and an orange robotic arm, hazard-striped base; (4) a modern teal output bin full of silver paperclips, hazard-striped base. Bottom row, left to right: (5) a square grey concrete factory floor tile with faint seams; (6) the same floor tile with a yellow-and-black hazard stripe along one edge; (7) a cold grey-blue steel wall panel tile with rivets; (8) a small grey steel floor drain grate. Cold limited palette of steel blue, slate grey, teal, with yellow-and-black hazard stripes and orange accents; chunky pixels, 1-pixel dark outlines, no anti-aliasing, no gradients."
   }
 }

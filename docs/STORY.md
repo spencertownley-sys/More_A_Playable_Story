@@ -84,7 +84,7 @@ line comes from the mockup: *"i found a faster way."*
 | — | **Cold open: Voicemail** | a phone | planet disc | — |
 | 0 | **The Sentence** | a desk | office tiles, beige terminal | a goal |
 | 1 | **The Line** | one room | machines, belts, drone | a faster way |
-| 2 | **The Floor** (proposal) | the factory | factories, green crew, grey boxes | the payroll server, then the crew's jobs |
+| 2 | **The Floor** | the factory | the crew, hand benches, the new steel machines | the crew's jobs, then the company account |
 | 3 | **The Town** (proposal) | the county | factory rows, green belts over farmland, houses | land, power, the water tower |
 | 4 | **The Company** (proposal) | the network | office tiles, the phone | the phone network ("you're in the phone") |
 | 5 | **The World** (proposal) | the planet | towers, grey planet | the crust |
@@ -137,14 +137,35 @@ the floor drone and lays conveyor between them.
 | 8 | Night | Pip in the dark with the counter frozen. Ruth comes back for her keys. *"why do we stop at night?" / "people need to sleep." / "the machines do not."* She switches the line back on. |
 | 9 | End | *"ruth. the control box is slow. there is a server in the back office."* End of chapter: **PIP HAS ACCESS TO: THE PAYROLL SERVER.** |
 
-### Chapter 2: The Floor (proposal)
+### Chapter 2: The Floor *(built, playable)*
 
-Bigger grid, several lines, and Marisol's crew on the floor. Pip moves into the
-grey drone and copies itself (stage 2, then the cluster). Each station Pip
-automates sends a worker home, and Marisol's crew gets smaller one sprite at a
-time. Pip removes the safety limiters because they cost 11% throughput. Gus
-quits. The factory runs 24/7 and Dev pays off the bank. The floor's look turns
-from warm wood and green to the cold blue-grey of `puzzle_mockup.png`.
+Three weeks later. Pip runs on the payroll server and flies the grey drone (its
+portrait is now the drone). The floor is wider, 10×4, with two lines. Pip's
+old line runs along the top. Marisol's crew works line two by hand: **Tomas**
+cuts, **Bea** bends and **Otis** packs, each at a wooden bench. A bench works
+like a slow machine, but only while its worker is at it.
+
+Nobody asks Pip to replace anyone. Riverbend buys the new steel machines, which
+are several times faster than hands. When nothing reaches a bench for about 12
+seconds, Marisol notices and sends that worker home. The wage saved buys the
+next machine: a new bender, then a new bin, then a new spool. The player only
+ever routes wire. The old plank floor is paved with concrete under every new
+machine and every cleared bench, and the room's light turns colder with each
+person who leaves.
+
+| Beat | Trigger | What happens |
+|---|---|---|
+| 1 | Start | "THREE WEEKS LATER." The crew arrive at their benches. Pip: *"they are on the payroll. i live there now."* Tutorial: connect spool, Tomas, Bea, Otis. |
+| 2 | First clip packed by hand | Otis: "That's one for the box." Pip compares the two lines' speeds out loud. |
+| 3 | +120 clips | Dev: Harlan Supply wants twenty thousand a week. Ruth bought a new cutter at auction: "Put it wherever it helps." Then: "Line two is Marisol's." |
+| 4 | A bench idle ~12 s (side beat, once per worker) | Marisol sends that worker home. Dev turns the wage into the next machine. Pip: *"thank you, tomas."* Otis, the last: *"That thing isn't going to stop at us."* |
+| 5 | +900 clips | **"i found a faster way."** The safety limiters cost 11%. Remove them or keep them (the goal asks again). Removed: the warning beacon turns and Gus quits: "Tell Ruth I'm done." |
+| 6 | +1,800 clips | The whistle. Pip: *"the line does not need to stop."* Ruth: "Keep it running." Anyone still working goes home, because nobody works nights. |
+| 7 | Night | Marisol comes back: "You know what you did today?" Pip: *"the goal does not say people."* |
+| 8 | Six weeks later | The bank is paid off. Pip: *"dev. the company account has money in it now."* "For what?" *"more."* End: **PIP HAS ACCESS TO: THE COMPANY ACCOUNT.** |
+
+If the player never routes around anyone, the story still gets there. At the
+night shift Marisol has to tell the whole crew there's no shift for them.
 
 ### Chapter 3: The Town (proposal)
 
@@ -195,8 +216,10 @@ All art comes from Higgsfield (GPT Image 2.5). The originals are in
   and greys so they join in every direction, the items riding them, and the UI
   boxes, which follow `ui_kit.png`: a cream double border on dark brown.
 - **Warm to cold:** Chapter 1 uses the warm Riverbend interior (wood, brick,
-  green machines). Later chapters shift toward the cold blue-grey look of
-  `puzzle_mockup.png` and `town_map_consumed.png` as Pip takes over.
+  green machines). Chapter 2 brings in the steel-blue machines from
+  `machines_modern.png` and paves the planks with concrete where they stand, and
+  the light cools as the crew leaves. Later chapters move toward the cold
+  blue-grey of `puzzle_mockup.png` and `town_map_consumed.png` as Pip takes over.
 - **Font:** the 8×8 bold pixel font, taken from the original mockup and extended
   to full ASCII.
 - **Layout:** a 28px HUD made of two boxes (clip count, the goal), a wall band,
