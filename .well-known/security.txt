@@ -1,4 +1,4 @@
-Contact: mailto:[SECURITY CONTACT EMAIL]
+Contact: https://github.com/spencertownley-sys/More_A_Playable_Story/issues
 Expires: 2027-11-01T00:00:00.000Z
 Preferred-Languages: en
 Canonical: https://makemorepaperclips.com/.well-known/security.txt
