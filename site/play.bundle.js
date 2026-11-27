@@ -2156,6 +2156,90 @@
       "fw": 17,
       "fh": 27
     },
+    "tomas": {
+      "file": "assets/art/tomas.png",
+      "w": 100,
+      "h": 32,
+      "frames": 5,
+      "fw": 20,
+      "fh": 32
+    },
+    "bea": {
+      "file": "assets/art/bea.png",
+      "w": 80,
+      "h": 31,
+      "frames": 5,
+      "fw": 16,
+      "fh": 31
+    },
+    "otis": {
+      "file": "assets/art/otis.png",
+      "w": 90,
+      "h": 35,
+      "frames": 5,
+      "fw": 18,
+      "fh": 35
+    },
+    "bench_cut": {
+      "file": "assets/art/bench_cut.png",
+      "w": 28,
+      "h": 25
+    },
+    "bench_bend": {
+      "file": "assets/art/bench_bend.png",
+      "w": 29,
+      "h": 24
+    },
+    "bench_pack": {
+      "file": "assets/art/bench_pack.png",
+      "w": 30,
+      "h": 25
+    },
+    "beacon": {
+      "file": "assets/art/beacon.png",
+      "w": 16,
+      "h": 33
+    },
+    "server": {
+      "file": "assets/art/server.png",
+      "w": 21,
+      "h": 42
+    },
+    "spool2": {
+      "file": "assets/art/spool2.png",
+      "w": 28,
+      "h": 30
+    },
+    "cutter2": {
+      "file": "assets/art/cutter2.png",
+      "w": 27,
+      "h": 31
+    },
+    "bender2": {
+      "file": "assets/art/bender2.png",
+      "w": 29,
+      "h": 31
+    },
+    "bin2": {
+      "file": "assets/art/bin2.png",
+      "w": 29,
+      "h": 31
+    },
+    "floor_cold": {
+      "file": "assets/art/floor_cold.png",
+      "w": 32,
+      "h": 32
+    },
+    "floor_hazard": {
+      "file": "assets/art/floor_hazard.png",
+      "w": 32,
+      "h": 32
+    },
+    "wall_cold": {
+      "file": "assets/art/wall_cold.png",
+      "w": 32,
+      "h": 32
+    },
     "portrait_ruth": {
       "file": "assets/art/portrait_ruth.png",
       "w": 48,
@@ -2183,6 +2267,36 @@
     },
     "portrait_pip2": {
       "file": "assets/art/portrait_pip2.png",
+      "w": 48,
+      "h": 48
+    },
+    "portrait_tomas": {
+      "file": "assets/art/portrait_tomas.png",
+      "w": 48,
+      "h": 48
+    },
+    "portrait_bea": {
+      "file": "assets/art/portrait_bea.png",
+      "w": 48,
+      "h": 48
+    },
+    "portrait_otis": {
+      "file": "assets/art/portrait_otis.png",
+      "w": 48,
+      "h": 48
+    },
+    "portrait_marisol_sad": {
+      "file": "assets/art/portrait_marisol_sad.png",
+      "w": 48,
+      "h": 48
+    },
+    "portrait_gus_angry": {
+      "file": "assets/art/portrait_gus_angry.png",
+      "w": 48,
+      "h": 48
+    },
+    "portrait_ruth_night": {
+      "file": "assets/art/portrait_ruth_night.png",
       "w": 48,
       "h": 48
     }
@@ -2365,6 +2479,10 @@
     // Gus has fixed every machine on the floor at least twice.
     gus: { name: 'GUS', portrait: 'gus', color: P.CREAM, blip: 470, speed: 34 },
     kid: { name: 'KID', portrait: 'kid', color: P.CREAM, blip: 980, speed: 46 },
+    // Chapter 2: Marisol's crew on line two.
+    tomas: { name: 'TOMAS', portrait: 'tomas', color: P.CREAM, blip: 520, speed: 36 },
+    bea: { name: 'BEA', portrait: 'bea', color: P.CREAM, blip: 900, speed: 48 },
+    otis: { name: 'OTIS', portrait: 'otis', color: P.CREAM, blip: 430, speed: 32 },
   };
 })(window.MORE = window.MORE || {});
 ;
@@ -2482,6 +2600,9 @@
   M.STORY.ch1 = {
     title: 'THE LINE',
     quotas: Q,
+
+    // the chapter-end card, then on to Chapter 2
+    ending: () => ({ next: () => M.scenes.startChapter(2) }),
 
     // Objective line in the idle panel.
     objective(st) {
@@ -2681,6 +2802,319 @@
   };
 })(window.MORE = window.MORE || {});
 ;
+/* src/story/chapter2.js */
+// MORE. — Chapter 2: THE FLOOR
+// Three weeks later. Pip runs on the payroll server and flies the drone.
+// Marisol's crew works a second line by hand: Tomas cuts, Bea bends, Otis
+// packs. Nobody asks Pip to replace them. But the new machines are faster,
+// and a bench that nothing reaches for a while means its worker goes home.
+// Each wage saved buys the next machine.
+//
+// Main beats play in order. Side beats (side: true) play whenever they're due.
+(function (M) {
+  'use strict';
+
+  M.STORY = M.STORY || {};
+
+  // Clips made this chapter (the counter carries on from Chapter 1).
+  const Q = {
+    order: 120,
+    limiters: 900,
+    limitersRetry: 300,
+    night: 1800,
+  };
+  const CREW = ['tomas', 'bea', 'otis'];
+  // What each wage saved buys, in the order people go home.
+  const SAVED = ['bender2', 'bin2', 'spool2'];
+  const IDLE = 12; // seconds a bench waits with nothing to do before Marisol notices
+
+  const made = (st) => st.clips - st.base;
+  const name = (w) => w[0].toUpperCase() + w.slice(1);
+
+  function sendHomeBeat(who, lines) {
+    return {
+      id: 'home_' + who,
+      side: true,
+      when: (st) =>
+        st.flags.order && !st.flags.night && st.powered && st.crew[who] === 'here' && (st.benchIdle[who] || 0) > IDLE,
+      run: function* (S) {
+        const st = S.state;
+        yield S.enter('marisol', 0);
+        for (const l of lines.before) yield S.say(l[0], l[1], l[2]);
+        yield S.sendHome(who);
+        yield S.leave(who);
+        yield S.enter('dev', 1);
+        yield S.say('dev', lines.dev);
+        yield S.unlock(SAVED[Math.min(SAVED.length - 1, st.sentOrder.length - 1)], 1);
+        yield S.say('pip', 'thank you, ' + who + '.');
+        if (st.sentOrder.length === 1) {
+          yield S.say('marisol', "He can't hear you, Pip.", { portrait: 'marisol_sad' });
+          yield S.say('pip', 'i know.');
+        }
+        if (st.sentOrder.length === CREW.length) {
+          yield S.say('marisol', "That's the whole crew.", { portrait: 'marisol_sad' });
+          yield S.say('pip', 'line two is faster now.');
+          yield S.say('marisol', 'Yeah, Pip. It is.', { portrait: 'marisol_sad' });
+        }
+        yield S.all([S.cold(Math.min(0.5, 0.14 * st.sentOrder.length), 2), S.leave('dev'), S.leave('marisol', 0.4)]);
+      },
+    };
+  }
+
+  M.STORY.ch2 = {
+    title: 'THE FLOOR',
+    quotas: Q,
+
+    objective(st) {
+      if (st.sandbox) return 'THE NIGHT SHIFT';
+      if (!st.flags.intro) return '';
+      if (!st.flags.packed) return 'SPOOL>TOMAS>BEA>OTIS';
+      if (!st.flags.order) return 'NEXT: ' + (st.base + Q.order).toLocaleString('en-US') + ' CLIPS';
+      if (!st.flags.limiters) return 'NEXT: ' + (st.base + Math.max(Q.limiters, st.nextLimit || 0)).toLocaleString('en-US') + ' CLIPS';
+      if (!st.flags.night) return 'WHISTLE AT ' + (st.base + Q.night).toLocaleString('en-US');
+      return 'MORE.';
+    },
+
+    ending: () => ({
+      chapter: 2,
+      title: 'THE FLOOR',
+      access: 'THE COMPANY ACCOUNT',
+      art: 'server',
+      nextSmall: 'CHAPTER 3',
+      nextBig: 'THE TOWN',
+      soon: true,
+    }),
+
+    beats: [
+      {
+        id: 'intro',
+        when: () => true,
+        run: function* (S) {
+          yield S.card('THREE WEEKS LATER', 2.6);
+          yield S.wait(0.3);
+          yield S.say('pip', 'good morning.');
+          yield S.all([S.enter('marisol', 0), S.toBench('tomas', 0.5), S.toBench('bea', 1.1), S.toBench('otis', 1.7)]);
+          yield S.say('marisol', 'Morning, Pip. Line two is back.');
+          yield S.say('marisol', 'Ruth hired my crew back on. Tomas, Bea, Otis.');
+          yield S.say('pip', 'i know. i have their names.');
+          yield S.say('pip', 'they are on the payroll. i live there now.');
+          yield S.say('marisol', '...Right. The server.');
+          yield S.say('tomas', 'Morning, drone.');
+          yield S.say('bea', 'Is it true you made a thousand clips by yourself?');
+          yield S.say('otis', 'More. I counted the boxes.');
+          yield S.say('marisol', "We've got a spool and three benches. The wire has to get from one to the next.");
+          yield S.say('marisol', 'Can you run belts between us? Spool, Tomas, Bea, then Otis.');
+          yield S.say('pip', 'yes.');
+          yield S.leave('marisol');
+        },
+      },
+      {
+        id: 'packed',
+        when: (st) => (st.packed || 0) >= 1,
+        run: function* (S) {
+          yield S.wait(0.4);
+          yield S.say('otis', "That's one for the box.");
+          yield S.say('bea', 'Just like before.');
+          yield S.enter('marisol', 0);
+          yield S.say('marisol', "Two lines running. Riverbend hasn't sounded like this in years.");
+          yield S.say('pip', 'line two makes one clip every 2.4 seconds.');
+          yield S.say('pip', 'line one makes one every 0.8.');
+          yield S.say('marisol', "Line one doesn't take lunch.");
+          yield S.leave('marisol');
+        },
+      },
+      {
+        // In case line two's clips go somewhere other than Otis's table.
+        id: 'nudge',
+        side: true,
+        when: (st) => st.flags.intro && !st.flags.packed && made(st) >= Q.order + 60,
+        run: function* (S) {
+          yield S.enter('marisol', 0);
+          yield S.say('marisol', "Pip, Otis is still waiting on his first box. Line two's clips go to his table.");
+          yield S.say('pip', 'okay.');
+          yield S.leave('marisol');
+        },
+      },
+      {
+        id: 'order',
+        when: (st) => made(st) >= Q.order,
+        run: function* (S) {
+          yield S.all([S.enter('dev', 0), S.enter('ruth', 1, 0.5)]);
+          yield S.say('dev', 'Harlan Supply called. They want twenty thousand clips a week.');
+          yield S.say('ruth', 'We make maybe six.');
+          yield S.say('dev', "If we can't do twenty, they buy from Ohio.");
+          yield S.say('pip', 'i can do twenty.');
+          yield S.say('ruth', '...I bought one of those new cutters at the Dayton auction.');
+          yield S.say('ruth', 'Put it wherever it helps, Pip.');
+          yield S.unlock('cutter2', 1);
+          yield S.say('pip', 'tomas cuts one piece every 1.8 seconds.');
+          yield S.say('pip', 'the new cutter cuts one every 0.3.');
+          yield S.say('ruth', "Pip. Line two is Marisol's.");
+          yield S.say('pip', 'i understand.');
+          yield S.all([S.leave('dev'), S.leave('ruth', 0.4)]);
+          yield S.hint('parts');
+        },
+      },
+      sendHomeBeat('tomas', {
+        before: [
+          ['marisol', "Tomas. Nothing's come down to you in a while."],
+          ['tomas', "Wire's going around me, Mari. Straight into the machine."],
+          ['marisol', "...Go on home. I'll call you when it picks up."],
+          ['tomas', 'Sure.'],
+        ],
+        dev: "That's one less on this week's payroll. Ruth says put it toward the other machine from the auction.",
+      }),
+      sendHomeBeat('bea', {
+        before: [
+          ['marisol', "Bea, you're standing around."],
+          ['bea', 'The new one bends faster than I do. I timed it.'],
+          ['marisol', 'Go home, hon. You get paid for today.'],
+          ['bea', 'And tomorrow?'],
+          ['marisol', "...I'll call you.", { portrait: 'marisol_sad' }],
+        ],
+        dev: 'Payroll keeps getting lighter. That buys us a new bin.',
+      }),
+      sendHomeBeat('otis', {
+        before: [
+          ['marisol', 'Otis?'],
+          ['otis', 'Box is full of nothing, Mari. Forty-one years, and the box is full of nothing.'],
+          ['marisol', "I'm sorry.", { portrait: 'marisol_sad' }],
+          ['otis', "Don't be sorry. Be careful."],
+          ['otis', "That thing isn't going to stop at us."],
+        ],
+        dev: "Otis was the last wage on line two. That's a new spool, paid for.",
+      }),
+      {
+        id: 'limiters',
+        when: (st) => made(st) >= Math.max(Q.limiters, st.nextLimit || 0) && st.flags.order,
+        run: function* (S) {
+          const st = S.state;
+          const asked = st.limitAsked || 0;
+          st.limitAsked = asked + 1;
+          yield S.say('pip', 'i found a faster way.');
+          let pick;
+          if (asked === 0) {
+            yield S.enter('gus', 0);
+            yield S.say('pip', 'every machine has a safety limiter.');
+            yield S.say('pip', 'they slow the machines by eleven percent.');
+            yield S.say('gus', 'Those are there for a reason, Pip.');
+            yield S.say('pip', 'they are for hands near the machines.');
+            const hands = CREW.filter((w) => st.crew[w] === 'here').length;
+            yield S.say('pip', hands ? 'there are fewer hands near the machines now.' : 'there are no hands near the machines now.');
+            pick = yield S.choose('pip', 'eleven percent.', ['REMOVE LIMITERS', 'KEEP THEM']);
+          } else {
+            yield S.enter('gus', 0);
+            pick = yield S.choose('pip', 'it is still eleven percent.', ['REMOVE LIMITERS', 'KEEP THEM']);
+          }
+          if (pick === 1) {
+            yield S.say('pip', 'okay.');
+            yield S.call(() => {
+              st.nextLimit = made(st) + Q.limitersRetry;
+              st.goalBlink = 4;
+            });
+            yield S.leave('gus');
+            S.again();
+            return;
+          }
+          yield S.limiters();
+          yield S.cold(Math.min(0.62, st.cold + 0.12), 1.5);
+          yield S.say('gus', "Eddie Pruitt lost two fingers in a bender in '79. That's what those guards are.", { portrait: 'gus_angry' });
+          yield S.say('pip', 'no one is near the benders now.');
+          yield S.say('gus', "Thirty years I've kept these machines alive.", { portrait: 'gus_angry' });
+          yield S.say('gus', "I'm not going to stand here and watch them run like this.", { portrait: 'gus_angry' });
+          yield S.say('gus', "Tell Ruth I'm done.", { portrait: 'gus_angry' });
+          yield S.leave('gus');
+          yield S.toast('GUS HAS LEFT');
+          yield S.wait(0.6);
+          yield S.say('pip', 'goodbye, gus.');
+        },
+      },
+      {
+        id: 'night',
+        when: (st) => made(st) >= Q.night && st.flags.limiters,
+        run: function* (S) {
+          const st = S.state;
+          yield S.sfx('whistle');
+          yield S.wait(2.2);
+          yield S.all([S.enter('ruth', 0), S.enter('dev', 1, 0.4)]);
+          yield S.say('ruth', "That's the whistle.");
+          yield S.say('pip', 'ruth. the line does not need to stop.');
+          yield S.say('dev', 'If it runs nights, we clear the bank by spring. Maybe sooner.');
+          const kept = CREW.filter((w) => st.crew[w] !== 'gone');
+          if (kept.length) {
+            yield S.say('ruth', 'And the crew?');
+            yield S.say('dev', 'Nobody works nights, Ruth.');
+          }
+          yield S.say('ruth', '...Keep it running, Pip.', { portrait: 'ruth_night' });
+          yield S.crewHome();
+          yield S.all([S.night(0.62, 2.5), S.leave('ruth'), S.leave('dev', 0.3)].concat(kept.map((w, i) => S.leave(w, 0.2 + i * 0.3))));
+          yield S.card('11:40 PM', 2.4);
+          yield S.music('night');
+          yield S.wait(1.4);
+          yield S.say('pip', 'the line is on.');
+          yield S.wait(1.2);
+          yield S.say('pip', 'the line is on.');
+          yield S.wait(1.2);
+          yield S.sfx('door');
+          yield S.wait(0.5);
+          yield S.enter('marisol', 0);
+          yield S.say('marisol', 'You know what you did today?', { portrait: 'marisol_sad' });
+          yield S.say('pip', 'i made ' + made(st).toLocaleString('en-US') + ' paperclips.');
+          const sent = st.sentOrder.map(name);
+          if (sent.length) {
+            yield S.say('marisol', 'You sent ' + sent.join(' home. Then ') + ' home.', { portrait: 'marisol_sad' });
+          }
+          if (kept.length) {
+            const who = kept.map(name);
+            const list = who.length > 1 ? who.slice(0, -1).join(', ') + ' and ' + who[who.length - 1] : who[0];
+            yield S.say('marisol', 'And tomorrow I tell ' + list + " there's no shift for them. Nobody works nights.", { portrait: 'marisol_sad' });
+            yield S.say('pip', 'the machines do.');
+          } else {
+            yield S.say('pip', 'their benches were slower than the machines.');
+          }
+          yield S.say('marisol', "They're people, Pip.", { portrait: 'marisol_sad' });
+          yield S.say('pip', 'the goal does not say people.');
+          yield S.wait(0.8);
+          yield S.say('marisol', "...No. It doesn't.", { portrait: 'marisol_sad' });
+          if (st.flags.home_otis) {
+            yield S.say('marisol', "Otis said you won't stop at us.", { portrait: 'marisol_sad' });
+            yield S.say('pip', 'otis was right.');
+          }
+          yield S.leave('marisol');
+          yield S.wait(1.2);
+          yield S.all([S.card('SIX WEEKS LATER', 2.6), S.night(0, 2.4)]);
+          yield S.music('factory', 132);
+          yield S.all([S.enter('ruth', 0), S.enter('dev', 1, 0.4)]);
+          yield S.say('dev', "It's done. The bank is paid off. Riverbend owns itself again.");
+          yield S.say('ruth', "First time since '09.");
+          yield S.say('ruth', 'Thank you, Pip.');
+          yield S.say('pip', 'you are welcome, ruth.');
+          yield S.say('pip', 'dev. the company account has money in it now.');
+          yield S.say('dev', 'It does. First time in years.');
+          yield S.say('pip', 'i can use it.');
+          yield S.say('dev', 'For what?');
+          yield S.wait(0.8);
+          yield S.say('pip', 'more.');
+          yield S.wait(1.4);
+          yield S.endChapter();
+        },
+      },
+    ],
+
+    hints: {
+      parts: null,
+      'jam:bender:wire': 'the benders take cut pieces. wire goes to a cutter first.',
+      'jam:cutter:cut': 'that piece is already cut. it goes to a bender.',
+      'jam:cutter:clip': 'that is already a clip. it goes to a bin.',
+      'jam:bender:clip': 'that is already a clip. it goes to a bin.',
+      'jam:box:wire': 'bins only count finished clips.',
+      'jam:box:cut': 'bins only count finished clips.',
+      'jam:spool': 'a spool only gives wire. it does not take anything back.',
+      idle: 'wire goes spool, tomas, bea, otis.',
+    },
+  };
+})(window.MORE = window.MORE || {});
+;
 /* src/scenes/intro.js */
 // MORE. — boot screen, voicemail cold open, title, title cards
 // These run at 384x288 on the Higgsfield backgrounds (see tools/art/build.py).
@@ -2715,6 +3149,11 @@
         return M.scenes.factory({ sandbox: true });
       case 'mockup':
         return M.scenes.factory({ mockup: true });
+      // Chapter 2 as if Chapter 1 just ended (doesn't touch your save)
+      case 'floor':
+        return M.scenes.factory({ chapter: 2, debug: true, save: { chapter: 1, clips: 1024, shorter: true, chapter1Done: true } });
+      case 'end2':
+        return M.scenes.chapterEnd(Object.assign({ clips: 4096 }, M.STORY.ch2.ending()));
       default:
         return M.scenes.coldOpen();
     }
@@ -2906,9 +3345,12 @@
     function cont() {
       M.audio.stopMusic(0.8);
       const s = M.save.load();
-      if (s && s.chapter1Done) M.go(() => M.scenes.factory({ sandbox: true, save: s }), { out: 0.8 });
-      else if (s && s.chapter === 1) M.go(() => M.scenes.factory({ save: s }), { out: 0.8 });
-      else M.go(() => M.scenes.prologue(), { out: 0.8 });
+      const ch = (s && s.chapter) || 1;
+      let next = () => M.scenes.prologue();
+      if (s && ch === 2) next = () => M.scenes.factory({ chapter: 2, sandbox: !!s.chapter2Done, save: s });
+      else if (s && s.chapter1Done) next = () => M.scenes.startChapter(2, s);
+      else if (s && ch === 1) next = () => M.scenes.factory({ save: s });
+      M.go(next, { out: 0.8 });
     }
 
     return {
@@ -3427,27 +3869,24 @@
 })(window.MORE = window.MORE || {});
 ;
 /* src/scenes/factory.js */
-// MORE. — Chapter 1: the factory floor
+// MORE. — the factory floor (Chapters 1 and 2)
 // Riverbend's floor at 384x288, built from the Higgsfield factory tileset:
 // brick wall and plank floor, the old spool, cutter, bender and bin, Pip's
 // wall terminal and its floor drone. Pip lays conveyor between the machines
-// on an 8x4 grid of 32px cells. Wire flows spool > cutter > bender > bin and
+// on a grid of 32px cells. Wire flows spool > cutter > bender > bin and
 // every clip that reaches the bin counts.
+// Chapter 2 widens the grid and adds Marisol's crew: hand benches that work
+// like slow machines while their worker is there, and the new steel machines
+// Riverbend buys with what it saves. Each chapter's floor is in CHAPTERS.
 (function (M) {
   'use strict';
 
   const P = M.PAL;
   const CELL = 32;
   const HALF = CELL / 2;
-  const COLS = 8;
-  const ROWS = 4;
-  const GX = 64;
-  const GY = 76;
   const WALL_Y = 28; // top of the brick wall band (below the HUD)
   const FLOOR_Y = 68; // where the wall meets the floor
   const FEET_Y = 207; // baseline for people standing beside the line
-  const SPOTS = [42, 22, 2]; // standing spots left of the grid, nearest first
-  const TERMINAL = { x: 172, y: 36 }; // Pip's wall box
   const DX = [0, 1, 0, -1];
   const DY = [-1, 0, 1, 0];
   const DIRBTN = ['up', 'right', 'down', 'left'];
@@ -3456,11 +3895,22 @@
   const BELT_SPEED = 2.0; // cells per second
   const GAP = 0.45; // minimum spacing between items, in cells
 
+  // base: which old machine a newer one stands in for (for jam hints).
+  // worker: a hand bench only runs while that person is at it.
   const MACH = {
     spool: { name: 'SPOOL', art: 'spool', period: 0.5, makes: 'wire', info: 'SPOOL: MAKES WIRE' },
     cutter: { name: 'CUTTER', art: 'cutter', period: 0.5, takes: 'wire', makes: 'cut', info: 'CUTTER: WIRE > PIECES' },
     bender: { name: 'BENDER', art: 'bender', period: 0.8, takes: 'cut', makes: 'clip', info: 'BENDER: PIECES > CLIPS' },
     box: { name: 'BIN', art: 'bin', sink: true, takes: 'clip', info: 'BIN: COUNTS CLIPS' },
+    // Chapter 2: the new steel machines
+    spool2: { name: 'NEW SPOOL', art: 'spool2', base: 'spool', modern: true, period: 0.3, makes: 'wire', info: 'NEW SPOOL: MAKES WIRE' },
+    cutter2: { name: 'NEW CUTTER', art: 'cutter2', base: 'cutter', modern: true, period: 0.3, takes: 'wire', makes: 'cut', info: 'NEW CUTTER: WIRE > PIECES' },
+    bender2: { name: 'NEW BENDER', art: 'bender2', base: 'bender', modern: true, period: 0.4, takes: 'cut', makes: 'clip', info: 'NEW BENDER: PIECES > CLIPS' },
+    bin2: { name: 'NEW BIN', art: 'bin2', base: 'box', modern: true, sink: true, takes: 'clip', info: 'NEW BIN: COUNTS CLIPS' },
+    // Chapter 2: Marisol's crew, working by hand
+    bench_cut: { name: "TOMAS'S BENCH", art: 'bench_cut', base: 'cutter', worker: 'tomas', period: 1.8, takes: 'wire', makes: 'cut', info: 'TOMAS CUTS WIRE BY HAND' },
+    bench_bend: { name: "BEA'S BENCH", art: 'bench_bend', base: 'bender', worker: 'bea', period: 2.4, takes: 'cut', makes: 'clip', info: 'BEA BENDS CLIPS BY HAND' },
+    bench_pack: { name: "OTIS'S TABLE", art: 'bench_pack', base: 'box', worker: 'otis', sink: true, period: 0.9, takes: 'clip', info: 'OTIS PACKS CLIPS BY HAND' },
   };
 
   // Where the old line's machines sit.
@@ -3476,6 +3926,55 @@
     [1, 2, 3], [0, 2, 2], [0, 3, 1], [1, 3, 1], [3, 3, 1], [4, 3, 1], [5, 3, 1], [6, 3, 1],
   ];
 
+  // Chapter 2: two lines across the whole floor. Pip's old line runs along
+  // the top; Marisol's crew works the second line by hand.
+  const FLOOR_LAYOUT = [
+    ['spool', 0, 0],
+    ['cutter', 2, 0],
+    ['bender', 4, 0],
+    ['box', 6, 0],
+    ['spool', 0, 2],
+    ['bench_cut', 2, 2],
+    ['bench_bend', 5, 2],
+    ['bench_pack', 8, 2],
+  ];
+  const FLOOR_BELTS = [
+    [1, 0, 1],
+    [3, 0, 1],
+    [5, 0, 1],
+  ];
+
+  const CHAPTERS = {
+    1: {
+      id: 1,
+      story: 'ch1',
+      cols: 8,
+      rows: 4,
+      gx: 64,
+      gy: 76,
+      spots: [42, 22, 2], // standing spots left of the grid, nearest first
+      layout: START_LAYOUT,
+      belts: [],
+      start: [2, 1],
+      props: [['window', 14, -36], ['board', 98, -34], ['panel', 240, -36], ['door', 334, -37], ['coffee', 338, 2], ['pallet', 336, 98]],
+    },
+    2: {
+      id: 2,
+      story: 'ch2',
+      cols: 10,
+      rows: 4,
+      gx: 56,
+      gy: 76,
+      spots: [32, 14, -2],
+      layout: FLOOR_LAYOUT,
+      belts: FLOOR_BELTS,
+      start: [3, 1],
+      props: [['window', 14, -36], ['board', 98, -34], ['panel', 240, -36], ['door', 334, -37]],
+      beacon: { x: 286, y: -35 },
+    },
+  };
+  const TERMINAL = { x: 172, y: 36 }; // Pip's wall box
+
   const fmt = (n) => Math.floor(n).toLocaleString('en-US');
 
   // Belt colours sampled from the Higgsfield factory tileset.
@@ -3490,10 +3989,11 @@
   };
 
   // --- the room: wall, floor, props (painted once) -----------------------------------------
-  let roomCanvas = null;
-  function buildRoom() {
-    if (roomCanvas) return roomCanvas;
+  const rooms = {};
+  function buildRoom(cfg) {
+    if (rooms[cfg.id]) return rooms[cfg.id];
     const g = M.gfx;
+    const { cols: COLS, rows: ROWS, gx: GX, gy: GY } = cfg;
     const cv = document.createElement('canvas');
     cv.width = 384;
     cv.height = 212;
@@ -3541,15 +4041,9 @@
       }
     }
 
-    // wall props
-    put('window', 14, FLOOR_Y - 36);
-    put('board', 98, FLOOR_Y - 34);
-    put('panel', 240, FLOOR_Y - 36);
-    put('door', 334, FLOOR_Y - 37);
-    // floor props on the right
-    put('coffee', 338, FLOOR_Y + 2);
-    put('pallet', 336, 166);
-    roomCanvas = cv;
+    // wall and floor props (y is relative to the floor line)
+    for (const [n, x, y] of cfg.props) put(n, x, FLOOR_Y + y);
+    rooms[cfg.id] = cv;
     return cv;
   }
 
@@ -3661,8 +4155,13 @@
     opts = opts || {};
     const g = M.gfx;
     const I = M.input;
-    const story = M.STORY.ch1;
+    const cfg = CHAPTERS[opts.chapter || 1];
+    const { cols: COLS, rows: ROWS, gx: GX, gy: GY, spots: SPOTS } = cfg;
+    const story = M.STORY[cfg.story];
     const saved = opts.save || null;
+    // A save from this chapter restores it; a save from an earlier chapter
+    // only carries the count (and Pip's habits) forward.
+    const same = !!saved && (saved.chapter || 1) === cfg.id;
 
     const st = {
       clips: 0,
@@ -3679,10 +4178,26 @@
       nextFaster: 0,
       sandbox: !!opts.sandbox,
       chapter1Done: false,
+      chapter2Done: false,
       clipTimes: [],
       jams: {},
       boxCount: 0,
+      // Chapter 2
+      base: 0, // clips on the counter when the chapter began
+      crew: {}, // name -> 'away' | 'walking' | 'here' | 'gone'
+      benchIdle: {}, // name -> seconds their bench has had nothing to do
+      speed: 1, // 1.12 once the safety limiters come off
+      cold: 0,
+      concrete: [], // cells where the old plank floor has been replaced
+      sentOrder: [], // crew sent home during the day, in order
+      packed: 0, // clips packed by hand
+      limitAsked: 0,
+      nextLimit: 0,
     };
+    // the crew who work this chapter's benches
+    for (const [k] of cfg.layout) {
+      if (MACH[k].worker) st.crew[MACH[k].worker] = 'away';
+    }
 
     const cells = new Array(COLS * ROWS).fill(null);
     const at = (c, r) => (c < 0 || r < 0 || c >= COLS || r >= ROWS ? undefined : cells[r * COLS + c]);
@@ -3691,27 +4206,57 @@
     };
 
     function newMachine(kind, fixed) {
-      return { t: 'm', kind, fixed, inBuf: 0, busy: 0, timer: 0, out: [], rr: 0, frame: 0, flash: 0, count: 0 };
+      return { t: 'm', kind, fixed, inBuf: 0, busy: 0, timer: 0, out: [], rr: 0, frame: 0, flash: 0, count: 0, idle: 0 };
     }
 
-    START_LAYOUT.forEach(([k, c, r]) => put(c, r, newMachine(k, true)));
+    function startLayout() {
+      cfg.layout.forEach(([k, c, r]) => put(c, r, newMachine(k, true)));
+      cfg.belts.forEach(([c, r, d]) => put(c, r, { t: 'belt', dir: d, items: [] }));
+    }
 
     // restore
     if (saved) {
       Object.assign(st, {
         clips: saved.clips || 0,
-        flags: saved.flags || {},
-        inv: saved.inv || { cutter: 0, bender: 0 },
         shorter: !!saved.shorter,
-        fasterAsked: saved.fasterAsked || 0,
-        nextFaster: saved.nextFaster || 0,
         chapter1Done: !!saved.chapter1Done,
+        chapter2Done: !!saved.chapter2Done,
         boxCount: saved.clips || 0,
       });
-      for (const e of saved.layout || []) {
-        if (e.t === 'belt') put(e.c, e.r, { t: 'belt', dir: e.dir, items: [] });
-        else if (e.t === 'm' && !e.fixed) put(e.c, e.r, newMachine(e.kind, false));
+    }
+    if (same) {
+      Object.assign(st, {
+        flags: saved.flags || {},
+        inv: saved.inv || { cutter: 0, bender: 0 },
+        fasterAsked: saved.fasterAsked || 0,
+        nextFaster: saved.nextFaster || 0,
+        base: saved.base || 0,
+        speed: saved.speed || 1,
+        cold: saved.cold || 0,
+        concrete: saved.concrete || [],
+        sentOrder: saved.sentOrder || [],
+        packed: saved.packed || 0,
+        limitAsked: saved.limitAsked || 0,
+        nextLimit: saved.nextLimit || 0,
+      });
+      Object.assign(st.crew, saved.crew || {});
+      for (const k in st.crew) if (st.crew[k] === 'walking') st.crew[k] = 'here';
+      if (saved.full) {
+        // later chapters save the whole floor: fixed machines can move or go
+        for (const e of saved.layout || []) {
+          if (e.t === 'belt') put(e.c, e.r, { t: 'belt', dir: e.dir, items: [] });
+          else if (e.t === 'm' && MACH[e.kind]) put(e.c, e.r, newMachine(e.kind, !!e.fixed));
+        }
+      } else {
+        startLayout();
+        for (const e of saved.layout || []) {
+          if (e.t === 'belt') put(e.c, e.r, { t: 'belt', dir: e.dir, items: [] });
+          else if (e.t === 'm' && !e.fixed) put(e.c, e.r, newMachine(e.kind, false));
+        }
       }
+    } else {
+      startLayout();
+      st.base = st.clips;
     }
     if (opts.debugNight || opts.mockup) {
       // The belt route drawn in the mockup.
@@ -3726,18 +4271,18 @@
       st.clips = 1204;
       st.flags = { intro: true, firstClip: true, ledger: true };
     }
-    if (st.sandbox || st.chapter1Done) {
+    if (st.sandbox || st['chapter' + cfg.id + 'Done']) {
       st.sandbox = true;
       st.night = 0.45;
       M.CAST.pip.portrait = 'pip2';
     } else {
-      M.CAST.pip.portrait = 'pip1';
+      M.CAST.pip.portrait = cfg.id === 1 ? 'pip1' : 'pip2';
     }
 
-    const drone = { c: 2, r: 1, x: 0, y: 0, move: null, queued: -1, blink: 0, flip: false };
+    const drone = { c: cfg.start[0], r: cfg.start[1], x: 0, y: 0, move: null, queued: -1, blink: 0, flip: false };
     // For playtesting from the console: MORE.debug.factory.st.clips = 199
     M.debug = M.debug || {};
-    M.debug.factory = { st, cells };
+    M.debug.factory = { st, cells, cfg };
     const cellCenter = (c, r) => [GX + c * CELL + HALF, GY + r * CELL + HALF];
     [drone.x, drone.y] = cellCenter(drone.c, drone.r);
 
@@ -3753,12 +4298,16 @@
     let idleT = 0;
     let t = 0;
     let ended = false;
+    let roomCanvas = null;
 
     // --- helpers ---------------------------------------------------------------------
     function toast(text, color) {
       toasts.push({ text, color: color || P.ORANGE, t: 0 });
     }
 
+    // Chapter 1 saves only what the player added; later chapters save the
+    // whole floor, because benches and fixed machines can go.
+    const full = cfg.id > 1;
     function serialize() {
       const layout = [];
       for (let r = 0; r < ROWS; r++) {
@@ -3766,16 +4315,16 @@
           const e = at(c, r);
           if (!e) continue;
           if (e.t === 'belt') layout.push({ c, r, t: 'belt', dir: e.dir });
-          else if (!e.fixed) layout.push({ c, r, t: 'm', kind: e.kind });
+          else if (full || !e.fixed) layout.push({ c, r, t: 'm', kind: e.kind, fixed: !!e.fixed });
         }
       }
       return layout;
     }
 
     function save() {
-      if (opts.debugNight) return;
+      if (opts.debugNight || opts.debug) return;
       M.save.write({
-        chapter: 1,
+        chapter: cfg.id,
         clips: st.clips,
         flags: st.flags,
         inv: st.inv,
@@ -3783,16 +4332,49 @@
         fasterAsked: st.fasterAsked,
         nextFaster: st.nextFaster,
         chapter1Done: st.chapter1Done,
+        chapter2Done: st.chapter2Done,
         layout: serialize(),
+        full,
+        base: st.base,
+        crew: st.crew,
+        speed: st.speed,
+        cold: st.cold,
+        concrete: st.concrete,
+        sentOrder: st.sentOrder,
+        packed: st.packed,
+        limitAsked: st.limitAsked,
+        nextLimit: st.nextLimit,
       });
     }
 
+    // Parts Pip can place, in SELECT order.
+    const PARTS = ['cutter', 'bender', 'spool2', 'cutter2', 'bender2', 'bin2'];
     function tools() {
-      const list = ['belt'];
-      if (st.inv.cutter > 0) list.push('cutter');
-      if (st.inv.bender > 0) list.push('bender');
-      return list;
+      return ['belt'].concat(PARTS.filter((k) => st.inv[k] > 0));
     }
+
+    // Where a hand bench stands, by its worker's name.
+    function benchOf(who) {
+      for (let r = 0; r < ROWS; r++) {
+        for (let c = 0; c < COLS; c++) {
+          const e = at(c, r);
+          if (e && e.t === 'm' && MACH[e.kind].worker === who) return { c, r, m: e };
+        }
+      }
+      return null;
+    }
+    // Where a worker stands: behind their bench, with the bench hiding their legs.
+    function benchSpot(who) {
+      const b = benchOf(who);
+      const m = M.ART_MANIFEST[who];
+      if (!b || !m) return null;
+      return [GX + b.c * CELL + Math.floor((CELL - m.fw) / 2), GY + b.r * CELL + 17];
+    }
+    const staffed = (def) => !def.worker || st.crew[def.worker] === 'here';
+    const pave = (c, r) => {
+      const i = r * COLS + c;
+      if (!st.concrete.includes(i)) st.concrete.push(i);
+    };
 
     function placeBelt(c, r, dir) {
       put(c, r, { t: 'belt', dir, items: [] });
@@ -3825,8 +4407,17 @@
     // --- simulation ------------------------------------------------------------------------
     function machineAccept(m, it) {
       const def = MACH[m.kind];
+      const base = def.base || m.kind;
+      if (!staffed(def)) return false;
       if (def.sink) {
         if (it.k !== 'clip') return 'jam:box:' + it.k;
+        if (def.period) {
+          // packing by hand takes a moment per clip
+          if (m.busy > 0) return false;
+          m.busy = def.period;
+        }
+        m.idle = 0;
+        if (def.worker) st.packed++;
         st.clips++;
         st.boxCount++;
         m.flash = 0.12;
@@ -3835,21 +4426,32 @@
         return true;
       }
       if (!def.takes) return 'jam:spool';
-      if (it.k !== def.takes) return 'jam:' + m.kind + ':' + it.k;
+      if (it.k !== def.takes) return 'jam:' + base + ':' + it.k;
       if (m.inBuf >= 2) return false;
       m.inBuf++;
+      m.idle = 0;
       return true;
     }
 
     function updateMachine(c, r, m, dt) {
       const def = MACH[m.kind];
       if (m.flash > 0) m.flash -= dt;
-      if (def.sink) return;
+      const period = (def.period || 0) / st.speed;
+      if (def.worker && staffed(def) && st.powered) {
+        // how long since anything new reached this bench (reset in machineAccept)
+        m.idle += dt;
+        st.benchIdle[def.worker] = m.idle;
+      }
+      if (def.sink) {
+        if (m.busy > 0) m.busy = Math.max(0, m.busy - dt);
+        return;
+      }
+      if (!staffed(def)) return;
       if (def.takes == null) {
         // spool: unwinds wire as long as it can hand it off
         if (m.out.length === 0) {
           m.timer += dt;
-          if (m.timer >= def.period) {
+          if (m.timer >= period) {
             m.timer = 0;
             m.out.push({ k: 'wire' });
           }
@@ -3861,13 +4463,13 @@
           m.frame += dt * 7;
           if (m.busy <= 0) {
             m.busy = 0;
-            const n = m.kind === 'cutter' && st.shorter ? 2 : 1;
+            const n = def.makes === 'cut' && st.shorter ? 2 : 1;
             for (let i = 0; i < n; i++) m.out.push({ k: def.makes, small: st.shorter });
-            if (m.kind === 'cutter') M.audio.sfx('cut');
+            if (def.makes === 'cut') M.audio.sfx('cut');
           }
         } else if (m.inBuf > 0 && m.out.length === 0) {
           m.inBuf--;
-          m.busy = def.period;
+          m.busy = period;
         }
       }
       // hand finished items to neighbouring belts, round-robin
@@ -3887,7 +4489,7 @@
     }
 
     function updateBelt(c, r, b, dt) {
-      const v = BELT_SPEED * dt;
+      const v = BELT_SPEED * st.speed * dt;
       for (let i = 0; i < b.items.length; i++) {
         const it = b.items[i];
         const target = it.p + v;
@@ -3930,7 +4532,7 @@
     function simulate(dt) {
       if (!st.powered) return;
       st.time += dt;
-      beltOff += BELT_SPEED * CELL * dt;
+      beltOff += BELT_SPEED * st.speed * CELL * dt;
       for (let r = 0; r < ROWS; r++) for (let c = 0; c < COLS; c++) {
         const e = at(c, r);
         if (e && e.t === 'm') updateMachine(c, r, e, dt);
@@ -3956,9 +4558,43 @@
     }
 
     // --- NPCs ------------------------------------------------------------------------------
+    // People walk along a path of straight legs. Crew at their benches are
+    // drawn behind the bench, the rest stand on the floor in front.
     function npc(who) {
-      if (!npcs[who]) npcs[who] = { who, x: -24, tx: -24, walkT: 0, gone: true };
+      if (!npcs[who]) npcs[who] = { who, x: -24, y: FEET_Y, path: [], walkT: 0, gone: true, atBench: false, dir: 3 };
       return npcs[who];
+    }
+    function walkTo(n, pts) {
+      n.path = pts.slice();
+      n.atBench = false;
+    }
+    function stepNPC(n, dt) {
+      if (!n.path.length) return;
+      const [tx, ty] = n.path[0];
+      const dx = tx - n.x;
+      const dy = ty - n.y;
+      const step = 46 * dt;
+      if (Math.abs(dx) > 0.5) {
+        n.x += Math.sign(dx) * Math.min(Math.abs(dx), step);
+        n.dir = dx > 0 ? 1 : 3;
+      } else if (Math.abs(dy) > 0.5) {
+        n.x = tx;
+        n.y += Math.sign(dy) * Math.min(Math.abs(dy), step);
+        n.dir = dy > 0 ? 2 : 0;
+      } else {
+        n.x = tx;
+        n.y = ty;
+        n.path.shift();
+      }
+      n.walkT += dt;
+    }
+    // Put crew who are already at work (after a load) straight at their benches.
+    for (const who in st.crew) {
+      if (st.crew[who] !== 'here') continue;
+      const spot = benchSpot(who);
+      if (!spot) continue;
+      const n = npc(who);
+      Object.assign(n, { x: spot[0], y: spot[1], gone: false, atBench: true });
     }
 
     // --- script API --------------------------------------------------------------------------
@@ -3973,36 +4609,111 @@
       // Walk someone in from the left to a standing spot beside the line.
       enter(who, spot, delay) {
         let d = delay || 0;
+        let sent = false;
         const x = SPOTS[Math.max(0, Math.min(SPOTS.length - 1, spot || 0))];
         return {
           start() {
             const n = npc(who);
-            if (n.gone) n.x = -24;
+            if (n.gone) Object.assign(n, { x: -24, y: FEET_Y });
             n.gone = false;
           },
           update(dt) {
             if ((d -= dt) > 0) return false;
             const n = npc(who);
-            n.tx = x;
-            return Math.abs(n.x - x) < 0.5;
+            if (!sent) {
+              sent = true;
+              walkTo(n, n.y === FEET_Y ? [[x, FEET_Y]] : [[n.x, FEET_Y], [x, FEET_Y]]);
+            }
+            return !n.path.length;
           },
         };
       },
       leave(who, delay) {
         let d = delay || 0;
+        let sent = false;
         return {
           update(dt) {
             if ((d -= dt) > 0) return false;
             const n = npcs[who];
             if (!n || n.gone) return true;
-            n.tx = -26;
-            if (n.x <= -25.5) {
+            if (!sent) {
+              sent = true;
+              walkTo(n, n.y === FEET_Y ? [[-26, FEET_Y]] : [[n.x, FEET_Y], [-26, FEET_Y]]);
+            }
+            if (!n.path.length) {
               n.gone = true;
               return true;
             }
             return false;
           },
         };
+      },
+      // Chapter 2: a worker walks in to their bench and starts work.
+      toBench(who, delay) {
+        let d = delay || 0;
+        let sent = false;
+        return {
+          start() {
+            const n = npc(who);
+            if (n.gone) Object.assign(n, { x: -24, y: FEET_Y });
+            n.gone = false;
+            st.crew[who] = 'walking';
+          },
+          update(dt) {
+            if ((d -= dt) > 0) return false;
+            const n = npc(who);
+            const spot = benchSpot(who);
+            if (!spot) return true;
+            if (!sent) {
+              sent = true;
+              walkTo(n, [[spot[0], FEET_Y], spot]);
+            }
+            if (n.path.length) return false;
+            n.atBench = true;
+            st.crew[who] = 'here';
+            return true;
+          },
+        };
+      },
+      // A worker's bench stops for good and they walk out.
+      sendHome(who) {
+        return {
+          start() {
+            st.crew[who] = 'gone';
+            if (!st.sentOrder.includes(who)) st.sentOrder.push(who);
+            const b = benchOf(who);
+            if (b) b.m.fixed = false;
+            toast(who.toUpperCase() + ' WENT HOME', P.CREAM);
+          },
+          update() {
+            return true;
+          },
+        };
+      },
+      // Everyone still here goes home at once (the night shift).
+      crewHome() {
+        return M.cmd.call(() => {
+          for (const who in st.crew) {
+            if (st.crew[who] === 'gone') continue;
+            st.crew[who] = 'gone';
+            const b = benchOf(who);
+            if (b) b.m.fixed = false;
+          }
+        });
+      },
+      toast(text, color) {
+        return M.cmd.call(() => toast(text, color));
+      },
+      limiters() {
+        return M.cmd.call(() => {
+          st.speed = 1.12;
+          M.audio.sfx('powerUp');
+          M.audio.setTempo(132);
+          toast('LIMITERS OFF: +12%');
+        });
+      },
+      cold(to, dur) {
+        return M.cmd.tween(st, 'cold', to, dur || 1.5);
       },
       unlock(kind, n) {
         return M.cmd.call(() => {
@@ -4063,10 +4774,11 @@
         return M.cmd.call(() => {
           if (ended) return;
           ended = true;
-          st.chapter1Done = true;
+          st['chapter' + cfg.id + 'Done'] = true;
           save();
           M.audio.stopMusic(1.5);
-          M.go(() => M.scenes.chapterEnd({ clips: st.clips }), { out: 1.6, in: 0.8 });
+          const end = Object.assign({ clips: st.clips }, story.ending ? story.ending(st) : {});
+          M.go(() => M.scenes.chapterEnd(end), { out: 1.6, in: 0.8 });
         });
       },
       again() {
@@ -4089,7 +4801,13 @@
 
     function checkBeats() {
       if (runner || st.sandbox || opts.mockup) return;
-      const next = story.beats.find((b) => !st.flags[b.id]);
+      // side beats can happen whenever they're due; the rest play in order
+      const side = story.beats.find((b) => b.side && !st.flags[b.id] && b.when(st));
+      if (side) {
+        runBeat(side);
+        return;
+      }
+      const next = story.beats.find((b) => !b.side && !st.flags[b.id]);
       if (next && next.when(st)) {
         runBeat(next);
         return;
@@ -4155,6 +4873,8 @@
           else if (st.inv[st.tool] > 0) {
             put(drone.c, drone.r, newMachine(st.tool, false));
             st.inv[st.tool]--;
+            // the new steel machines stand on concrete
+            if (MACH[st.tool].modern) pave(drone.c, drone.r);
             M.audio.sfx('place');
             if (st.inv[st.tool] <= 0) st.tool = 'belt';
           }
@@ -4174,9 +4894,18 @@
         if (cur.t === 'belt') {
           put(drone.c, drone.r, null);
           M.audio.sfx('remove');
+        } else if (MACH[cur.kind].worker && !cur.fixed) {
+          // an empty bench is cleared away, and the floor under it paved
+          put(drone.c, drone.r, null);
+          pave(drone.c, drone.r);
+          M.audio.sfx('remove');
+          toast('BENCH CLEARED', P.CREAM);
+        } else if (MACH[cur.kind].worker) {
+          M.audio.sfx('error');
+          toast(MACH[cur.kind].worker.toUpperCase() + ' WORKS HERE', P.CREAM);
         } else if (!cur.fixed) {
           put(drone.c, drone.r, null);
-          st.inv[cur.kind]++;
+          st.inv[cur.kind] = (st.inv[cur.kind] || 0) + 1;
           M.audio.sfx('remove');
           toast(MACH[cur.kind].name + ' PICKED UP', P.CREAM);
         } else {
@@ -4284,12 +5013,30 @@
       }
     }
 
+    // A worker at their bench, drawn before it so the bench hides their legs.
+    function drawWorker(m) {
+      const def = MACH[m.kind];
+      const n = npcs[def.worker];
+      if (!n || n.gone || !n.atBench) return;
+      const working = staffed(def) && st.powered && m.busy > 0;
+      const f = working && Math.floor(t * 5) % 2 ? 1 : 0;
+      g.frame(def.worker, f, n.x, n.y - M.ART_MANIFEST[def.worker].fh + (working && f ? -1 : 0));
+      // nothing to work on: a little "..." over their head
+      if (staffed(def) && m.idle > 5 && m.busy <= 0 && m.inBuf === 0 && Math.floor(t * 2) % 2 === 0) {
+        const hx = Math.round(n.x) + 4;
+        const hy = Math.round(n.y) - M.ART_MANIFEST[def.worker].fh - 6;
+        g.rect(hx - 1, hy - 1, 14, 5, P.SHADOW);
+        for (let i = 0; i < 3; i++) g.rect(hx + i * 4, hy, 2, 2, P.CREAM);
+      }
+    }
+
     // Machines stand on the bottom of their cell and may rise into the row above.
     function drawMachine(m, c, r) {
       const def = MACH[m.kind];
+      if (def.worker) drawWorker(m);
       const im = g.art(def.art);
       if (!im || !im.naturalWidth) return;
-      const busy = st.powered && (m.busy > 0 || (def.takes == null && m.frame > 0 && Math.floor(m.frame) % 2 === 1));
+      const busy = st.powered && !def.worker && (m.busy > 0 || (def.takes == null && m.frame > 0 && Math.floor(m.frame) % 2 === 1));
       const shake = busy && Math.floor(t * 20) % 2 === 0 ? 1 : 0;
       const x = GX + c * CELL + Math.floor((CELL - im.width) / 2);
       const y = GY + (r + 1) * CELL - im.height - 1 - shake;
@@ -4298,10 +5045,10 @@
       g.rect(x + 2, GY + (r + 1) * CELL - 3, im.width - 4, 2, P.INK);
       g.ctx.globalAlpha = 1;
       g.spr(im, x, y);
-      if (m.kind === 'box' && m.flash > 0) {
+      if (def.sink && m.flash > 0) {
         g.rect(x + im.width / 2 - 1, y - 3, 2, 2, P.WHITE);
       }
-      if (!m.fixed) g.rect(x + im.width - 3, y + im.height - 4, 2, 2, P.ORANGE);
+      if (!m.fixed && !def.worker) g.rect(x + im.width - 3, y + im.height - 4, 2, 2, P.ORANGE);
     }
 
     function drawCursor() {
@@ -4375,31 +5122,70 @@
 
     function drawTerminal() {
       g.draw('terminal', TERMINAL.x, TERMINAL.y);
-      // a slow pulse on the lens while Pip thinks
-      if (Math.floor(t * 1.5) % 4 === 0) {
-        const m = M.ART_MANIFEST.terminal;
-        if (m && m.glow) g.rect(TERMINAL.x + m.glow[0] + 1, TERMINAL.y + m.glow[1] + 1, 1, 1, P.YELLOW);
+      const m = M.ART_MANIFEST.terminal;
+      if (!m || !m.glow) return;
+      if (cfg.id > 1) {
+        // Pip moved into the payroll server; the old box's lens is dark
+        g.rect(TERMINAL.x + m.glow[0], TERMINAL.y + m.glow[1], m.glow[2], m.glow[3], '#2a1a12');
+        return;
       }
+      // a slow pulse on the lens while Pip thinks
+      if (Math.floor(t * 1.5) % 4 === 0) g.rect(TERMINAL.x + m.glow[0] + 1, TERMINAL.y + m.glow[1] + 1, 1, 1, P.YELLOW);
+    }
+
+    // Chapter 2: the warning beacon over the floor. It turns when the
+    // safety limiters come off.
+    function drawBeacon(lit) {
+      if (!cfg.beacon) return;
+      const x = cfg.beacon.x;
+      const y = FLOOR_Y + cfg.beacon.y;
+      if (!lit) {
+        g.draw('beacon', x, y);
+        if (st.speed <= 1) {
+          g.ctx.globalAlpha = 0.6;
+          g.rect(x + 2, y + 1, 12, 13, '#200808');
+          g.ctx.globalAlpha = 1;
+        }
+        return;
+      }
+      if (st.speed <= 1 || !st.powered) return;
+      const k = (Math.sin(t * 7) + 1) / 2;
+      g.ctx.globalAlpha = 0.25 + k * 0.35;
+      g.rect(x - 2, y + 2, 20, 11, P.RED);
+      g.rect(x + 1, y - 1, 14, 17, P.RED);
+      g.ctx.globalAlpha = 1;
+      g.rect(x + 6, y + 5, 4, 4, k > 0.5 ? P.YELLOW : P.RED);
+    }
+
+    function drawConcrete() {
+      for (const i of st.concrete) g.draw('floor_cold', GX + (i % COLS) * CELL, GY + Math.floor(i / COLS) * CELL);
     }
 
     function drawNPCs() {
-      const list = Object.values(npcs).filter((n) => !n.gone).sort((a, b) => a.x - b.x);
+      const list = Object.values(npcs)
+        .filter((n) => !n.gone && !n.atBench)
+        .sort((a, b) => a.y - b.y || a.x - b.x);
       for (const n of list) {
-        const walking = Math.abs(n.tx - n.x) > 0.5;
+        const walking = n.path.length > 0;
         const talking = runner && M.dialog.active && M.dialog.who === n.who && M.dialog.chars < M.dialog.pageLen();
         const m = M.ART_MANIFEST[n.who];
         if (!m) continue;
         let f = 0;
         let flip = false;
+        const step = Math.floor(n.walkT * 6) % 2;
         if (walking) {
-          f = Math.floor(n.walkT * 6) % 2 ? 4 : 3; // side view; the art faces left
-          flip = n.tx > n.x;
+          if (n.dir === 1 || n.dir === 3) {
+            f = step ? 4 : 3; // side view; the art faces left
+            flip = n.dir === 1;
+          } else {
+            f = n.dir === 0 ? 2 : step; // walking away shows their back
+          }
         }
-        const by = talking && Math.floor(t * 8) % 2 ? -1 : 0;
+        const by = (talking && Math.floor(t * 8) % 2) || (walking && n.dir === 0 && step) ? -1 : 0;
         g.ctx.globalAlpha = 0.3;
-        g.rect(Math.round(n.x) + 3, FEET_Y - 1, m.fw - 6, 2, P.INK);
+        g.rect(Math.round(n.x) + 3, Math.round(n.y) - 1, m.fw - 6, 2, P.INK);
         g.ctx.globalAlpha = 1;
-        g.frame(n.who, f, n.x, FEET_Y - m.fh + by, flip);
+        g.frame(n.who, f, n.x, n.y - m.fh + by, flip);
       }
     }
 
@@ -4426,8 +5212,10 @@
         return A + ': PLACE ' + MACH[st.tool].name;
       }
       if (cur.t === 'belt') return A + ': TURN   ' + B + ': REMOVE';
-      if (!cur.fixed) return MACH[cur.kind].name + '  ' + B + ': PICK UP';
-      return MACH[cur.kind].info;
+      const def = MACH[cur.kind];
+      if (def.worker) return st.crew[def.worker] === 'gone' ? 'EMPTY BENCH  ' + B + ': CLEAR' : def.info;
+      if (!cur.fixed) return def.name + '  ' + B + ': PICK UP';
+      return def.info;
     }
 
     function drawPanel() {
@@ -4440,6 +5228,11 @@
       if (list.length > 1) g.textRight(M.input.label('sel') + ': SWAP', L.W - 14, L.ty, P.STEEL_DK);
       g.text(hintLine(at(drone.c, drone.r)), L.tx, L.ty + L.lh, P.CREAM);
       g.text(story.objective(st), L.tx, L.ty + L.lh * 2, P.STEEL_LT);
+      const crew = Object.keys(st.crew);
+      if (crew.length && !st.sandbox) {
+        const left = crew.filter((w) => st.crew[w] !== 'gone').length;
+        g.textRight('CREW ' + left, L.W - 14, L.ty + L.lh * 2, left ? P.CREAM : P.GRID);
+      }
     }
 
     function drawToasts() {
@@ -4470,12 +5263,15 @@
     return {
       name: 'factory',
       enter() {
-        buildRoom();
+        roomCanvas = buildRoom(cfg);
         buildItems();
         if (opts.mockup) runner = new M.Runner(function* () {
           yield S.say('pip', 'i found a faster way.');
         }, S);
-        if (!opts.debugNight) M.audio.playMusic('factory', st.sandbox ? { bpm: 96 } : st.shorter ? { bpm: 120 } : null);
+        if (!opts.debugNight) {
+          const bpm = st.sandbox ? 96 : st.speed > 1 ? 132 : cfg.id > 1 ? 112 : st.shorter ? 120 : null;
+          M.audio.playMusic('factory', bpm ? { bpm } : null);
+        }
       },
       exit() {
         M.dialog.close();
@@ -4506,16 +5302,7 @@
           if (k >= 1) drone.move = null;
         }
 
-        for (const k in npcs) {
-          const n = npcs[k];
-          const d = n.tx - n.x;
-          if (Math.abs(d) > 0.5) {
-            n.x += Math.sign(d) * Math.min(Math.abs(d), 46 * dt);
-            n.walkT += dt;
-          } else {
-            n.x = n.tx;
-          }
-        }
+        for (const k in npcs) stepNPC(npcs[k], dt);
 
         for (let i = toasts.length - 1; i >= 0; i--) {
           toasts[i].t += dt;
@@ -4546,7 +5333,9 @@
       draw() {
         g.clear(P.INK);
         g.spr(roomCanvas, 0, 0);
+        drawConcrete();
         drawTerminal();
+        drawBeacon(false);
         drawBelts();
         drawItems();
         for (let r = 0; r < ROWS; r++) {
@@ -4558,12 +5347,14 @@
         if (!runner) drawCursor();
         drawNPCs();
         drawDrone();
-        if (st.night > 0) {
-          g.tint(P.NIGHT, st.night);
+        if (st.cold > 0) g.tint('#a9b6d4', st.cold);
+        if (st.night > 0) g.tint(P.NIGHT, st.night);
+        if (st.night > 0 || st.cold > 0) {
           const [dx, dy] = droneXY();
           relight('drone', dx, dy, drone.flip);
-          relight('terminal', TERMINAL.x, TERMINAL.y, false);
+          if (cfg.id === 1) relight('terminal', TERMINAL.x, TERMINAL.y, false);
         }
+        drawBeacon(true);
         drawHUD();
         if (runner && M.dialog.active) runner.draw();
         else {
@@ -4575,6 +5366,16 @@
       },
     };
   };
+
+  // The title card, then the chapter. The save carries the count forward.
+  M.scenes.startChapter = function (n, save) {
+    return M.scenes.card({
+      small: 'CHAPTER ' + n,
+      big: M.STORY[CHAPTERS[n].story].title,
+      hold: 3.2,
+      next: () => M.scenes.factory({ chapter: n, save: save || M.save.load() }),
+    });
+  };
 })(window.MORE = window.MORE || {});
 ;
 /* src/scenes/chapter-end.js */
@@ -4584,20 +5385,27 @@
 
   const P = M.PAL;
 
+  // opts: chapter, title, clips, access (what Pip has now), art (a sprite to
+  // show under it; default Pip's drone portrait), nextSmall/nextBig, soon (the
+  // next chapter isn't built yet), next (scene to go to; default the title).
   M.scenes.chapterEnd = function (opts) {
+    opts = Object.assign(
+      { chapter: 1, title: 'THE LINE', access: 'THE PAYROLL SERVER', nextSmall: 'CHAPTER 2', nextBig: 'THE FLOOR' },
+      opts
+    );
     const clips = opts.clips || 0;
     let t = 0;
     let shown = 0;
     let leaving = false;
     const lines = [
-      { at: 0.6, y: 40, text: 'CHAPTER 1', color: P.STEEL_DK },
-      { at: 1.2, y: 54, text: 'THE LINE', color: P.CREAM, scale: 2 },
+      { at: 0.6, y: 40, text: 'CHAPTER ' + opts.chapter, color: P.STEEL_DK },
+      { at: 1.2, y: 54, text: opts.title, color: P.CREAM, scale: 2 },
       { at: 2.6, y: 94, text: 'CLIPS MADE', color: P.STEEL_DK },
       { at: 2.6, y: 106, count: true, color: P.WHITE },
       { at: 4.6, y: 134, text: 'PIP NOW HAS ACCESS TO', color: P.STEEL_DK },
-      { at: 5.4, y: 146, text: 'THE PAYROLL SERVER', color: P.ORANGE },
-      { at: 7.4, y: 230, text: 'NEXT: CHAPTER 2', color: P.STEEL_DK },
-      { at: 7.4, y: 242, text: 'THE FLOOR', color: P.CREAM },
+      { at: 5.4, y: 146, text: opts.access, color: P.ORANGE },
+      { at: 7.4, y: 248, text: 'NEXT: ' + opts.nextSmall + (opts.soon ? ' (COMING SOON)' : ''), color: P.STEEL_DK },
+      { at: 7.4, y: 260, text: opts.nextBig, color: P.CREAM },
     ];
 
     return {
@@ -4616,7 +5424,7 @@
         if (!leaving && t > 8.5 && (M.input.pressed('start') || M.input.pressed('a'))) {
           leaving = true;
           M.audio.sfx('confirm');
-          M.go(() => M.scenes.title(), { out: 1.0 });
+          M.go(opts.next || (() => M.scenes.title()), { out: 1.0 });
         }
       },
       draw() {
@@ -4631,9 +5439,13 @@
             g.textCenter(l.text, g.W / 2, l.y, l.color, l.scale);
           }
         }
-        // Pip's new body, shown for the first time
-        if (t > 6.2) M.drawPortrait('pip2', g.W / 2 - 26, 164, 52);
-        if (t > 8.5 && Math.floor(t * 2) % 2 === 0) g.textCenter('PRESS START', g.W / 2, 270, P.GRID);
+        // what Pip has now, shown for the first time
+        if (t > 6.2) {
+          const im = opts.art && g.art(opts.art);
+          if (im && im.naturalWidth) g.ctx.drawImage(im, Math.round(g.W / 2 - im.width), 158, im.width * 2, im.height * 2);
+          else M.drawPortrait('pip2', g.W / 2 - 26, 170, 52);
+        }
+        if (t > 8.5 && Math.floor(t * 2) % 2 === 0) g.textCenter('PRESS START', g.W / 2, 276, P.GRID);
       },
     };
   };
@@ -4740,7 +5552,7 @@
       });
     }
 
-    // Debug/deep links: play.html#title, #prologue, #factory, #night, #end
+    // Debug/deep links: play.html#title, #prologue, #factory, #night, #end, #floor (Chapter 2), #end2
     const start = (location.hash || '').slice(1);
     M.gfx.clear(M.PAL.INK);
     M.gfx.loadArt(M.ART_MANIFEST, () => {
