@@ -14,15 +14,16 @@ live site is updated at the end of each one.
 | open | Voicemail | live |
 | 0 | The Sentence | live |
 | 1 | The Line | live, about 10 minutes |
-| 2 | The Floor | built, waiting to merge (pull request 3), about 15 minutes |
+| 2 | The Floor | live, about 15 minutes |
 | 3 | The Town | not started |
 | 4 | The Company | not started |
 | 5 | The World | not started |
 | 6 | The Sky | not started |
 | end | Voicemail | not started |
 
-On the live site the game stops after Chapter 1's night scene: the end card
-says "NEXT: CHAPTER 2", returns to the title, and CONTINUE opens free play.
+Chapter 2 was merged on 27 November 2026. Before that the live game stopped
+after Chapter 1's night scene. It now ends on Chapter 2's end card, which says
+Chapter 3 is coming.
 
 ## Decisions this plan is built on
 
@@ -45,7 +46,7 @@ says "NEXT: CHAPTER 2", returns to the title, and CONTINUE opens free play.
 | Harm | Shown on screen |
 | The kid | A recurring witness who asks Pip one plain question per chapter |
 | Art budget | Up to 10 Higgsfield credits per chapter without asking |
-| Sound | A new track per chapter, plus new recorded lines from Ruth |
+| Sound | A new track per chapter, plus new lines from Ruth in the voicemail's voice, generated through Higgsfield as the voicemail was |
 | Code | Split the engine out and add a scripted playthrough per chapter before Chapter 3 |
 | Plan | This file, plus one GitHub issue per milestone |
 
@@ -152,13 +153,14 @@ Credits.
 
 ### M0. Unblock the live game
 
-1. Replay Chapter 1 and Chapter 2 on the Chapter 2 branch with a script: title
-   to both end cards, and an old Chapter 1 save continuing into Chapter 2.
-2. Merge pull request 3 (Chapter 2).
-3. Rebase the site audit branch (pull request 4) onto the new `main`, resolve
-   the conflicts in `index.html` and `play.html`, rebuild `site/play.bundle.js`
-   so it includes Chapter 2, and merge.
-4. Check the live site.
+1. Done: replay Chapter 1 and Chapter 2 with `tools/replay.js`, title to both
+   end cards, and an old Chapter 1 save continuing into Chapter 2.
+2. Done: merge pull request 3 (Chapter 2).
+3. Done: bring the site audit branch (pull request 4) up to the new `main`,
+   resolve the conflicts in `index.html` and `play.html`, and rebuild
+   `site/play.bundle.js` so it includes Chapter 2.
+4. Merge pull request 4, once its placeholders and owner actions are settled.
+5. Check the live site.
 
 Done when: a new player on makemorepaperclips.com plays through to the end of
 Chapter 2.
@@ -184,7 +186,8 @@ M2 The Town, M3 The Company, M4 The World, M5 The Sky. Each follows the same
 steps:
 
 1. Beat table written into `STORY.md` and signed off.
-2. Script for Ruth's recorded lines sent for recording.
+2. Script for Ruth's new lines, then generated through Higgsfield in the
+   voicemail's voice. The owner hears them before they go in.
 3. Art: new Higgsfield sheets (up to 10 credits), recorded in `sources.json`,
    cut by `tools/art/build.py`.
 4. The new mechanic as a playable board with no story, to check it is fun and
@@ -218,8 +221,8 @@ playthrough.
 
 | What | Needed by |
 |---|---|
-| Merge pull request 3 once the replay passes | M0 |
-| How Ruth's voicemail was recorded, and who records the new lines | M2 |
+| Merge pull request 4, after filling in its security contact | M0 |
+| A listen to Ruth's generated lines for each chapter | M2 to M5 |
 | Sign-off on each chapter's beat table | start of M2, M3, M4, M5 |
 | Sign-off on the Ending B design and the refusal threshold | M3 |
 | New wording for the landing page content note | M2 |
@@ -228,4 +231,5 @@ playthrough.
 
 Art: up to 10 Higgsfield credits per chapter for Chapters 3 to 6, so up to 40,
 plus whatever the two epilogues need. Chapter 2 used 6. Music is written in
-code and costs nothing.
+code and costs nothing. Ruth's generated lines also spend Higgsfield credits;
+the cost per line is not known yet and will be reported with the first batch.
