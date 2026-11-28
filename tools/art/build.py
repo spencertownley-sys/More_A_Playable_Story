@@ -39,6 +39,7 @@ CREW = 'crew_sprites.png'
 PROPS2 = 'floor_props.png'
 MODERN = 'machines_modern.png'
 PIP = 'pip_stages_and_props.png'
+COLD = 'cold_tiles.png'
 TS = 4.3  # factory tileset: ~4.3 source px per game px (a 140px tile -> 32px)
 CS = 4.25  # character sheet: Ruth (136px tall) -> 32px
 
@@ -109,12 +110,28 @@ SPEC = [
     dict(name='floor_cold', src=MODERN, box=(64, 507, 182, 181), size=(32, 32)),
     dict(name='floor_hazard', src=MODERN, box=(350, 506, 184, 182), size=(32, 32)),
     dict(name='wall_cold', src=MODERN, box=(639, 505, 181, 186), size=(32, 32)),
+    # Chapter 3: the county map (16 x 7 tiles of 24px), the town meeting, and
+    # the cold tiles that replace the map as Riverbend builds over it
+    dict(name='county_map', src='county_map.png', size=(384, 168)),
+    dict(name='meeting_bg', src='town_meeting.png', size=(384, 288)),
+    dict(name='block1', src=COLD, box=(30, 23, 238, 246), scale=9.92, key=True),
+    dict(name='block2', src=COLD, box=(320, 15, 238, 254), scale=9.92, key=True),
+    dict(name='block3', src=COLD, box=(612, 15, 238, 254), scale=9.92, key=True),
+    dict(name='block4', src=COLD, box=(902, 10, 239, 259), scale=9.92, key=True),
+    dict(name='lot_paved', src=COLD, box=(28, 309, 240, 240), size=(24, 24)),
+    dict(name='lot_clips', src=COLD, box=(318, 309, 240, 240), size=(24, 24)),
+    dict(name='lot_power', src=COLD, box=(610, 309, 240, 240), size=(24, 24)),
+    dict(name='lot_water', src=COLD, box=(902, 309, 238, 240), size=(24, 24)),
+    dict(name='lot_staked', src=COLD, box=(30, 589, 237, 238), size=(24, 24)),
+    dict(name='lot_rubble', src=COLD, box=(319, 589, 238, 238), size=(24, 24)),
+    dict(name='lot_scaffold', src=COLD, box=(611, 589, 238, 238), size=(24, 24)),
 ]
 
 # Portrait sheets: six busts each, in sheet order, row by row.
 PORTRAITS = {
     'portraits.png': ['ruth', 'dev', 'marisol', 'gus', 'pip1', 'pip2'],
     'crew_portraits.png': ['tomas', 'bea', 'otis', 'marisol_sad', 'gus_angry', 'ruth_night'],
+    'town_portraits.png': ['kid', 'phone', 'pip3', 'ruth_tired', 'gus_tired', 'dev_phone'],
 }
 
 # Sprites whose amber lens should stay lit at night: record the lens bounds.

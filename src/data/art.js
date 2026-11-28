@@ -260,6 +260,71 @@
       "w": 32,
       "h": 32
     },
+    "county_map": {
+      "file": "assets/art/county_map.png",
+      "w": 384,
+      "h": 168
+    },
+    "meeting_bg": {
+      "file": "assets/art/meeting_bg.png",
+      "w": 384,
+      "h": 288
+    },
+    "block1": {
+      "file": "assets/art/block1.png",
+      "w": 24,
+      "h": 25
+    },
+    "block2": {
+      "file": "assets/art/block2.png",
+      "w": 24,
+      "h": 26
+    },
+    "block3": {
+      "file": "assets/art/block3.png",
+      "w": 24,
+      "h": 26
+    },
+    "block4": {
+      "file": "assets/art/block4.png",
+      "w": 24,
+      "h": 26
+    },
+    "lot_paved": {
+      "file": "assets/art/lot_paved.png",
+      "w": 24,
+      "h": 24
+    },
+    "lot_clips": {
+      "file": "assets/art/lot_clips.png",
+      "w": 24,
+      "h": 24
+    },
+    "lot_power": {
+      "file": "assets/art/lot_power.png",
+      "w": 24,
+      "h": 24
+    },
+    "lot_water": {
+      "file": "assets/art/lot_water.png",
+      "w": 24,
+      "h": 24
+    },
+    "lot_staked": {
+      "file": "assets/art/lot_staked.png",
+      "w": 24,
+      "h": 24
+    },
+    "lot_rubble": {
+      "file": "assets/art/lot_rubble.png",
+      "w": 24,
+      "h": 24
+    },
+    "lot_scaffold": {
+      "file": "assets/art/lot_scaffold.png",
+      "w": 24,
+      "h": 24
+    },
     "portrait_ruth": {
       "file": "assets/art/portrait_ruth.png",
       "w": 48,
@@ -317,6 +382,36 @@
     },
     "portrait_ruth_night": {
       "file": "assets/art/portrait_ruth_night.png",
+      "w": 48,
+      "h": 48
+    },
+    "portrait_kid": {
+      "file": "assets/art/portrait_kid.png",
+      "w": 48,
+      "h": 48
+    },
+    "portrait_phone": {
+      "file": "assets/art/portrait_phone.png",
+      "w": 48,
+      "h": 48
+    },
+    "portrait_pip3": {
+      "file": "assets/art/portrait_pip3.png",
+      "w": 48,
+      "h": 48
+    },
+    "portrait_ruth_tired": {
+      "file": "assets/art/portrait_ruth_tired.png",
+      "w": 48,
+      "h": 48
+    },
+    "portrait_gus_tired": {
+      "file": "assets/art/portrait_gus_tired.png",
+      "w": 48,
+      "h": 48
+    },
+    "portrait_dev_phone": {
+      "file": "assets/art/portrait_dev_phone.png",
       "w": 48,
       "h": 48
     }
