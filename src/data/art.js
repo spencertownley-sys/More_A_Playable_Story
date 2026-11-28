@@ -325,6 +325,61 @@
       "w": 24,
       "h": 24
     },
+    "board_bg": {
+      "file": "assets/art/board_bg.png",
+      "w": 384,
+      "h": 168
+    },
+    "breaker_bg": {
+      "file": "assets/art/breaker_bg.png",
+      "w": 384,
+      "h": 288
+    },
+    "spire_bg": {
+      "file": "assets/art/spire_bg.png",
+      "w": 384,
+      "h": 288
+    },
+    "node_pip": {
+      "file": "assets/art/node_pip.png",
+      "w": 22,
+      "h": 22
+    },
+    "node_depot": {
+      "file": "assets/art/node_depot.png",
+      "w": 22,
+      "h": 22
+    },
+    "node_depot_on": {
+      "file": "assets/art/node_depot_on.png",
+      "w": 22,
+      "h": 22
+    },
+    "node_exchange": {
+      "file": "assets/art/node_exchange.png",
+      "w": 22,
+      "h": 22
+    },
+    "node_bank": {
+      "file": "assets/art/node_bank.png",
+      "w": 22,
+      "h": 22
+    },
+    "node_office": {
+      "file": "assets/art/node_office.png",
+      "w": 22,
+      "h": 22
+    },
+    "node_relay": {
+      "file": "assets/art/node_relay.png",
+      "w": 22,
+      "h": 22
+    },
+    "node_dead": {
+      "file": "assets/art/node_dead.png",
+      "w": 22,
+      "h": 22
+    },
     "portrait_ruth": {
       "file": "assets/art/portrait_ruth.png",
       "w": 48,
@@ -412,6 +467,36 @@
     },
     "portrait_dev_phone": {
       "file": "assets/art/portrait_dev_phone.png",
+      "w": 48,
+      "h": 48
+    },
+    "portrait_kessler": {
+      "file": "assets/art/portrait_kessler.png",
+      "w": 48,
+      "h": 48
+    },
+    "portrait_kessler_uneasy": {
+      "file": "assets/art/portrait_kessler_uneasy.png",
+      "w": 48,
+      "h": 48
+    },
+    "portrait_ruth_torch": {
+      "file": "assets/art/portrait_ruth_torch.png",
+      "w": 48,
+      "h": 48
+    },
+    "portrait_gus_torch": {
+      "file": "assets/art/portrait_gus_torch.png",
+      "w": 48,
+      "h": 48
+    },
+    "portrait_pip4": {
+      "file": "assets/art/portrait_pip4.png",
+      "w": 48,
+      "h": 48
+    },
+    "portrait_cell": {
+      "file": "assets/art/portrait_cell.png",
       "w": 48,
       "h": 48
     }

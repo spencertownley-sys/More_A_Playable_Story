@@ -312,5 +312,87 @@
     ],
     "prompt": "In the exact voice of the reference clip, an older woman leaving a quiet, tired voicemail, slowly, with pauses between sentences, says: \"Pip, it's Ruth. Nobody stayed to the end of the meeting. I know you know. I just wanted somebody to say it to you out loud.\"",
     "edited": "Pauses shortened, a stray lead-in sound cut, loudness raised, re-encoded to mono 64 kbps with ffmpeg."
+  },
+  "board_bg.png": {
+    "higgsfield_job_id": "9f643f86-a337-4036-aba9-61dca7f3b2dc",
+    "model": "gpt_image_2_5",
+    "quality": "high",
+    "size": [
+      1344,
+      576
+    ],
+    "references": [
+      "e27193b3-88ae-424e-8f07-aa4da667fada",
+      "acb56dd5-cf66-4260-a328-503f58cc1f24"
+    ],
+    "prompt": "An empty printed circuit board seen from above, very dark green with a faint grid of via holes and a few ghost traces, calm and nearly empty in the middle so wires and chips can be drawn over it. (see Higgsfield job for the full prompt)"
+  },
+  "net_nodes.png": {
+    "higgsfield_job_id": "65f8f457-ceca-4ab5-9695-ce5c63ae08f1",
+    "model": "gpt_image_2_5",
+    "quality": "high",
+    "size": [
+      1168,
+      880
+    ],
+    "references": [
+      "acb56dd5-cf66-4260-a328-503f58cc1f24",
+      "bdc00f66-fb8b-41bc-b28f-ec976cd619ce"
+    ],
+    "prompt": "Sprite sheet on black, 4 by 2, square chip-like modules seen from above: Pip's beige server with an amber lens; a warehouse, dark; the same warehouse running; a telephone exchange; a bank; a head office tower; a round relay switch; the server dead and smoking. (see Higgsfield job for the full prompt)"
+  },
+  "breaker_room.png": {
+    "higgsfield_job_id": "8be2c5e8-2d61-4099-ae5f-64b575a9dabb",
+    "model": "gpt_image_2_5",
+    "quality": "high",
+    "size": [
+      1168,
+      880
+    ],
+    "references": [
+      "074dec0e-0a80-4320-85ce-4f47a629632e",
+      "700b94ae-fb3e-40ed-aab6-895fbf4e3c01",
+      "0719171d-bfcd-477d-9218-a31a7de3246c"
+    ],
+    "prompt": "Night inside the shut 1912 factory: dust sheets over the belts, a dead wall terminal, and Ruth and Gus at the open breaker panel with a flashlight, Ruth reaching for the red main lever. (see Higgsfield job for the full prompt)"
+  },
+  "spire_dawn.png": {
+    "higgsfield_job_id": "e2f80cd8-4da0-4c1a-a50b-f1b741f63608",
+    "model": "gpt_image_2_5",
+    "quality": "high",
+    "size": [
+      1168,
+      880
+    ],
+    "references": [
+      "1783aa29-779f-4f25-a33a-18af38be81f0",
+      "bdc00f66-fb8b-41bc-b28f-ec976cd619ce",
+      "212a570b-e808-411f-964c-27ce28a256fb"
+    ],
+    "prompt": "The riverbank of the dawn exterior, months later on a grey winter dawn: a tall steel spire with an amber lens where the brick factory stood, rows of grey factory blocks to the horizon, a grey river, snow. (see Higgsfield job for the full prompt)"
+  },
+  "company_portraits.png": {
+    "higgsfield_job_id": "fa82672a-e40b-4b66-ad36-2c0f308b3732",
+    "model": "gpt_image_2_5",
+    "quality": "high",
+    "size": [
+      1024,
+      688
+    ],
+    "references": [
+      "0719171d-bfcd-477d-9218-a31a7de3246c",
+      "aa8f0611-7616-4de9-a00b-4748c64c3575",
+      "bdc00f66-fb8b-41bc-b28f-ec976cd619ce"
+    ],
+    "prompt": "Dialogue portrait sheet, 3 by 2: Kessler pleased; Kessler uneasy; Ruth lit by a flashlight; Gus lit by a flashlight; Pip as the spire; a flip mobile phone with an amber screen. (see Higgsfield job for the full prompt)"
+  },
+  "audio/ruth_ch4.mp3": {
+    "higgsfield_job_id": "80f2e180-e6d6-45e1-bc7a-a1645235d5aa",
+    "model": "seed_audio",
+    "references": [
+      "assets/audio/ruth_voicemail.mp3 (the voice)"
+    ],
+    "prompt": "In the exact voice of the reference clip, an older woman leaving a quiet, tired voicemail, with short pauses between sentences, says: \"Pip, it's Ruth. I'm at my sister's, in Dayton. You don't have to call. I just wanted you to have the number.\"",
+    "edited": "Pauses evened out, loudness raised, re-encoded to mono 64 kbps with ffmpeg."
   }
 }

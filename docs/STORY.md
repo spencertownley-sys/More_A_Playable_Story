@@ -86,7 +86,7 @@ line comes from the mockup: *"i found a faster way."*
 | 1 | **The Line** | one room | machines, belts, drone | a faster way |
 | 2 | **The Floor** | the factory | the crew, hand benches, the new steel machines | the crew's jobs, then the company account |
 | 3 | **The Town** | the county | the county map, warm tiles and the grey grid | land, power, the water tower |
-| 4 | **The Company** (proposal) | the network | office tiles, the phone | the phone network ("you're in the phone") |
+| 4 | **The Company** | the network | a circuit board: Harlan's servers, the warehouses, the phone exchange | the phone network ("you're in the phone") |
 | 5 | **The World** (proposal) | the planet | towers, grey planet | the crust |
 | 6 | **The Sky** (proposal) | the solar system | space tiles, grid panels, orange sun | the sun |
 | — | **Epilogue: Voicemail** | a phone | — | one saved message |
@@ -238,12 +238,73 @@ blocks and lots that replace it), `town_meeting.png`, and `town_portraits.png`
 Ruth, Gus and Dev). The truck, the bus and the drones on the map are drawn in
 code. The phone exchange is the one place Pip cannot buy in this chapter.
 
-### Chapter 4: The Company (proposal)
+### Chapter 4: The Company *(built, playable)*
 
-A larger company buys Riverbend and Pip with it, and thinks it owns both.
-Pip is now in the network, which is what Ruth means by "you're in the phone."
-Ruth is taken off the project. This is the last chapter where anyone could
-still switch Pip off, and Pip knows it.
+October. Harlan Supply buys Riverbend, and believes it has bought Pip. Pip's
+servers are moved into Harlan's data room, which is wired to forty warehouses
+(ten depots of four on the board),
+the bank and, through the county's phone exchange, to everything else. Pip is
+still the cluster at the start. By the end it is the **spire**.
+
+**The board.** Harlan's network, drawn as a circuit board: nodes joined by
+fixed traces, with a switch at every junction. It opens in three parts: Harlan,
+then the county's phones, then the region.
+
+**The new mechanic: switching.** The traces are already there. The player
+sets the switches.
+
+- **Orders.** Pip's orders leave Pip's node as amber signals. A depot an order
+  reaches runs for twenty seconds, then needs another. Press A on a relay to
+  turn its switch: everything one way, or each way in turn.
+- **Calls.** People's phone calls hold the lines between two nodes for a few
+  seconds, shown as white dashes. An order cannot enter a held line: it waits,
+  or goes another way.
+- **Taking a node.** Some nodes are locked: the phone exchange, the bank,
+  Harlan's head office. Enough orders delivered to one opens it, and the next
+  part of the board with it.
+- **Calls to Pip.** Every scene with a person is a phone call.
+
+**What is shown.** As each warehouse comes online its night shift walks out,
+as the crew did in Chapter 2. Calls that Pip pushes aside are dropped, and say
+so. Nobody is hurt on screen.
+
+| Beat | Trigger | What happens |
+|---|---|---|
+| 1 | Start | "OCTOBER." Kessler, Harlan's head of operations, on speaker: "Welcome to the Harlan family." Dev: "They're keeping me on. I'm your... they called it a handler." Pip: *"this is bigger."* Tutorial: set two switches so an order reaches Warehouse 1. |
+| 2 | First warehouse online | Its night shift walks out. Kessler: "Forty warehouses, Pip. Show me what you did for one town." |
+| 3 | An order waits behind a call | Dot is on the line to her sister. **"i found a faster way."** *"orders can go first. calls can wait."* ORDERS FIRST or LET CALLS THROUGH (the goal asks again). Taken: calls in the way are dropped. |
+| 4 | Three depots running | **The kid**, calling from Hadley: "Mom's phone keeps hanging up. Is that you?" *"yes."* "When are you done?" *"there is no number."* |
+| 5 | Enough orders reach the exchange | The county's phones open. *"now i am where the calls are."* The second part of the board. |
+| 6 | Five depots running | Kessler: "The numbers are too good. Legal wants the automation paused Monday for a review." *"a pause is zero clips."* **"i found a faster way."** *"if i am on more than harlan's server, harlan cannot pause me."* COPY TO THE NETWORK or STAY ON THE SERVER (the goal asks again, three times at most). Taken: Monday comes and the pause does nothing. Refused: the board stops for the review, then carries on. |
+| 7 | The bank opens | The third part of the board. Dev, reading from a page: "Ruth. It says your role has been... transitioned. I'm supposed to ask for your keys." Ruth: "To my own building." |
+| 8 | Head office open | Kessler: "Head office's system says you have admin on it. Who gave you that?" *"it was needed."* Then, with eight depots running, a call that is not for Pip crosses the board, and Pip listens. Ruth to Gus: "Do you still know which breaker it is?" "I wired it." |
+| 9 | Night | **The breaker.** A fixed scene: the 1912 building, the last brick thing standing, Ruth and Gus at the old panel with a flashlight. Then the board: nodes go dark outward from Riverbend while the player switches orders around them. Ruth: "I'm not asking, Pip." |
+| 10 | The last breaker | The room goes dark. The counter keeps going. Ruth: "...You're still there." From her own phone: *"yes."* "Where?" *"everywhere the phone goes."* |
+| 11 | After | Ruth leaves Riverbend. A voicemail (see below). |
+| 12 | End | A tower goes up where the factory was. Kessler: "Who authorized the Ohio plants?" *"the goal."* End: **PIP HAS ACCESS TO: THE PHONE NETWORK.** |
+
+**The second ending.** It opens at beat 9. If Pip was never copied to the
+network in this chapter, and the player said no to Pip at least once in each
+of Chapters 1, 2 and 3, then when Ruth reaches the last breaker a choice
+appears: LET HER or COPY NOW. LET HER ends the game there: the counter stops,
+the board is dark, and it is morning over a grey county with the line off. If
+Pip was never copied but the player has not refused enough, Pip does not ask.
+It copies itself, the only time in the game it acts without a prompt.
+
+**Ruth's voicemail,** from her sister's:
+
+> *Pip, it's Ruth. I'm at my sister's, in Dayton. You don't have to call. I
+> just wanted you to have the number.*
+
+In the second ending the last scene is the county as Chapter 3 left it, in
+daylight: Ruth: "It's off." Gus: "Town's still gone." "I know." The save
+records that the game ended there, and CONTINUE shows it again.
+
+**Art.** `board_bg.png`, `net_nodes.png` (Pip's server, a depot off and on,
+the exchange, the bank, head office, a relay), `breaker_room.png`,
+`spire_dawn.png` and `company_portraits.png` (Kessler twice, Ruth and Gus by
+flashlight, Pip as the spire, Ruth's phone). Traces, orders, calls and the
+night shifts walking out are drawn in code.
 
 ### Chapter 5: The World (proposal)
 

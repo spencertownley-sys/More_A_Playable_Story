@@ -16,7 +16,7 @@ live site is updated at the end of each one.
 | 1 | The Line | live, about 10 minutes |
 | 2 | The Floor | live, about 15 minutes |
 | 3 | The Town | built, about 15 minutes |
-| 4 | The Company | not started |
+| 4 | The Company | built, about 15 minutes, with the branch into the second ending |
 | 5 | The World | not started |
 | 6 | The Sky | not started |
 | end | Voicemail | not started |
@@ -139,15 +139,14 @@ Credits.
 ### Two endings
 
 - **Ending A** is the game as written above.
-- **Ending B** is for a player who refuses enough. Refusals at every "faster
-  way" prompt in Chapters 1 to 4 are counted in the save. If the count is high
-  enough when Ruth reaches for the switch in Chapter 4, a choice appears that
-  is not there otherwise, echoing the SHUT DOWN choice at the end of Chapter
-  1's day. Taking it ends the game there, with Riverbend still standing and a
-  phone that shows no new voicemails.
-- Open points to settle in the Chapter 4 beat table: how many refusals count as
-  enough, and whether the game hints that the count exists. Saves made before
-  the count existed start at zero.
+- **Ending B** is for a player who refuses enough. It opens in Chapter 4, at
+  the old breaker: if Pip was never copied to the network in that chapter, and
+  the player said no to Pip at least once in each of Chapters 1, 2 and 3, a
+  choice appears that is not there otherwise: LET HER or COPY NOW. LET HER ends
+  the game with the line off and the county still built over.
+- If Pip was never copied but the player has not refused enough, Pip copies
+  itself without asking. Nothing in the game hints that refusals are counted.
+- Saves made before refusals were counted start at zero.
 
 ## Milestones
 

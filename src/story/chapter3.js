@@ -86,7 +86,7 @@
       art: 'lot_clips',
       nextSmall: 'CHAPTER 4',
       nextBig: 'THE COMPANY',
-      soon: true,
+      next: () => M.scenes.startChapter(4),
       clips: st.clips,
     }),
 

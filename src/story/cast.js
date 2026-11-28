@@ -29,5 +29,7 @@
     halvorsen: { name: 'HALVORSEN', portrait: 'phone', color: P.CREAM, blip: 400, speed: 34 },
     dot: { name: 'DOT', portrait: 'phone', color: P.CREAM, blip: 860, speed: 44 },
     crowd: { name: 'A VOICE', portrait: null, color: P.STEEL_LT, blip: 560, speed: 42 },
+    // Chapter 4: Harlan Supply's head of operations.
+    kessler: { name: 'KESSLER', portrait: 'kessler', color: P.CREAM, blip: 600, speed: 46 },
   };
 })(window.MORE = window.MORE || {});

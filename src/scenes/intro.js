@@ -37,6 +37,13 @@
       // Chapter 3 as if Chapter 2 just ended (doesn't touch your save)
       case 'town':
         return M.scenes.town({ debug: true, save: { chapter: 2, done: { 1: true, 2: true }, clips: '2700', shorter: true } });
+      // Chapter 4 as if Chapter 3 just ended (doesn't touch your save)
+      case 'company':
+        return M.scenes.company({ debug: true, save: { chapter: 3, done: { 1: true, 2: true, 3: true }, clips: '60000000', shorter: true } });
+      case 'end4':
+        return M.scenes.chapterEnd(M.STORY.ch4.ending({ clips: 14000000000 }));
+      case 'endingb':
+        return M.scenes.endingB({ clips: 9731224611, date: 'OCT 29' });
       case 'end3':
         return M.scenes.chapterEnd(M.STORY.ch3.ending({ clips: 41000000 }));
       case 'end2':
@@ -246,7 +253,9 @@
       const ch = (s && s.chapter) || 1;
       const finished = s && s.done && s.done[ch];
       let next = () => M.scenes.prologue();
-      if (finished && CH[ch + 1]) next = () => M.scenes.startChapter(ch + 1, s);
+      // the game was ended at the breaker: CONTINUE shows how
+      if (s && s.ending === 'b') next = () => M.scenes.endingB(s.endingB);
+      else if (finished && CH[ch + 1]) next = () => M.scenes.startChapter(ch + 1, s);
       else if (finished) next = () => CH[ch].open(s, { sandbox: true });
       else if (s && s.board) next = () => CH[ch].open(s);
       else if (s) next = () => M.scenes.startChapter(ch, s);

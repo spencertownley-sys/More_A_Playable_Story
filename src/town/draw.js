@@ -59,6 +59,9 @@
     return (coldMap = cv);
   }
 
+  // The grey county, for scenes that show it after the fact.
+  T.coldMap = buildCold;
+
   T.createView = function (env) {
     const g = M.gfx;
     const { st, town, story, ui } = env;
@@ -306,6 +309,12 @@
     return {
       prepare() {
         buildCold();
+      },
+      // Just the county, as it stands: no cursor, drones, HUD or panel.
+      drawMap() {
+        g.draw('county_map', 0, Y0);
+        drawRiver();
+        for (const p of town.places) drawPlace(p);
       },
       draw() {
         const runner = ui.runner();
