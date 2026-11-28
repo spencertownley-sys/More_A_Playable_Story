@@ -159,8 +159,8 @@ Credits.
 3. Done: bring the site audit branch (pull request 4) up to the new `main`,
    resolve the conflicts in `index.html` and `play.html`, and rebuild
    `site/play.bundle.js` so it includes Chapter 2.
-4. Merge pull request 4, once its placeholders and owner actions are settled.
-5. Check the live site.
+4. Done: merge pull request 4.
+5. Done: the live site serves Chapter 2 and the audit changes.
 
 Done when: a new player on makemorepaperclips.com plays through to the end of
 Chapter 2.
@@ -179,6 +179,13 @@ Chapter 2.
 
 Done when: both existing chapters pass their playthroughs on the new structure
 and an old save loads.
+
+Built: the split (`src/factory/`), the playthroughs (`node tools/replay.js`),
+save version 2, the refusal count, chapter select, and a rule that a jam on
+the floor does not count against the crew. Two things are left for the chapter
+that first needs them: the clip count is saved as a string of digits but still
+held as an ordinary number while playing, and nothing in the game shows the
+refusal count yet.
 
 ### M2 to M5. One milestone per chapter
 
@@ -221,7 +228,6 @@ playthrough.
 
 | What | Needed by |
 |---|---|
-| Merge pull request 4, after filling in its security contact | M0 |
 | A listen to Ruth's generated lines for each chapter | M2 to M5 |
 | Sign-off on each chapter's beat table | start of M2, M3, M4, M5 |
 | Sign-off on the Ending B design and the refusal threshold | M3 |

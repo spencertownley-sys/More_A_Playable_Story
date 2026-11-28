@@ -1,5 +1,5 @@
 // Concatenates the game's scripts, in load order, into site/play.bundle.js so
-// play.html makes one script request instead of twenty-two. The files under
+// play.html makes one script request instead of many. The files under
 // src/ stay the source of truth: edit them, then run
 //
 //   node tools/bundle.mjs           -> rewrites site/play.bundle.js
@@ -29,6 +29,10 @@ const ORDER = [
   'src/story/prologue.js',
   'src/story/chapter1.js',
   'src/story/chapter2.js',
+  'src/factory/parts.js',
+  'src/factory/chapters.js',
+  'src/factory/engine.js',
+  'src/factory/draw.js',
   'src/scenes/intro.js',
   'src/scenes/prologue.js',
   'src/scenes/factory.js',

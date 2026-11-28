@@ -108,6 +108,7 @@
           }
           if (pick === 1) {
             yield S.say('pip', 'okay.');
+            yield S.refuse();
             yield S.call(() => {
               st.nextFaster = st.clips + Q.fasterRetry;
               st.goalBlink = 4;

@@ -33,7 +33,7 @@
         return M.scenes.factory({ mockup: true });
       // Chapter 2 as if Chapter 1 just ended (doesn't touch your save)
       case 'floor':
-        return M.scenes.factory({ chapter: 2, debug: true, save: { chapter: 1, clips: 1024, shorter: true, chapter1Done: true } });
+        return M.scenes.factory({ chapter: 2, debug: true, save: { chapter: 1, done: { 1: true }, clips: '1024', shorter: true } });
       case 'end2':
         return M.scenes.chapterEnd(Object.assign({ clips: 4096 }, M.STORY.ch2.ending()));
       default:
@@ -208,14 +208,25 @@
     let t = 0;
     let sel = 0;
     let menu = false;
-    let confirming = false;
+    let confirming = null; // { lines, yes } while a YES / NO box is up
     let confirmSel = 1;
+    let picking = false; // the chapter list is open
+    let pickSel = 0;
     const save = M.save.load();
-    const items = () => [
-      { id: 'new', label: 'NEW GAME' },
-      { id: 'cont', label: 'CONTINUE', off: !save },
-      { id: 'sound', label: 'SOUND ' + (M.audio.muted ? 'OFF' : 'ON') },
-    ];
+    const CH = M.factory.CHAPTERS;
+    // Chapters that can be started over from here, once there is more than one.
+    const open = [];
+    for (let n = 1; save && CH[n] && n <= (save.unlocked || 1); n++) open.push(n);
+    const items = () => {
+      const list = [
+        { id: 'new', label: 'NEW GAME' },
+        { id: 'cont', label: 'CONTINUE', off: !save },
+      ];
+      if (open.length > 1) list.push({ id: 'chapters', label: 'CHAPTERS' });
+      list.push({ id: 'sound', label: 'SOUND ' + (M.audio.muted ? 'OFF' : 'ON') });
+      return list;
+    };
+    const chapterLabel = (n) => n + ' ' + M.STORY[CH[n].story].title;
     if (save) sel = 1;
 
     function begin() {
@@ -228,11 +239,21 @@
       M.audio.stopMusic(0.8);
       const s = M.save.load();
       const ch = (s && s.chapter) || 1;
+      const finished = s && s.done && s.done[ch];
       let next = () => M.scenes.prologue();
-      if (s && ch === 2) next = () => M.scenes.factory({ chapter: 2, sandbox: !!s.chapter2Done, save: s });
-      else if (s && s.chapter1Done) next = () => M.scenes.startChapter(2, s);
-      else if (s && ch === 1) next = () => M.scenes.factory({ save: s });
+      if (finished && CH[ch + 1]) next = () => M.scenes.startChapter(ch + 1, s);
+      else if (finished) next = () => M.scenes.factory({ chapter: ch, sandbox: true, save: s });
+      else if (s && s.board) next = () => M.scenes.factory({ chapter: ch, save: s });
+      else if (s) next = () => M.scenes.startChapter(ch, s);
       M.go(next, { out: 0.8 });
+    }
+
+    // Start chapter n over. Progress in it and after it is given up.
+    function restart(n) {
+      const s = M.save.restartFrom(save, n);
+      M.save.write(s);
+      M.audio.stopMusic(0.8);
+      M.go(() => M.scenes.startChapter(n, M.save.load()), { out: 0.8 });
     }
 
     return {
@@ -256,17 +277,34 @@
             M.audio.sfx('cursor');
           }
           if (I.pressed('b')) {
-            confirming = false;
+            confirming = null;
             M.audio.sfx('cancel');
-          }
-          if (I.pressed('a') || I.pressed('start')) {
+          } else if (I.pressed('a') || I.pressed('start')) {
             if (confirmSel === 0) {
               M.audio.sfx('confirm');
-              begin();
+              confirming.yes();
             } else {
-              confirming = false;
+              confirming = null;
               M.audio.sfx('cancel');
             }
+          }
+          return;
+        }
+        if (picking) {
+          if (I.pressed('b')) {
+            picking = false;
+            M.audio.sfx('cancel');
+          } else if (I.repeat('up')) {
+            pickSel = (pickSel + open.length - 1) % open.length;
+            M.audio.sfx('cursor');
+          } else if (I.repeat('down')) {
+            pickSel = (pickSel + 1) % open.length;
+            M.audio.sfx('cursor');
+          } else if (I.pressed('a') || I.pressed('start')) {
+            const n = open[pickSel];
+            confirming = { lines: ['START CHAPTER ' + n + ' OVER?', 'LATER PROGRESS IS LOST'], yes: () => restart(n) };
+            confirmSel = 1;
+            M.audio.sfx('cursor');
           }
           return;
         }
@@ -290,7 +328,7 @@
           const it = list[sel];
           if (it.id === 'new') {
             if (save) {
-              confirming = true;
+              confirming = { lines: ['ERASE SAVE AND', 'START OVER?'], yes: begin };
               confirmSel = 1;
               M.audio.sfx('cursor');
             } else {
@@ -300,6 +338,10 @@
           } else if (it.id === 'cont') {
             M.audio.sfx('confirm');
             cont();
+          } else if (it.id === 'chapters') {
+            picking = true;
+            pickSel = 0;
+            M.audio.sfx('cursor');
           } else if (it.id === 'sound') {
             M.audio.setMuted(!M.audio.muted);
             M.audio.sfx('cursor');
@@ -321,26 +363,27 @@
           if (Math.floor(t * 2) % 2 === 0) shadowText('PRESS START', W / 2, 262, P.CREAM, true);
           return;
         }
-        const list = items();
-        const bw = 132;
+        const list = picking ? open.map((n) => ({ label: chapterLabel(n) })) : items();
+        const at = picking ? pickSel : sel;
+        const bw = picking ? 156 : 132;
         const bh = list.length * 14 + 14;
         const bx = Math.round((W - bw) / 2);
         const by = 284 - bh;
         g.box(bx, by, bw, bh);
         list.forEach((it, i) => {
           const y = by + 9 + i * 14;
-          const on = i === sel && !confirming;
+          const on = i === at && !confirming;
           const col = it.off ? P.GRID : on ? P.ORANGE : P.CREAM;
           if (on) g.text('▶', bx + 12, y, P.ORANGE);
           g.text(it.label, bx + 26, y, col);
         });
 
         if (confirming) {
-          const cw = 176;
+          const cw = Math.max(176, Math.max(...confirming.lines.map((l) => l.length)) * 8 + 24);
           const cx = Math.round((W - cw) / 2);
           g.box(cx, 110, cw, 58);
-          g.textCenter('ERASE SAVE AND', W / 2, 121, P.CREAM);
-          g.textCenter('START OVER?', W / 2, 132, P.CREAM);
+          g.textCenter(confirming.lines[0], W / 2, 121, P.CREAM);
+          g.textCenter(confirming.lines[1], W / 2, 132, P.CREAM);
           ['YES', 'NO'].forEach((l, i) => {
             const x = i === 0 ? W / 2 - 44 : W / 2 + 20;
             if (i === confirmSel) g.text('▶', x - 12, 148, P.ORANGE);
