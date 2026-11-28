@@ -203,6 +203,7 @@
           }
           if (pick === 1) {
             yield S.say('pip', 'okay.');
+            yield S.refuse();
             yield S.call(() => {
               st.nextLimit = made(st) + Q.limitersRetry;
               st.goalBlink = 4;

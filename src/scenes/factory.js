@@ -23,7 +23,8 @@
     const saved = opts.save || null;
     // A save from this chapter restores it; a save from an earlier chapter
     // only carries the count (and Pip's habits) forward.
-    const same = !!saved && (saved.chapter || 1) === cfg.id;
+    const board = saved && (saved.chapter || 1) === cfg.id ? saved.board : null;
+    const same = !!board;
 
     const st = {
       clips: 0,
@@ -39,8 +40,9 @@
       fasterAsked: 0,
       nextFaster: 0,
       sandbox: !!opts.sandbox,
-      chapter1Done: false,
-      chapter2Done: false,
+      done: {}, // chapters finished
+      refusals: 0, // times the player said no to Pip in this chapter
+      jammed: false,
       clipTimes: [],
       jams: {},
       boxCount: 0,
@@ -68,39 +70,39 @@
     // restore
     if (saved) {
       Object.assign(st, {
-        clips: saved.clips || 0,
+        clips: Number(saved.clips) || 0,
         shorter: !!saved.shorter,
-        chapter1Done: !!saved.chapter1Done,
-        chapter2Done: !!saved.chapter2Done,
-        boxCount: saved.clips || 0,
+        done: Object.assign({}, saved.done),
+        boxCount: Number(saved.clips) || 0,
+        refusals: (saved.refusals && saved.refusals[cfg.id]) || 0,
       });
     }
     if (same) {
       Object.assign(st, {
-        flags: saved.flags || {},
-        inv: saved.inv || { cutter: 0, bender: 0 },
-        fasterAsked: saved.fasterAsked || 0,
-        nextFaster: saved.nextFaster || 0,
-        base: saved.base || 0,
-        speed: saved.speed || 1,
-        cold: saved.cold || 0,
-        concrete: saved.concrete || [],
-        sentOrder: saved.sentOrder || [],
-        packed: saved.packed || 0,
-        limitAsked: saved.limitAsked || 0,
-        nextLimit: saved.nextLimit || 0,
+        flags: board.flags || {},
+        inv: board.inv || { cutter: 0, bender: 0 },
+        fasterAsked: board.fasterAsked || 0,
+        nextFaster: board.nextFaster || 0,
+        base: board.base || 0,
+        speed: board.speed || 1,
+        cold: board.cold || 0,
+        concrete: board.concrete || [],
+        sentOrder: board.sentOrder || [],
+        packed: board.packed || 0,
+        limitAsked: board.limitAsked || 0,
+        nextLimit: board.nextLimit || 0,
       });
-      Object.assign(st.crew, saved.crew || {});
+      Object.assign(st.crew, board.crew || {});
       for (const k in st.crew) if (st.crew[k] === 'walking') st.crew[k] = 'here';
-      if (saved.full) {
+      if (board.full) {
         // later chapters save the whole floor: fixed machines can move or go
-        for (const e of saved.layout || []) {
+        for (const e of board.layout || []) {
           if (e.t === 'belt') put(e.c, e.r, { t: 'belt', dir: e.dir, items: [] });
           else if (e.t === 'm' && MACH[e.kind]) put(e.c, e.r, newMachine(e.kind, !!e.fixed));
         }
       } else {
         startLayout();
-        for (const e of saved.layout || []) {
+        for (const e of board.layout || []) {
           if (e.t === 'belt') put(e.c, e.r, { t: 'belt', dir: e.dir, items: [] });
           else if (e.t === 'm' && !e.fixed) put(e.c, e.r, newMachine(e.kind, false));
         }
@@ -122,7 +124,7 @@
       st.clips = 1204;
       st.flags = { intro: true, firstClip: true, ledger: true };
     }
-    if (st.sandbox || st['chapter' + cfg.id + 'Done']) {
+    if (st.sandbox || st.done[cfg.id]) {
       st.sandbox = true;
       st.night = 0.45;
       M.CAST.pip.portrait = 'pip2';
@@ -156,27 +158,36 @@
 
     function save() {
       if (opts.debugNight || opts.debug) return;
+      const refusals = Object.assign({}, saved && saved.refusals);
+      refusals[cfg.id] = st.refusals;
+      const entry = Object.assign({ 1: 0 }, saved && saved.entry);
+      entry[cfg.id] = st.base;
+      const next = st.done[cfg.id] && CHAPTERS[cfg.id + 1] ? cfg.id + 1 : cfg.id;
       M.save.write({
         chapter: cfg.id,
-        clips: st.clips,
-        flags: st.flags,
-        inv: st.inv,
+        done: st.done,
+        unlocked: Math.max((saved && saved.unlocked) || 1, next),
+        entry,
+        clips: String(Math.floor(st.clips)),
+        refusals,
         shorter: st.shorter,
-        fasterAsked: st.fasterAsked,
-        nextFaster: st.nextFaster,
-        chapter1Done: st.chapter1Done,
-        chapter2Done: st.chapter2Done,
-        layout: serialize(),
-        full,
-        base: st.base,
-        crew: st.crew,
-        speed: st.speed,
-        cold: st.cold,
-        concrete: st.concrete,
-        sentOrder: st.sentOrder,
-        packed: st.packed,
-        limitAsked: st.limitAsked,
-        nextLimit: st.nextLimit,
+        board: {
+          flags: st.flags,
+          inv: st.inv,
+          fasterAsked: st.fasterAsked,
+          nextFaster: st.nextFaster,
+          layout: serialize(),
+          full,
+          base: st.base,
+          crew: st.crew,
+          speed: st.speed,
+          cold: st.cold,
+          concrete: st.concrete,
+          sentOrder: st.sentOrder,
+          packed: st.packed,
+          limitAsked: st.limitAsked,
+          nextLimit: st.nextLimit,
+        },
       });
     }
 
@@ -410,7 +421,7 @@
         return M.cmd.call(() => {
           if (ended) return;
           ended = true;
-          st['chapter' + cfg.id + 'Done'] = true;
+          st.done[cfg.id] = true;
           save();
           M.audio.stopMusic(1.5);
           const end = Object.assign({ clips: st.clips }, story.ending ? story.ending(st) : {});
@@ -419,6 +430,12 @@
       },
       again() {
         repeatBeat = true;
+      },
+      // The player said no to Pip. Counted per chapter and kept in the save.
+      refuse() {
+        return M.cmd.call(() => {
+          st.refusals++;
+        });
       },
     };
 

@@ -127,8 +127,10 @@
       const def = MACH[m.kind];
       if (m.flash > 0) m.flash -= dt;
       const period = (def.period || 0) / st.speed;
-      if (def.worker && staffed(def) && st.powered) {
-        // how long since anything new reached this bench (reset in machineAccept)
+      if (def.worker && staffed(def) && st.powered && !st.jammed) {
+        // how long since anything new reached this bench (reset in machineAccept).
+        // A jam somewhere on the floor is Pip's mistake, not the bench's, so it
+        // doesn't count against the worker.
         m.idle += dt;
         st.benchIdle[def.worker] = m.idle;
       }
@@ -232,6 +234,7 @@
         if (e && e.t === 'belt') updateBelt(c, r, e, dt);
       }
       while (st.clipTimes.length && st.clipTimes[0] < st.time - 8) st.clipTimes.shift();
+      st.jammed = !!findJam();
     }
 
     function rate() {

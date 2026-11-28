@@ -172,8 +172,10 @@ function bot(job) {
     out.crew = s.crew;
     out.inv = s.inv;
     out.refusals = s.refusals;
+    out.chapter = M.debug.factory.cfg.id;
   }
-  out.save = localStorage.getItem('more.save.v2') || localStorage.getItem('more.save.v1');
+  out.save = JSON.parse(localStorage.getItem('more.save.v2') || 'null');
+  out.oldSave = !!localStorage.getItem('more.save.v1');
   return out;
 }
 
@@ -225,6 +227,102 @@ const RUNS = {
     ],
   },
 };
+
+// Saves to start from. V1 is the format the first two chapters shipped with.
+const V2 = (data) => ({ key: 'more.save.v2', data: Object.assign({ v: 2 }, data) });
+const V1 = (data) => ({ key: 'more.save.v1', data: Object.assign({ v: 1 }, data) });
+const AFTER_CH1 = { chapter: 1, done: { 1: true }, unlocked: 2, entry: { 1: 0 }, clips: '767', refusals: { 1: 1 }, shorter: true, board: { flags: { intro: true }, inv: { cutter: 1, bender: 1 }, layout: [] } };
+const MID_CH2_BOARD = {
+  flags: { intro: true, packed: true, hint_parts: true, order: true, home_tomas: true },
+  inv: { cutter: 0, bender: 0, cutter2: 0, bender2: 1 },
+  full: true,
+  base: 767,
+  crew: { tomas: 'gone', bea: 'here', otis: 'here' },
+  speed: 1,
+  cold: 0.14,
+  concrete: [32],
+  sentOrder: ['tomas'],
+  packed: 30,
+  layout: [
+    ['spool', 0, 0], ['cutter', 2, 0], ['bender', 4, 0], ['box', 6, 0], ['spool', 0, 2], ['bench_bend', 5, 2], ['bench_pack', 8, 2],
+  ].map(([kind, c, r]) => ({ c, r, t: 'm', kind, fixed: true })).concat(
+    [{ c: 2, r: 2, t: 'm', kind: 'bench_cut', fixed: false }, { c: 2, r: 3, t: 'm', kind: 'cutter2', fixed: false }],
+    [[1, 0, 1], [3, 0, 1], [5, 0, 1], [3, 2, 1], [4, 2, 1], [6, 2, 1], [7, 2, 1], [0, 3, 1], [1, 3, 1], [3, 3, 1], [4, 3, 1], [5, 3, 0]].map(([c, r, dir]) => ({ c, r, t: 'belt', dir }))
+  ),
+};
+const CONTINUE = { name: 'CONTINUE', do: 'keys', keys: 'A A' };
+const toFloor = (n) => ({ name: 'to the floor', do: 'until', scene: 'factory', max: 800, expect: (r) => (r.scene === 'factory' && r.chapter === n) || 'expected the Chapter ' + n + ' floor, got ' + r.scene + ' ' + r.chapter });
+// Turn the belt beside Tomas's bench so the bench sends cut pieces back to the new cutter.
+const CH2_JAM = 'down left left left left left left SEL A up left A+ down right right right right up A-';
+
+Object.assign(RUNS, {
+  ch1: {
+    about: 'Chapter 1 from a new game, saying no to Pip twice',
+    steps: [
+      toTitle,
+      { name: 'NEW GAME', do: 'keys', keys: 'A up up A' },
+      { name: 'prologue', do: 'until', scene: 'factory', expect: (r) => r.scene === 'factory' || 'the prologue did not reach the floor' },
+      ...ch1Steps({ 'KEEP SIZE': 2 }),
+      { name: 'the save', do: 'wait', ticks: 60, expect: (r) => (r.save && r.save.done[1] && r.save.unlocked === 2 && r.save.refusals[1] === 2) || 'save is wrong: ' + JSON.stringify(r.save && { done: r.save.done, unlocked: r.save.unlocked, refusals: r.save.refusals }) },
+    ],
+  },
+  ch2: {
+    about: 'Chapter 2 from a save at the end of Chapter 1, saying no once',
+    save: V2(AFTER_CH1),
+    steps: [
+      toTitle,
+      CONTINUE,
+      toFloor(2),
+      ...ch2Steps({ 'KEEP THEM': 1 }),
+      { name: 'the save', do: 'wait', ticks: 60, expect: (r) => (r.save && r.save.done[2] && r.save.refusals[1] === 1 && r.save.refusals[2] === 1 && r.save.entry[2] === 767 && Number(r.save.clips) > 2500) || 'save is wrong: ' + JSON.stringify(r.save && { done: r.save.done, refusals: r.save.refusals, entry: r.save.entry, clips: r.save.clips }) },
+    ],
+  },
+  'ch2-jam': {
+    about: 'a jam on line two does not send the crew home',
+    save: V2(AFTER_CH1),
+    steps: [
+      toTitle,
+      CONTINUE,
+      toFloor(2),
+      ...ch2Steps().slice(0, 3),
+      { name: 'jam line two', do: 'build', keys: CH2_JAM, expect: (r) => /1,2:b2 .*2,3:cutter2/.test(r.cells) || 'the jam was not set up: ' + r.cells },
+      { name: 'a minute with the jam', do: 'run', max: 3600, expect: (r) => (r.flags.includes('said_jam:cutter:cut') && r.crew.tomas === 'here' && r.crew.bea === 'here' && r.crew.otis === 'here') || 'crew: ' + JSON.stringify(r.crew) + ' flags: ' + r.flags },
+    ],
+  },
+  'old-save': {
+    about: 'a first-release save at the end of Chapter 1 continues into Chapter 2',
+    save: V1({ chapter: 1, clips: 767, flags: { intro: true, whistle: true }, inv: { cutter: 1, bender: 1 }, shorter: true, fasterAsked: 1, chapter1Done: true, layout: [{ c: 1, r: 0, t: 'belt', dir: 1 }] }),
+    steps: [
+      toTitle,
+      CONTINUE,
+      toFloor(2),
+      { name: 'Chapter 2 intro', do: 'run', until: 'st.flags.intro', max: 30000, expect: (r) => (r.clips >= 767 && r.clips < 900 && r.save && r.save.v === 2 && r.save.chapter === 2 && r.save.entry[2] === 767 && !r.oldSave) || 'clips ' + r.clips + ', save ' + JSON.stringify(r.save && { v: r.save.v, chapter: r.save.chapter, entry: r.save.entry }) + ', old key left: ' + r.oldSave },
+    ],
+  },
+  'old-save-ch2': {
+    about: 'a first-release save in the middle of Chapter 2 resumes there',
+    save: V1(Object.assign({ chapter: 2, clips: 930, shorter: true, chapter1Done: true, chapter2Done: false }, MID_CH2_BOARD)),
+    steps: [
+      toTitle,
+      CONTINUE,
+      toFloor(2),
+      { name: 'the floor as it was left', do: 'wait', ticks: 120, shot: 'resumed', expect: (r) => (r.crew.tomas === 'gone' && r.crew.bea === 'here' && r.inv.bender2 === 1 && r.clips >= 930 && r.flags.includes('home_tomas')) || 'state: ' + JSON.stringify({ crew: r.crew, inv: r.inv, clips: r.clips }) },
+    ],
+  },
+  select: {
+    about: 'chapter select starts Chapter 1 over from a Chapter 2 save',
+    save: V2({ chapter: 2, done: { 1: true }, unlocked: 2, entry: { 1: 0, 2: 767 }, clips: '930', refusals: { 1: 1, 2: 0 }, shorter: true, board: MID_CH2_BOARD }),
+    steps: [
+      toTitle,
+      { name: 'title settles', do: 'wait', ticks: 60 },
+      { name: 'CHAPTERS', do: 'keys', keys: 'A down A', shot: 'chapter-list' },
+      { name: 'pick Chapter 1', do: 'keys', keys: 'A', shot: 'chapter-confirm' },
+      { name: 'YES', do: 'keys', keys: 'left A' },
+      toFloor(1),
+      { name: 'a fresh Chapter 1', do: 'wait', ticks: 60, expect: (r) => (r.clips === 0 && r.save && r.save.chapter === 1 && r.save.unlocked === 2 && !r.save.done[1] && !r.save.shorter && r.save.refusals[1] === undefined) || 'clips ' + r.clips + ', save ' + JSON.stringify(r.save && { chapter: r.save.chapter, unlocked: r.save.unlocked, done: r.save.done, refusals: r.save.refusals }) },
+    ],
+  },
+});
 
 // Deep links: each should open without errors. #night also plays Chapter 1's last scene.
 for (const [link, extra] of [

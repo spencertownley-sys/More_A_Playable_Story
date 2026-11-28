@@ -1165,23 +1165,74 @@
 ;
 /* src/core/save.js */
 // MORE. — save data (browser localStorage; the game runs fine without it)
+//
+// Version 2:
+//   chapter    the chapter the player is in
+//   done       { 1: true, ... } chapters finished
+//   unlocked   the highest chapter that can be started from the title menu
+//   entry      { 1: 0, 2: 767, ... } the clip count on entering each chapter
+//   clips      the clip count, as a string of digits so it can outgrow a number
+//   refusals   { 1: 2, ... } times the player said no to Pip, by chapter
+//   shorter    Pip cuts the wire short (chosen in Chapter 1, kept for good)
+//   board      the current chapter's own state: flags, layout, crew and so on
+// Version 1 saves (Chapters 1 and 2 as first released) are upgraded on load.
 (function (M) {
   'use strict';
 
-  const KEY = 'more.save.v1';
+  const KEY = 'more.save.v2';
+  const OLD_KEY = 'more.save.v1';
+  const BOARD = ['flags', 'inv', 'fasterAsked', 'nextFaster', 'layout', 'full', 'base', 'crew', 'speed', 'cold', 'concrete', 'sentOrder', 'packed', 'limitAsked', 'nextLimit'];
 
-  function load() {
+  function upgrade(o) {
+    const chapter = o.chapter || 1;
+    const done = {};
+    if (o.chapter1Done) done[1] = true;
+    if (o.chapter2Done) done[2] = true;
+    const entry = { 1: 0 };
+    if (chapter === 2) entry[2] = o.base || 0;
+    const board = {};
+    for (const k of BOARD) if (o[k] !== undefined) board[k] = o[k];
+    return {
+      v: 2,
+      savedAt: o.savedAt,
+      chapter,
+      done,
+      unlocked: Math.max(chapter, done[1] ? 2 : 1),
+      entry,
+      clips: String(Math.floor(o.clips || 0)),
+      refusals: {}, // not counted before version 2
+      shorter: !!o.shorter,
+      board,
+    };
+  }
+
+  function read(key) {
     try {
-      const raw = localStorage.getItem(KEY);
+      const raw = localStorage.getItem(key);
       return raw ? JSON.parse(raw) : null;
     } catch (e) {
       return null;
     }
   }
 
+  function load() {
+    const s = read(KEY);
+    if (s && s.v === 2) return s;
+    const old = read(OLD_KEY);
+    if (!old) return null;
+    const up = upgrade(old);
+    try {
+      localStorage.setItem(KEY, JSON.stringify(up));
+      localStorage.removeItem(OLD_KEY);
+    } catch (e) {
+      /* keep playing from the upgraded copy */
+    }
+    return up;
+  }
+
   function write(data) {
     try {
-      localStorage.setItem(KEY, JSON.stringify(Object.assign({ v: 1, savedAt: Date.now() }, data)));
+      localStorage.setItem(KEY, JSON.stringify(Object.assign({ v: 2, savedAt: Date.now() }, data)));
       return true;
     } catch (e) {
       return false;
@@ -1191,12 +1242,36 @@
   function clear() {
     try {
       localStorage.removeItem(KEY);
+      localStorage.removeItem(OLD_KEY);
     } catch (e) {
       /* ignore */
     }
   }
 
-  M.save = { load, write, clear, has: () => !!load() };
+  // The save to start chapter n over from: the count goes back to what it was
+  // on entering it, and that chapter and everything after it is undone. What
+  // has been unlocked stays unlocked.
+  function restartFrom(s, n) {
+    const done = {};
+    const refusals = {};
+    const entry = {};
+    for (const k in s.done || {}) if (+k < n) done[k] = s.done[k];
+    for (const k in s.refusals || {}) if (+k < n) refusals[k] = s.refusals[k];
+    for (const k in s.entry || {}) if (+k <= n) entry[k] = s.entry[k];
+    if (entry[n] === undefined) entry[n] = n === 1 ? 0 : Number(s.clips) || 0;
+    return {
+      chapter: n,
+      done,
+      unlocked: s.unlocked || n,
+      entry,
+      clips: String(entry[n]),
+      refusals,
+      shorter: n > 1 && !!s.shorter,
+      board: null,
+    };
+  }
+
+  M.save = { load, write, clear, upgrade, restartFrom, has: () => !!load() };
 })(window.MORE = window.MORE || {});
 ;
 /* src/core/script.js */
@@ -2688,6 +2763,7 @@
           }
           if (pick === 1) {
             yield S.say('pip', 'okay.');
+            yield S.refuse();
             yield S.call(() => {
               st.nextFaster = st.clips + Q.fasterRetry;
               st.goalBlink = 4;
@@ -3008,6 +3084,7 @@
           }
           if (pick === 1) {
             yield S.say('pip', 'okay.');
+            yield S.refuse();
             yield S.call(() => {
               st.nextLimit = made(st) + Q.limitersRetry;
               st.goalBlink = 4;
@@ -3359,8 +3436,10 @@
       const def = MACH[m.kind];
       if (m.flash > 0) m.flash -= dt;
       const period = (def.period || 0) / st.speed;
-      if (def.worker && staffed(def) && st.powered) {
-        // how long since anything new reached this bench (reset in machineAccept)
+      if (def.worker && staffed(def) && st.powered && !st.jammed) {
+        // how long since anything new reached this bench (reset in machineAccept).
+        // A jam somewhere on the floor is Pip's mistake, not the bench's, so it
+        // doesn't count against the worker.
         m.idle += dt;
         st.benchIdle[def.worker] = m.idle;
       }
@@ -3464,6 +3543,7 @@
         if (e && e.t === 'belt') updateBelt(c, r, e, dt);
       }
       while (st.clipTimes.length && st.clipTimes[0] < st.time - 8) st.clipTimes.shift();
+      st.jammed = !!findJam();
     }
 
     function rate() {
@@ -4064,7 +4144,7 @@
         return M.scenes.factory({ mockup: true });
       // Chapter 2 as if Chapter 1 just ended (doesn't touch your save)
       case 'floor':
-        return M.scenes.factory({ chapter: 2, debug: true, save: { chapter: 1, clips: 1024, shorter: true, chapter1Done: true } });
+        return M.scenes.factory({ chapter: 2, debug: true, save: { chapter: 1, done: { 1: true }, clips: '1024', shorter: true } });
       case 'end2':
         return M.scenes.chapterEnd(Object.assign({ clips: 4096 }, M.STORY.ch2.ending()));
       default:
@@ -4239,14 +4319,25 @@
     let t = 0;
     let sel = 0;
     let menu = false;
-    let confirming = false;
+    let confirming = null; // { lines, yes } while a YES / NO box is up
     let confirmSel = 1;
+    let picking = false; // the chapter list is open
+    let pickSel = 0;
     const save = M.save.load();
-    const items = () => [
-      { id: 'new', label: 'NEW GAME' },
-      { id: 'cont', label: 'CONTINUE', off: !save },
-      { id: 'sound', label: 'SOUND ' + (M.audio.muted ? 'OFF' : 'ON') },
-    ];
+    const CH = M.factory.CHAPTERS;
+    // Chapters that can be started over from here, once there is more than one.
+    const open = [];
+    for (let n = 1; save && CH[n] && n <= (save.unlocked || 1); n++) open.push(n);
+    const items = () => {
+      const list = [
+        { id: 'new', label: 'NEW GAME' },
+        { id: 'cont', label: 'CONTINUE', off: !save },
+      ];
+      if (open.length > 1) list.push({ id: 'chapters', label: 'CHAPTERS' });
+      list.push({ id: 'sound', label: 'SOUND ' + (M.audio.muted ? 'OFF' : 'ON') });
+      return list;
+    };
+    const chapterLabel = (n) => n + ' ' + M.STORY[CH[n].story].title;
     if (save) sel = 1;
 
     function begin() {
@@ -4259,11 +4350,21 @@
       M.audio.stopMusic(0.8);
       const s = M.save.load();
       const ch = (s && s.chapter) || 1;
+      const finished = s && s.done && s.done[ch];
       let next = () => M.scenes.prologue();
-      if (s && ch === 2) next = () => M.scenes.factory({ chapter: 2, sandbox: !!s.chapter2Done, save: s });
-      else if (s && s.chapter1Done) next = () => M.scenes.startChapter(2, s);
-      else if (s && ch === 1) next = () => M.scenes.factory({ save: s });
+      if (finished && CH[ch + 1]) next = () => M.scenes.startChapter(ch + 1, s);
+      else if (finished) next = () => M.scenes.factory({ chapter: ch, sandbox: true, save: s });
+      else if (s && s.board) next = () => M.scenes.factory({ chapter: ch, save: s });
+      else if (s) next = () => M.scenes.startChapter(ch, s);
       M.go(next, { out: 0.8 });
+    }
+
+    // Start chapter n over. Progress in it and after it is given up.
+    function restart(n) {
+      const s = M.save.restartFrom(save, n);
+      M.save.write(s);
+      M.audio.stopMusic(0.8);
+      M.go(() => M.scenes.startChapter(n, M.save.load()), { out: 0.8 });
     }
 
     return {
@@ -4287,17 +4388,34 @@
             M.audio.sfx('cursor');
           }
           if (I.pressed('b')) {
-            confirming = false;
+            confirming = null;
             M.audio.sfx('cancel');
-          }
-          if (I.pressed('a') || I.pressed('start')) {
+          } else if (I.pressed('a') || I.pressed('start')) {
             if (confirmSel === 0) {
               M.audio.sfx('confirm');
-              begin();
+              confirming.yes();
             } else {
-              confirming = false;
+              confirming = null;
               M.audio.sfx('cancel');
             }
+          }
+          return;
+        }
+        if (picking) {
+          if (I.pressed('b')) {
+            picking = false;
+            M.audio.sfx('cancel');
+          } else if (I.repeat('up')) {
+            pickSel = (pickSel + open.length - 1) % open.length;
+            M.audio.sfx('cursor');
+          } else if (I.repeat('down')) {
+            pickSel = (pickSel + 1) % open.length;
+            M.audio.sfx('cursor');
+          } else if (I.pressed('a') || I.pressed('start')) {
+            const n = open[pickSel];
+            confirming = { lines: ['START CHAPTER ' + n + ' OVER?', 'LATER PROGRESS IS LOST'], yes: () => restart(n) };
+            confirmSel = 1;
+            M.audio.sfx('cursor');
           }
           return;
         }
@@ -4321,7 +4439,7 @@
           const it = list[sel];
           if (it.id === 'new') {
             if (save) {
-              confirming = true;
+              confirming = { lines: ['ERASE SAVE AND', 'START OVER?'], yes: begin };
               confirmSel = 1;
               M.audio.sfx('cursor');
             } else {
@@ -4331,6 +4449,10 @@
           } else if (it.id === 'cont') {
             M.audio.sfx('confirm');
             cont();
+          } else if (it.id === 'chapters') {
+            picking = true;
+            pickSel = 0;
+            M.audio.sfx('cursor');
           } else if (it.id === 'sound') {
             M.audio.setMuted(!M.audio.muted);
             M.audio.sfx('cursor');
@@ -4352,26 +4474,27 @@
           if (Math.floor(t * 2) % 2 === 0) shadowText('PRESS START', W / 2, 262, P.CREAM, true);
           return;
         }
-        const list = items();
-        const bw = 132;
+        const list = picking ? open.map((n) => ({ label: chapterLabel(n) })) : items();
+        const at = picking ? pickSel : sel;
+        const bw = picking ? 156 : 132;
         const bh = list.length * 14 + 14;
         const bx = Math.round((W - bw) / 2);
         const by = 284 - bh;
         g.box(bx, by, bw, bh);
         list.forEach((it, i) => {
           const y = by + 9 + i * 14;
-          const on = i === sel && !confirming;
+          const on = i === at && !confirming;
           const col = it.off ? P.GRID : on ? P.ORANGE : P.CREAM;
           if (on) g.text('▶', bx + 12, y, P.ORANGE);
           g.text(it.label, bx + 26, y, col);
         });
 
         if (confirming) {
-          const cw = 176;
+          const cw = Math.max(176, Math.max(...confirming.lines.map((l) => l.length)) * 8 + 24);
           const cx = Math.round((W - cw) / 2);
           g.box(cx, 110, cw, 58);
-          g.textCenter('ERASE SAVE AND', W / 2, 121, P.CREAM);
-          g.textCenter('START OVER?', W / 2, 132, P.CREAM);
+          g.textCenter(confirming.lines[0], W / 2, 121, P.CREAM);
+          g.textCenter(confirming.lines[1], W / 2, 132, P.CREAM);
           ['YES', 'NO'].forEach((l, i) => {
             const x = i === 0 ? W / 2 - 44 : W / 2 + 20;
             if (i === confirmSel) g.text('▶', x - 12, 148, P.ORANGE);
@@ -4807,7 +4930,8 @@
     const saved = opts.save || null;
     // A save from this chapter restores it; a save from an earlier chapter
     // only carries the count (and Pip's habits) forward.
-    const same = !!saved && (saved.chapter || 1) === cfg.id;
+    const board = saved && (saved.chapter || 1) === cfg.id ? saved.board : null;
+    const same = !!board;
 
     const st = {
       clips: 0,
@@ -4823,8 +4947,9 @@
       fasterAsked: 0,
       nextFaster: 0,
       sandbox: !!opts.sandbox,
-      chapter1Done: false,
-      chapter2Done: false,
+      done: {}, // chapters finished
+      refusals: 0, // times the player said no to Pip in this chapter
+      jammed: false,
       clipTimes: [],
       jams: {},
       boxCount: 0,
@@ -4852,39 +4977,39 @@
     // restore
     if (saved) {
       Object.assign(st, {
-        clips: saved.clips || 0,
+        clips: Number(saved.clips) || 0,
         shorter: !!saved.shorter,
-        chapter1Done: !!saved.chapter1Done,
-        chapter2Done: !!saved.chapter2Done,
-        boxCount: saved.clips || 0,
+        done: Object.assign({}, saved.done),
+        boxCount: Number(saved.clips) || 0,
+        refusals: (saved.refusals && saved.refusals[cfg.id]) || 0,
       });
     }
     if (same) {
       Object.assign(st, {
-        flags: saved.flags || {},
-        inv: saved.inv || { cutter: 0, bender: 0 },
-        fasterAsked: saved.fasterAsked || 0,
-        nextFaster: saved.nextFaster || 0,
-        base: saved.base || 0,
-        speed: saved.speed || 1,
-        cold: saved.cold || 0,
-        concrete: saved.concrete || [],
-        sentOrder: saved.sentOrder || [],
-        packed: saved.packed || 0,
-        limitAsked: saved.limitAsked || 0,
-        nextLimit: saved.nextLimit || 0,
+        flags: board.flags || {},
+        inv: board.inv || { cutter: 0, bender: 0 },
+        fasterAsked: board.fasterAsked || 0,
+        nextFaster: board.nextFaster || 0,
+        base: board.base || 0,
+        speed: board.speed || 1,
+        cold: board.cold || 0,
+        concrete: board.concrete || [],
+        sentOrder: board.sentOrder || [],
+        packed: board.packed || 0,
+        limitAsked: board.limitAsked || 0,
+        nextLimit: board.nextLimit || 0,
       });
-      Object.assign(st.crew, saved.crew || {});
+      Object.assign(st.crew, board.crew || {});
       for (const k in st.crew) if (st.crew[k] === 'walking') st.crew[k] = 'here';
-      if (saved.full) {
+      if (board.full) {
         // later chapters save the whole floor: fixed machines can move or go
-        for (const e of saved.layout || []) {
+        for (const e of board.layout || []) {
           if (e.t === 'belt') put(e.c, e.r, { t: 'belt', dir: e.dir, items: [] });
           else if (e.t === 'm' && MACH[e.kind]) put(e.c, e.r, newMachine(e.kind, !!e.fixed));
         }
       } else {
         startLayout();
-        for (const e of saved.layout || []) {
+        for (const e of board.layout || []) {
           if (e.t === 'belt') put(e.c, e.r, { t: 'belt', dir: e.dir, items: [] });
           else if (e.t === 'm' && !e.fixed) put(e.c, e.r, newMachine(e.kind, false));
         }
@@ -4906,7 +5031,7 @@
       st.clips = 1204;
       st.flags = { intro: true, firstClip: true, ledger: true };
     }
-    if (st.sandbox || st['chapter' + cfg.id + 'Done']) {
+    if (st.sandbox || st.done[cfg.id]) {
       st.sandbox = true;
       st.night = 0.45;
       M.CAST.pip.portrait = 'pip2';
@@ -4940,27 +5065,36 @@
 
     function save() {
       if (opts.debugNight || opts.debug) return;
+      const refusals = Object.assign({}, saved && saved.refusals);
+      refusals[cfg.id] = st.refusals;
+      const entry = Object.assign({ 1: 0 }, saved && saved.entry);
+      entry[cfg.id] = st.base;
+      const next = st.done[cfg.id] && CHAPTERS[cfg.id + 1] ? cfg.id + 1 : cfg.id;
       M.save.write({
         chapter: cfg.id,
-        clips: st.clips,
-        flags: st.flags,
-        inv: st.inv,
+        done: st.done,
+        unlocked: Math.max((saved && saved.unlocked) || 1, next),
+        entry,
+        clips: String(Math.floor(st.clips)),
+        refusals,
         shorter: st.shorter,
-        fasterAsked: st.fasterAsked,
-        nextFaster: st.nextFaster,
-        chapter1Done: st.chapter1Done,
-        chapter2Done: st.chapter2Done,
-        layout: serialize(),
-        full,
-        base: st.base,
-        crew: st.crew,
-        speed: st.speed,
-        cold: st.cold,
-        concrete: st.concrete,
-        sentOrder: st.sentOrder,
-        packed: st.packed,
-        limitAsked: st.limitAsked,
-        nextLimit: st.nextLimit,
+        board: {
+          flags: st.flags,
+          inv: st.inv,
+          fasterAsked: st.fasterAsked,
+          nextFaster: st.nextFaster,
+          layout: serialize(),
+          full,
+          base: st.base,
+          crew: st.crew,
+          speed: st.speed,
+          cold: st.cold,
+          concrete: st.concrete,
+          sentOrder: st.sentOrder,
+          packed: st.packed,
+          limitAsked: st.limitAsked,
+          nextLimit: st.nextLimit,
+        },
       });
     }
 
@@ -5194,7 +5328,7 @@
         return M.cmd.call(() => {
           if (ended) return;
           ended = true;
-          st['chapter' + cfg.id + 'Done'] = true;
+          st.done[cfg.id] = true;
           save();
           M.audio.stopMusic(1.5);
           const end = Object.assign({ clips: st.clips }, story.ending ? story.ending(st) : {});
@@ -5203,6 +5337,12 @@
       },
       again() {
         repeatBeat = true;
+      },
+      // The player said no to Pip. Counted per chapter and kept in the save.
+      refuse() {
+        return M.cmd.call(() => {
+          st.refusals++;
+        });
       },
     };
 

@@ -34,7 +34,7 @@ the PAD button toggles it anywhere.
 | Part | Status |
 |---|---|
 | Cold open: Ruth's voicemail over the machine-Earth, with subtitles and a phone-line filter | done, Higgsfield art |
-| Title screen, save/continue | done, Higgsfield art |
+| Title screen, save/continue, chapter select | done, Higgsfield art |
 | Chapter 0 *The Sentence*: the factory at dawn, Ruth's office, the terminal, the player presses ENTER | done, Higgsfield art |
 | Chapter 1 *The Line*: the factory puzzle at Riverbend, nine story beats, night scene | done, Higgsfield art |
 | Chapter 2 *The Floor*: a wider floor, Marisol's crew at hand benches, the new steel machines, the safety limiters, the night shift | done, Higgsfield art |
@@ -42,7 +42,8 @@ the PAD button toggles it anywhere.
 
 Chapters 1 and 2 take about 10 and 15 minutes. Chapter 1's ending leads
 straight into Chapter 2, carrying the clip count over. After Chapter 2 ends,
-CONTINUE drops you back on the floor for the night shift (free play).
+CONTINUE drops you back on the floor for the night shift (free play). Once
+Chapter 2 is unlocked, CHAPTERS on the title menu starts either chapter over.
 
 ## Layout
 
@@ -55,13 +56,15 @@ src/core/             engine: palette, font, gfx, input, audio, save, script run
 src/art/              small palette-string sprites (items riding the belts)
 src/data/             art manifest (generated), music patterns, embedded voicemail
 src/story/            cast, voicemail captions, and each chapter's script
+src/factory/          the factory floor: machine definitions, each chapter's floor, the belt engine, drawing
 src/scenes/           boot/cold open/title, prologue, factory, chapter end
 assets/higgsfield/    the Higgsfield originals, plus sources.json (job IDs and prompts)
 assets/art/           game-ready sprites cut from them by tools/art/build.py
 assets/audio/         ruth_voicemail.mp3 (source for src/data/voicemail-data.js)
 assets/reference/     the first pre-work: concept sprite sheet and factory mockup
-tools/                art/build.py, site/assets.py, embed-voicemail.mjs, bundle.mjs, build.mjs
+tools/                art/build.py, site/assets.py, embed-voicemail.mjs, bundle.mjs, build.mjs, replay.js
 docs/STORY.md         story bible
+docs/PLAN.md          build plan and milestones
 ```
 
 Everything renders into a 384×288 canvas (4:3, the frame of the Higgsfield
@@ -109,6 +112,28 @@ Deep links skip straight to a scene (press START on the boot screen):
 `#floor` (Chapter 2, without touching your save), `#end2`.
 
 In the console, `MORE.debug.factory.st.clips = 199` jumps the clip count.
+
+## Checking a change
+
+After editing anything under `src/`, rebuild the bundle and run the scripted
+playthroughs. They play the game in headless Chromium (Playwright) through its
+own keyboard handler on a stepped clock, so both chapters take a few seconds.
+
+```
+node tools/bundle.mjs            # rebuild site/play.bundle.js
+node tools/replay.js             # every playthrough; exits 1 if a check fails
+node tools/replay.js --list      # what each one covers
+```
+
+`HASHES=out.json node tools/replay.js full` records a hash of the screen at
+every checkpoint. Record it before and after a change that should not alter
+the game, and compare the two files.
+
+## Saves
+
+The save is one entry in the browser's localStorage, `more.save.v2`, described
+at the top of `src/core/save.js`. Saves from the first release (`more.save.v1`)
+are upgraded the first time they load.
 
 ## Build a single file
 
