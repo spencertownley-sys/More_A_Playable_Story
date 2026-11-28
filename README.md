@@ -38,12 +38,13 @@ the PAD button toggles it anywhere.
 | Chapter 0 *The Sentence*: the factory at dawn, Ruth's office, the terminal, the player presses ENTER | done, Higgsfield art |
 | Chapter 1 *The Line*: the factory puzzle at Riverbend, nine story beats, night scene | done, Higgsfield art |
 | Chapter 2 *The Floor*: a wider floor, Marisol's crew at hand benches, the new steel machines, the safety limiters, the night shift | done, Higgsfield art |
+| Chapter 3 *The Town*: the county map, buying land, the town meeting, the school, the river, a voicemail from Ruth | done, Higgsfield art and voice |
 | Chapters 3–6 and the epilogue | planned in `docs/STORY.md` |
 
-Chapters 1 and 2 take about 10 and 15 minutes. Chapter 1's ending leads
-straight into Chapter 2, carrying the clip count over. After Chapter 2 ends,
-CONTINUE drops you back on the floor for the night shift (free play). Once
-Chapter 2 is unlocked, CHAPTERS on the title menu starts either chapter over.
+Chapters 1, 2 and 3 take about 10, 15 and 15 minutes. Each ending leads
+straight into the next chapter, carrying the clip count over. After Chapter 3
+ends, CONTINUE shows the county as Pip left it. Once Chapter 2 is unlocked,
+CHAPTERS on the title menu starts any unlocked chapter over.
 
 ## Layout
 
@@ -57,10 +58,12 @@ src/art/              small palette-string sprites (items riding the belts)
 src/data/             art manifest (generated), music patterns, embedded voicemail
 src/story/            cast, voicemail captions, and each chapter's script
 src/factory/          the factory floor: machine definitions, each chapter's floor, the belt engine, drawing
-src/scenes/           boot/cold open/title, prologue, factory, chapter end
+src/town/             the county map (Chapter 3): every place on it, the land engine, drawing
+src/chapters.js       the chapters in order, and how each one opens
+src/scenes/           boot/cold open/title, prologue, factory, town, chapter end
 assets/higgsfield/    the Higgsfield originals, plus sources.json (job IDs and prompts)
 assets/art/           game-ready sprites cut from them by tools/art/build.py
-assets/audio/         ruth_voicemail.mp3 (source for src/data/voicemail-data.js)
+assets/audio/         Ruth's voicemails (embedded into src/data/ by tools/embed-voicemail.mjs)
 assets/reference/     the first pre-work: concept sprite sheet and factory mockup
 tools/                art/build.py, site/assets.py, embed-voicemail.mjs, bundle.mjs, build.mjs, replay.js
 docs/STORY.md         story bible
@@ -101,6 +104,9 @@ const pick = yield S.choose('pip', 'two clips per wire.', ['CUT SHORTER', 'KEEP 
 - Cast (Ruth, Dev, Marisol, Gus, Kid, the crew, Pip), portraits, text colors and voice pitches: `src/story/cast.js`
 - Chapter 1 beats and the clip counts that trigger them: `src/story/chapter1.js`
 - Chapter 2 beats, quotas and the crew's lines: `src/story/chapter2.js`
+- Chapter 3 beats and Ruth's voicemail captions: `src/story/chapter3.js`.
+  The places on the map and their prices are in `src/town/places.js`, and the
+  numbers that set the chapter's pace are at the top of `src/town/engine.js`.
 - The prologue: `src/story/prologue.js`
 
 Pip always speaks in lowercase.
@@ -109,7 +115,8 @@ Pip always speaks in lowercase.
 
 Deep links skip straight to a scene (press START on the boot screen):
 `#title`, `#prologue`, `#factory`, `#night`, `#end`, `#sandbox`, `#mockup`,
-`#floor` (Chapter 2, without touching your save), `#end2`.
+`#floor` (Chapter 2, without touching your save), `#end2`, `#town` (Chapter 3,
+without touching your save), `#end3`.
 
 In the console, `MORE.debug.factory.st.clips = 199` jumps the clip count.
 
@@ -138,7 +145,7 @@ are upgraded the first time they load.
 ## Build a single file
 
 ```
-node tools/embed-voicemail.mjs   # after replacing assets/audio/ruth_voicemail.mp3
+node tools/embed-voicemail.mjs   # after replacing a clip in assets/audio/
 node tools/build.mjs             # writes dist/more.html, everything inlined
 ```
 

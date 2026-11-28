@@ -34,6 +34,11 @@
       // Chapter 2 as if Chapter 1 just ended (doesn't touch your save)
       case 'floor':
         return M.scenes.factory({ chapter: 2, debug: true, save: { chapter: 1, done: { 1: true }, clips: '1024', shorter: true } });
+      // Chapter 3 as if Chapter 2 just ended (doesn't touch your save)
+      case 'town':
+        return M.scenes.town({ debug: true, save: { chapter: 2, done: { 1: true, 2: true }, clips: '2700', shorter: true } });
+      case 'end3':
+        return M.scenes.chapterEnd(M.STORY.ch3.ending({ clips: 41000000 }));
       case 'end2':
         return M.scenes.chapterEnd(Object.assign({ clips: 4096 }, M.STORY.ch2.ending()));
       default:
@@ -213,7 +218,7 @@
     let picking = false; // the chapter list is open
     let pickSel = 0;
     const save = M.save.load();
-    const CH = M.factory.CHAPTERS;
+    const CH = M.CHAPTERS;
     // Chapters that can be started over from here, once there is more than one.
     const open = [];
     for (let n = 1; save && CH[n] && n <= (save.unlocked || 1); n++) open.push(n);
@@ -242,8 +247,8 @@
       const finished = s && s.done && s.done[ch];
       let next = () => M.scenes.prologue();
       if (finished && CH[ch + 1]) next = () => M.scenes.startChapter(ch + 1, s);
-      else if (finished) next = () => M.scenes.factory({ chapter: ch, sandbox: true, save: s });
-      else if (s && s.board) next = () => M.scenes.factory({ chapter: ch, save: s });
+      else if (finished) next = () => CH[ch].open(s, { sandbox: true });
+      else if (s && s.board) next = () => CH[ch].open(s);
       else if (s) next = () => M.scenes.startChapter(ch, s);
       M.go(next, { out: 0.8 });
     }

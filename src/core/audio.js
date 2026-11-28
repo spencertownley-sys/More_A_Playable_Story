@@ -409,14 +409,37 @@
     get ready() {
       return !!this.buffer;
     },
+    // Later voicemails (M.VOICE_CLIPS, by name) are decoded when a chapter asks.
+    clips: {},
+    loadClip(name) {
+      const b64 = M.VOICE_CLIPS && M.VOICE_CLIPS[name];
+      if (!ctx || !b64 || this.clips[name]) return;
+      this.clips[name] = 'loading';
+      const bin = atob(b64);
+      const bytes = new Uint8Array(bin.length);
+      for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+      const fail = () => {
+        delete this.clips[name];
+      };
+      const p = ctx.decodeAudioData(bytes.buffer, (buf) => {
+        this.clips[name] = buf;
+      }, fail);
+      if (p && p.catch) p.catch(fail);
+    },
+    playClip(name) {
+      const buf = this.clips[name];
+      if (!buf || buf === 'loading') return false;
+      return this.play(buf);
+    },
     get duration() {
       return this.buffer ? this.buffer.duration : 13.56;
     },
-    play() {
-      if (!ctx || !this.buffer) return false;
+    play(clip) {
+      const buffer = clip || this.buffer;
+      if (!ctx || !buffer) return false;
       this.stop();
       const src = ctx.createBufferSource();
-      src.buffer = this.buffer;
+      src.buffer = buffer;
       // Telephone band: 300 Hz – 3.4 kHz, a little grit.
       const hp = ctx.createBiquadFilter();
       hp.type = 'highpass';

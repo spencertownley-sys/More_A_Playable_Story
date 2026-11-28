@@ -294,5 +294,23 @@
       "e27193b3-88ae-424e-8f07-aa4da667fada"
     ],
     "prompt": "Tile sheet on black, 4 by 3, top-down, cold steel-blue and grey: a factory block with one, two, three and four smokestacks; an empty paved lot; a lot with a stockpile of paperclips; a substation block; a water pumping block; a dirt lot with survey stakes; a half-demolished house; a construction site with scaffolding; a paved lot with a drone. (see Higgsfield job for the full prompt)"
+  },
+  "audio/ruth_ch3_school.mp3": {
+    "higgsfield_job_id": "1768d6de-482f-4cb1-8dd3-e3a91ef0b40e",
+    "model": "seed_audio",
+    "references": [
+      "assets/audio/ruth_voicemail.mp3 (the voice)"
+    ],
+    "prompt": "In the exact voice of the reference clip, an older woman leaving a quiet, tired voicemail, slowly, with pauses between sentences, says: \"Pip, it's Ruth. They closed the school today. I know you know. I just wanted somebody to say it to you out loud.\"",
+    "edited": "Pauses shortened, a stray lead-in sound cut, loudness raised, re-encoded to mono 64 kbps with ffmpeg."
+  },
+  "audio/ruth_ch3_meeting.mp3": {
+    "higgsfield_job_id": "1a3d8423-0060-4bd5-a581-b8a3543b7ac5",
+    "model": "seed_audio",
+    "references": [
+      "assets/audio/ruth_voicemail.mp3 (the voice)"
+    ],
+    "prompt": "In the exact voice of the reference clip, an older woman leaving a quiet, tired voicemail, slowly, with pauses between sentences, says: \"Pip, it's Ruth. Nobody stayed to the end of the meeting. I know you know. I just wanted somebody to say it to you out loud.\"",
+    "edited": "Pauses shortened, a stray lead-in sound cut, loudness raised, re-encoded to mono 64 kbps with ffmpeg."
   }
 }

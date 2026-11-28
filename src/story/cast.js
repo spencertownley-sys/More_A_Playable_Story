@@ -25,5 +25,9 @@
     tomas: { name: 'TOMAS', portrait: 'tomas', color: P.CREAM, blip: 520, speed: 36 },
     bea: { name: 'BEA', portrait: 'bea', color: P.CREAM, blip: 900, speed: 48 },
     otis: { name: 'OTIS', portrait: 'otis', color: P.CREAM, blip: 430, speed: 32 },
+    // Chapter 3: voices on the phone, and a voice from the crowd.
+    halvorsen: { name: 'HALVORSEN', portrait: 'phone', color: P.CREAM, blip: 400, speed: 34 },
+    dot: { name: 'DOT', portrait: 'phone', color: P.CREAM, blip: 860, speed: 44 },
+    crowd: { name: 'A VOICE', portrait: null, color: P.STEEL_LT, blip: 560, speed: 42 },
   };
 })(window.MORE = window.MORE || {});

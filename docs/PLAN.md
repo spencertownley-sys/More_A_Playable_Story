@@ -15,7 +15,7 @@ live site is updated at the end of each one.
 | 0 | The Sentence | live |
 | 1 | The Line | live, about 10 minutes |
 | 2 | The Floor | live, about 15 minutes |
-| 3 | The Town | not started |
+| 3 | The Town | built, about 15 minutes |
 | 4 | The Company | not started |
 | 5 | The World | not started |
 | 6 | The Sky | not started |

@@ -114,6 +114,70 @@
       ],
     },
 
+    // The town in spring: C major, unhurried. C | Am | F | G
+    town: {
+      bpm: 92,
+      stepsPerBeat: 4,
+      channels: [
+        {
+          instr: 'ep',
+          pattern: join(
+            'C4 . G4 . E5 . G4 . C4 . G4 . E5 . G4 .',
+            'A3 . E4 . C5 . E4 . A3 . E4 . C5 . E4 .',
+            'F3 . C4 . A4 . C4 . F3 . C4 . A4 . C4 .',
+            'G3 . D4 . B4 . D4 . G3 . D4 . B4 . D4 .'
+          ),
+        },
+        {
+          instr: 'bass',
+          pattern: join('C2 ' + hold(7) + ' G2 ' + hold(7), 'A1 ' + hold(7) + ' E2 ' + hold(7), 'F1 ' + hold(7) + ' C2 ' + hold(7), 'G1 ' + hold(7) + ' D2 ' + hold(7)),
+        },
+        {
+          instr: 'lead',
+          pattern: join(
+            rest(64),
+            'E5 - - - G5 - - - C6 - - - - - B5 -',
+            'A5 - - - E5 - - - C5 - - - - - . .',
+            'A5 - - - C6 - - - F5 - - - - - A5 -',
+            'G5 - - - D5 - - - B4 - - - - - . .'
+          ),
+        },
+        { drum: true, pattern: 'k . . . h . . . k . h . h . . .' },
+      ],
+    },
+
+    // The same town after the meeting: the tune in A minor, with the factory's clock under it.
+    townCold: {
+      bpm: 100,
+      stepsPerBeat: 4,
+      channels: [
+        {
+          instr: 'arp',
+          pattern: join(
+            'A4 E4 C4 E4 A4 E4 C4 E4 A4 E4 C4 E4 A4 E4 C4 E4',
+            'F4 C4 A3 C4 F4 C4 A3 C4 F4 C4 A3 C4 F4 C4 A3 C4',
+            'D4 A3 F3 A3 D4 A3 F3 A3 D4 A3 F3 A3 D4 A3 F3 A3',
+            'E4 B3 G#3 B3 E4 B3 G#3 B3 E4 B3 G#3 B3 E4 B3 G#3 B3'
+          ),
+        },
+        {
+          instr: 'bass',
+          pattern: join('A1 . A1 . A2 . A1 . A1 . A1 . A2 . G2 .', 'F1 . F1 . F2 . F1 . F1 . F1 . F2 . E2 .', 'D2 . D2 . D3 . D2 . D2 . D2 . D3 . C3 .', 'E2 . E2 . E3 . E2 . E2 . E2 . E3 . B2 .'),
+        },
+        {
+          instr: 'lead',
+          pattern: join(
+            rest(64),
+            'C5 - - - E5 - - - A5 - - - - - G5 -',
+            'F5 - - - C5 - - - A4 - - - - - . .',
+            'F5 - - - A5 - - - D5 - - - - - F5 -',
+            'E5 - - - B4 - - - G#4 - - - - - . .'
+          ),
+        },
+        { drum: true, pattern: 'kc . h . s . hc . k . h k s . h h' },
+      ],
+    },
+
     // Night: the line is off. A clock and a hum.
     night: {
       bpm: 60,

@@ -162,7 +162,7 @@
       refusals[cfg.id] = st.refusals;
       const entry = Object.assign({ 1: 0 }, saved && saved.entry);
       entry[cfg.id] = st.base;
-      const next = st.done[cfg.id] && CHAPTERS[cfg.id + 1] ? cfg.id + 1 : cfg.id;
+      const next = st.done[cfg.id] && M.CHAPTERS[cfg.id + 1] ? cfg.id + 1 : cfg.id;
       M.save.write({
         chapter: cfg.id,
         done: st.done,
@@ -692,15 +692,5 @@
         view.draw();
       },
     };
-  };
-
-  // The title card, then the chapter. The save carries the count forward.
-  M.scenes.startChapter = function (n, save) {
-    return M.scenes.card({
-      small: 'CHAPTER ' + n,
-      big: M.STORY[CHAPTERS[n].story].title,
-      hold: 3.2,
-      next: () => M.scenes.factory({ chapter: n, save: save || M.save.load() }),
-    });
   };
 })(window.MORE = window.MORE || {});
