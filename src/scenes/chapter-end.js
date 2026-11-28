@@ -53,7 +53,9 @@
           if (t < l.at) continue;
           if (l.count) {
             const k = Math.min(1, (t - l.at) / 1.6);
-            g.textCenter(Math.floor(clips * k).toLocaleString('en-US'), g.W / 2, l.y, l.color);
+            // past a trillion the count is written in powers of ten (see core/count.js)
+            if (clips >= M.count.SCI_FROM) M.count.drawCenter(clips * (0.1 + 0.9 * k), g.W / 2, l.y, l.color, true);
+            else g.textCenter(Math.floor(clips * k).toLocaleString('en-US'), g.W / 2, l.y, l.color);
           } else {
             g.textCenter(l.text, g.W / 2, l.y, l.color, l.scale);
           }
@@ -62,7 +64,7 @@
         if (t > 6.2) {
           const im = opts.art && g.art(opts.art);
           if (im && im.naturalWidth) g.ctx.drawImage(im, Math.round(g.W / 2 - im.width), 158, im.width * 2, im.height * 2);
-          else M.drawPortrait('pip2', g.W / 2 - 26, 170, 52);
+          else M.drawPortrait(opts.portrait || 'pip2', g.W / 2 - 26, 170, 52);
         }
         if (t > 8.5 && Math.floor(t * 2) % 2 === 0) g.textCenter('PRESS START', g.W / 2, 276, P.GRID);
       },

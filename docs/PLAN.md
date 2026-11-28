@@ -17,7 +17,7 @@ live site is updated at the end of each one.
 | 2 | The Floor | live, about 15 minutes |
 | 3 | The Town | built, about 15 minutes |
 | 4 | The Company | built, about 15 minutes, with the branch into the second ending |
-| 5 | The World | not started |
+| 5 | The World | built, about 12 minutes |
 | 6 | The Sky | not started |
 | end | Voicemail | not started |
 

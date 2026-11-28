@@ -56,7 +56,7 @@
       art: 'node_exchange',
       nextSmall: 'CHAPTER 5',
       nextBig: 'THE WORLD',
-      soon: true,
+      next: () => M.scenes.startChapter(5),
       clips: st.clips,
     }),
 

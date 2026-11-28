@@ -40,11 +40,12 @@ the PAD button toggles it anywhere.
 | Chapter 2 *The Floor*: a wider floor, Marisol's crew at hand benches, the new steel machines, the safety limiters, the night shift | done, Higgsfield art |
 | Chapter 3 *The Town*: the county map, buying land, the town meeting, the school, the river, a voicemail from Ruth | done, Higgsfield art and voice |
 | Chapter 4 *The Company*: Harlan's network as a circuit board, switches, phone calls on the lines, the breaker, and the game's second ending | done, Higgsfield art and voice |
+| Chapter 5 *The World*: the planet from orbit, timed throws, the count in powers of ten, the cities, the grid, a call that is not answered | done, Higgsfield art |
 | Chapters 3–6 and the epilogue | planned in `docs/STORY.md` |
 
-Chapters 1 to 4 take about 10, 15, 15 and 15 minutes. Each ending leads
-straight into the next chapter, carrying the clip count over. After Chapter 4
-ends, CONTINUE shows the board as Pip left it. Chapter 4 can also end the
+Chapters 1 to 5 take about 10, 15, 15, 15 and 12 minutes. Each ending leads
+straight into the next chapter, carrying the clip count over. After Chapter 5
+ends, CONTINUE shows the planet as Pip left it. Chapter 4 can also end the
 whole game early (the second ending, described in `docs/STORY.md`). Once Chapter 2 is unlocked,
 CHAPTERS on the title menu starts any unlocked chapter over.
 
@@ -62,13 +63,14 @@ src/story/            cast, voicemail captions, and each chapter's script
 src/factory/          the factory floor: machine definitions, each chapter's floor, the belt engine, drawing
 src/town/             the county map (Chapter 3): every place on it, the land engine, drawing
 src/net/              Harlan's network (Chapter 4): the board, the switching engine, drawing
+src/world/            the planet (Chapter 5): the engine and the globe; the board itself is src/data/world.js
 src/chapters.js       the chapters in order, and how each one opens
-src/scenes/           boot/cold open/title, prologue, factory, town, company, chapter end, the second ending
+src/scenes/           boot/cold open/title, prologue, factory, town, company, world, chapter end, the second ending
 assets/higgsfield/    the Higgsfield originals, plus sources.json (job IDs and prompts)
 assets/art/           game-ready sprites cut from them by tools/art/build.py
 assets/audio/         Ruth's voicemails (embedded into src/data/ by tools/embed-voicemail.mjs)
 assets/reference/     the first pre-work: concept sprite sheet and factory mockup
-tools/                art/build.py, site/assets.py, embed-voicemail.mjs, bundle.mjs, build.mjs, replay.js
+tools/                art/build.py, world/build.py, site/assets.py, embed-voicemail.mjs, bundle.mjs, build.mjs, replay.js
 docs/STORY.md         story bible
 docs/PLAN.md          build plan and milestones
 ```
@@ -113,6 +115,10 @@ const pick = yield S.choose('pip', 'two clips per wire.', ['CUT SHORTER', 'KEEP 
 - Chapter 4 beats, the rule for the second ending and Ruth's voicemail captions:
   `src/story/chapter4.js`. The board's nodes and traces are in
   `src/net/board.js`, and its pace is set at the top of `src/net/engine.js`.
+- Chapter 5 beats: `src/story/chapter5.js`. Its board (land, sea, cities) is
+  worked out from the world map by `python3 tools/world/build.py`, and its pace
+  is set at the top of `src/world/engine.js`. How the count is written is in
+  `src/core/count.js`.
 - The prologue: `src/story/prologue.js`
 
 Pip always speaks in lowercase.
@@ -123,7 +129,7 @@ Deep links skip straight to a scene (press START on the boot screen):
 `#title`, `#prologue`, `#factory`, `#night`, `#end`, `#sandbox`, `#mockup`,
 `#floor` (Chapter 2, without touching your save), `#end2`, `#town` (Chapter 3,
 without touching your save), `#end3`, `#company` (Chapter 4, likewise), `#end4`,
-`#endingb` (the second ending).
+`#endingb` (the second ending), `#world` (Chapter 5, likewise), `#end5`.
 
 In the console, `MORE.debug.factory.st.clips = 199` jumps the clip count.
 

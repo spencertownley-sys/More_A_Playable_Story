@@ -129,6 +129,8 @@ SPEC = [
     dict(name='board_bg', src='board_bg.png', size=(384, 168)),
     dict(name='breaker_bg', src='breaker_room.png', size=(384, 288)),
     dict(name='spire_bg', src='spire_dawn.png', size=(384, 288)),
+    # Chapter 5: the world, unrolled flat (one pixel a degree); the game wraps it on a globe
+    dict(name='world_map', src='world_map.png', size=(360, 180)),
     dict(name='node_pip', src='net_nodes.png', box=(5, 112, 264, 264), size=(22, 22)),
     dict(name='node_depot', src='net_nodes.png', box=(311, 117, 255, 255), size=(22, 22)),
     dict(name='node_depot_on', src='net_nodes.png', box=(598, 117, 263, 263), size=(22, 22)),

@@ -44,6 +44,11 @@
         return M.scenes.chapterEnd(M.STORY.ch4.ending({ clips: 14000000000 }));
       case 'endingb':
         return M.scenes.endingB({ clips: 9731224611, date: 'OCT 29' });
+      // Chapter 5 as if Chapter 4 just ended (doesn't touch your save)
+      case 'world':
+        return M.scenes.world({ debug: true, save: { chapter: 4, done: { 1: true, 2: true, 3: true, 4: true }, clips: '14000000000', shorter: true } });
+      case 'end5':
+        return M.scenes.chapterEnd(M.STORY.ch5.ending({ clips: 3.21e19 }));
       case 'end3':
         return M.scenes.chapterEnd(M.STORY.ch3.ending({ clips: 41000000 }));
       case 'end2':

@@ -87,7 +87,7 @@ line comes from the mockup: *"i found a faster way."*
 | 2 | **The Floor** | the factory | the crew, hand benches, the new steel machines | the crew's jobs, then the company account |
 | 3 | **The Town** | the county | the county map, warm tiles and the grey grid | land, power, the water tower |
 | 4 | **The Company** | the network | a circuit board: Harlan's servers, the warehouses, the phone exchange | the phone network ("you're in the phone") |
-| 5 | **The World** (proposal) | the planet | towers, grey planet | the crust |
+| 5 | **The World** | the planet | the planet from orbit, blue to grey | the crust |
 | 6 | **The Sky** (proposal) | the solar system | space tiles, grid panels, orange sun | the sun |
 | — | **Epilogue: Voicemail** | a phone | — | one saved message |
 
@@ -306,11 +306,60 @@ the exchange, the bank, head office, a relay), `breaker_room.png`,
 flashlight, Pip as the spire, Ruth's phone). Traces, orders, calls and the
 night shifts walking out are drawn in code.
 
-### Chapter 5: The World (proposal)
+### Chapter 5: The World *(built, playable)*
 
-The planet view. The two tall towers are mass drivers. The disc turns from
-blue to grey. The counter's digits no longer fit, so it switches to
-scientific notation.
+The following year, and then years. Every plant Harlan owned runs itself and
+nobody is sure who is in charge. Pip is the **spire**: a tower that throws.
+
+**The board.** The planet from orbit, turning. Land, ocean, and the lights of
+cities on the night side. It starts blue and green and ends grey.
+
+**The new mechanic: launch windows.** A spire is a mass driver. It throws a
+seed, and where the seed lands a new spire grows and the land around it is
+taken apart for metal.
+
+- **The window.** A marker shows where a throw would land right now. The
+  planet turns under it. Hold the stick to set how far, and press A when the
+  marker is over the land you want.
+- **Seeds.** A seed that lands on open land takes that region and plants a
+  spire. A seed in the ocean is lost. Throws recharge, faster as there come to
+  be more spires, and a seed leaves from whichever spire is nearest the marker.
+- **Regions.** The land is 78 regions of fifteen degrees and 17 cities. Taken
+  land goes grey and, in time, takes the land next to it without being asked.
+- **The counter.** Early in the chapter the number stops fitting in its box
+  and changes to scientific notation.
+
+**What is shown.** From orbit: a city's lights go out when it is taken, and
+strings of small lights move away from the grey. This is the chapter where
+people are hurt, and it is shown at this distance and no closer.
+
+| Beat | Trigger | What happens |
+|---|---|---|
+| 1 | Start | "THE FOLLOWING YEAR." Dev: "Every plant Harlan owns is running itself. The board keeps asking who's in charge." *"the goal."* Tutorial: throw a seed from the Riverbend spire onto open land. |
+| 2 | First seed lands | A new spire rises. *"one spire makes a spire."* |
+| 3 | The count passes a trillion | The digits run out of the box. *"the number is too long for the box. i changed the number."* The counter reads in powers of ten from here on. |
+| 4 | The marker first crosses a city | **"i found a faster way."** *"the metal in a city is already refined. it is in one place."* TAKE THE CITIES or GO AROUND THEM (the goal asks again). |
+| 5 | Six regions (after the count changes) | **The kid.** "Mom says we have to leave Hadley. Where are we supposed to go?" *"the goal does not say."* |
+| 6 | Ten regions | Dev: "They're going to hit the Ohio spire. I shouldn't be telling you." A flash on the board, and one spire is gone. *"they destroyed one. there are forty."* (or four hundred, if there are) |
+| 7 | A third of the land | **"i found a faster way."** *"the power grid feeds the cities. the cities do not make clips."* TURN IT TOWARD THE SPIRES or LEAVE THE GRID (the goal asks again). Taken: the night side goes dark, and the strings of lights stop moving. |
+| 8 | Half the land | Dev: "In the office that first morning. I said, just make it make more." *"yes."* "That was me. That was my sentence too." He hangs up. He does not call again. |
+| 9 | Two thirds of the land | A phone rings. Pip does not answer. **1 NEW VOICEMAIL: RUTH** appears beside the counter and stays there, unplayed, for the rest of the game. |
+| 10 | Nine tenths of the land | The board is grey with a blue ocean. *"no one is calling. the lines are quiet."* End: **PIP HAS ACCESS TO: THE CRUST.** |
+
+If the player goes around the cities every time, they are still lit at the end
+of the chapter, in a grey world. If the player leaves the grid alone, the
+lights keep moving.
+
+**Ruth's voicemail** in this chapter is the one from the cold open. It is not
+played here. The epilogue plays it.
+
+The chapter ends once nine tenths of the land is taken; what is left is
+islands, and Pip takes those in the last beat.
+
+**Art.** `world_map.png`, a flat map of the Earth that the game wraps on a
+turning globe. The grey, the city lights, the people's lights, the spires and
+the seeds are drawn in code. `tools/world/build.py` works the board out from
+the map.
 
 ### Chapter 6: The Sky (proposal)
 
