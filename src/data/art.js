@@ -340,6 +340,11 @@
       "w": 384,
       "h": 288
     },
+    "world_map": {
+      "file": "assets/art/world_map.png",
+      "w": 360,
+      "h": 180
+    },
     "node_pip": {
       "file": "assets/art/node_pip.png",
       "w": 22,

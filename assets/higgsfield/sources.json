@@ -394,5 +394,18 @@
     ],
     "prompt": "In the exact voice of the reference clip, an older woman leaving a quiet, tired voicemail, with short pauses between sentences, says: \"Pip, it's Ruth. I'm at my sister's, in Dayton. You don't have to call. I just wanted you to have the number.\"",
     "edited": "Pauses evened out, loudness raised, re-encoded to mono 64 kbps with ffmpeg."
+  },
+  "world_map.png": {
+    "higgsfield_job_id": "060f8033-d598-4b4a-9d42-4c89373c6a30",
+    "model": "gpt_image_2_5",
+    "quality": "high",
+    "size": [
+      1344,
+      752
+    ],
+    "references": [
+      "d994929e-c83b-4518-b062-d9988471c1f5"
+    ],
+    "prompt": "A pixel art world map of Earth unrolled flat as an equirectangular map filling the image: all continents in their true shapes and positions, the Pacific split across the left and right edges, ice along the top and bottom, no shading, clouds, borders or text. (see Higgsfield job for the full prompt)"
   }
 }

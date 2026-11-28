@@ -94,7 +94,7 @@
           g.box(0, 0, 136, 28);
           g.draw('clip_icon', 9, 6);
           g.text('CLIPS', 26, 6, P.STEEL_LT);
-          g.text(clips < 1e9 ? clips.toLocaleString('en-US') : (Math.floor(clips / 1e7) / 100).toFixed(2) + ' BILLION', 26, 15, P.STEEL_DK);
+          g.text(M.count.text(clips), 26, 15, P.STEEL_DK);
           g.textRight('OFF', 128, 6, P.GRID);
           if (runner) runner.draw();
           return;

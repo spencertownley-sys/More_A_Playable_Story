@@ -12,8 +12,7 @@
   const N = M.net;
   const DIRS = { up: [0, -1], right: [1, 0], down: [0, 1], left: [-1, 0] };
 
-  // The count no longer fits in the box once it passes a billion.
-  const count = (n) => (n < 1e9 ? Math.floor(n).toLocaleString('en-US') : (Math.floor(n / 1e7) / 100).toFixed(2) + ' BILLION');
+  const count = (n) => M.count.text(n);
 
   M.scenes.company = function (opts) {
     opts = opts || {};

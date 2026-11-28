@@ -210,6 +210,26 @@
       ],
     },
 
+    // The world from orbit: D minor, slow, a long way down.
+    world: {
+      bpm: 72,
+      stepsPerBeat: 4,
+      channels: [
+        { instr: 'pad', pattern: join('D3 ' + hold(31), 'Bb2 ' + hold(31), 'G2 ' + hold(31), 'A2 ' + hold(31)) },
+        { instr: 'pad', pattern: join('A3 ' + hold(31), 'F3 ' + hold(31), 'D3 ' + hold(31), 'E3 ' + hold(31)) },
+        {
+          instr: 'bell',
+          pattern: join(
+            'D5 . . . . . A5 . . . . . F5 . . . . . . . E5 . . . . . D5 . . . . .',
+            'D5 . . . . . Bb5 . . . . . F5 . . . . . . . D5 . . . . . C5 . . . . .',
+            'G5 . . . . . D5 . . . . . Bb4 . . . . . . . A4 . . . . . G4 . . . . .',
+            'A4 . . . . . E5 . . . . . C#5 . . . . . . . E5 . . . . . A5 . . . . .'
+          ),
+        },
+        { drum: true, pattern: 'k . . . . . . . c . . . . . . . k . . . . . c . . . . . . . . .' },
+      ],
+    },
+
     // Night: the line is off. A clock and a hum.
     night: {
       bpm: 60,
