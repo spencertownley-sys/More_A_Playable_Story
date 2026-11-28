@@ -77,7 +77,7 @@
       art: 'server',
       nextSmall: 'CHAPTER 3',
       nextBig: 'THE TOWN',
-      soon: true,
+      next: () => M.scenes.startChapter(3),
     }),
 
     beats: [

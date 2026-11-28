@@ -11,7 +11,7 @@
 //
 //   HASHES=out.json   also write a hash of the screen at every checkpoint, to
 //                     compare two versions of the game frame for frame
-//   SHOTS=dir         write a screenshot at each named checkpoint
+//   SHOTS=dir         write the game's frame (384x288) at each named checkpoint
 //   SAID=1            print every line of dialog
 const { chromium } = require('playwright');
 const http = require('http');
@@ -83,7 +83,7 @@ function bot(job) {
       } else tap(CODE[m]);
     });
   const scene = () => M.debug.scene;
-  const st = () => (M.debug.factory ? M.debug.factory.st : null);
+  const st = () => (scene() === 'town' && M.debug.town ? M.debug.town.st : M.debug.factory ? M.debug.factory.st : null);
   let last = null;
   const listen = () => {
     const d = M.dialog;
@@ -160,6 +160,64 @@ function bot(job) {
         if (test(st())) break;
       }
     }
+  } else if (job.do === 'town') {
+    // Chapter 3: play the county map the way a careful player would, by keys.
+    const town = M.debug.town.town;
+    const s = st();
+    const centre = (p) => [p.x + p.w / 2, p.y + p.h / 2];
+    // walk the cursor to a place with the arrow keys
+    const go = (target) => {
+      let tries = 0;
+      while (s.at !== target.id && tries++ < 60) {
+        const [cx, cy] = centre(town.by[s.at]);
+        const [tx, ty] = centre(target);
+        const dx = tx - cx;
+        const dy = ty - cy;
+        const first = Math.abs(dx) > Math.abs(dy) ? (dx > 0 ? 'right' : 'left') : dy > 0 ? 'down' : 'up';
+        const second = Math.abs(dx) > Math.abs(dy) ? (dy > 0 ? 'down' : 'up') : dx > 0 ? 'right' : 'left';
+        const before = s.at;
+        keys(tries % 9 === 8 ? ['up', 'right', 'down', 'left'][tries % 4] : first);
+        if (s.at === before) keys(second);
+      }
+      return s.at === target.id;
+    };
+    const test = new Function('st', 'town', 'return ' + (job.until || 'false'));
+    let n = 0;
+    let acted = 0;
+    out.orders = 0;
+    while (scene() === 'town' && n < (job.max || 400000)) {
+      listen();
+      if (M.dialog.active) {
+        answer();
+        n += 4;
+        continue;
+      }
+      tick(8);
+      n += 8;
+      if (test(s, town)) break;
+      if (n - acted < 60 || s.backdrop) continue;
+      acted = n;
+      const free = town.places.filter((p) => !p.job);
+      const builds = free.filter((p) => p.s === 'owned' && town.reaches(p));
+      const roads = free.filter((p) => p.kind === 'public' && p.s === 'wild' && town.reaches(p));
+      const buys = free.filter((p) => p.s === 'wild' && p.sale && s.money >= town.price(p)).sort((a, b) => town.price(a) - town.price(b));
+      const near = buys.filter((p) => town.reaches(p));
+      const pick = builds[0] || roads[0] || near[0] || buys[0];
+      // now and then, make an offer where none will be taken (the scrapyard)
+      const target = pick || (job.poke && !s.asked['offer_' + job.poke] && town.by[job.poke].s === 'wild' && !town.by[job.poke].sale ? town.by[job.poke] : null);
+      if (!target) continue;
+      if (!go(target)) {
+        out.stuck = (out.stuck || 0) + 1;
+        continue;
+      }
+      if (s.tool !== 'build') keys('SEL');
+      keys('A');
+      out.orders++;
+    }
+    out.day = Math.round(s.day);
+    out.money = Math.round(s.money);
+    out.left = town.left([]).map((p) => p.id);
+    out.minutes = +(n / 3600).toFixed(1);
   } else if (job.do === 'wait') {
     tick(job.ticks);
   }
@@ -172,7 +230,7 @@ function bot(job) {
     out.crew = s.crew;
     out.inv = s.inv;
     out.refusals = s.refusals;
-    out.chapter = M.debug.factory.cfg.id;
+    out.chapter = scene() === 'town' ? 3 : M.debug.factory ? M.debug.factory.cfg.id : 0;
   }
   out.save = JSON.parse(localStorage.getItem('more.save.v2') || 'null');
   out.oldSave = !!localStorage.getItem('more.save.v1');
@@ -223,7 +281,7 @@ const RUNS = {
       { name: 'into Chapter 2', do: 'until', scene: 'factory', max: 800, shot: 'ch2-start', expect: (r) => r.scene === 'factory' || 'Chapter 2 did not start' },
       ...ch2Steps(),
       endCard(2),
-      { name: 'back to the title', do: 'until', scene: 'title', max: 400, expect: (r) => r.scene === 'title' || 'did not return to the title' },
+      { name: 'on to Chapter 3', do: 'until', scene: 'town', max: 800, expect: (r) => r.scene === 'town' || 'Chapter 3 did not start' },
     ],
   },
 };
@@ -250,6 +308,22 @@ const MID_CH2_BOARD = {
     [[1, 0, 1], [3, 0, 1], [5, 0, 1], [3, 2, 1], [4, 2, 1], [6, 2, 1], [7, 2, 1], [0, 3, 1], [1, 3, 1], [3, 3, 1], [4, 3, 1], [5, 3, 0]].map(([c, r, dir]) => ({ c, r, t: 'belt', dir }))
   ),
 };
+const AFTER_CH2 = { chapter: 2, done: { 1: true, 2: true }, unlocked: 3, entry: { 1: 0, 2: 767 }, clips: '2673', refusals: { 1: 1, 2: 0 }, shorter: true, board: { flags: { intro: true }, inv: {}, full: true, base: 767, crew: {}, layout: [] } };
+// Chapter 3 in stages, so a failure says where the chapter stopped.
+const ch3Steps = () => [
+  { name: 'ch3 first purchase', do: 'town', until: 'st.flags.sold1', max: 60000, shot: 'ch3-start', expect: (r) => r.flags.includes('sold1') || 'nothing was bought' },
+  { name: 'ch3 first factory', do: 'town', until: 'st.flags.built1', max: 60000, expect: (r) => r.flags.includes('built1') || 'nothing was built' },
+  { name: 'ch3 the substation', do: 'town', poke: 'scrap', until: 'st.flags.dot', max: 200000, shot: 'ch3-dark', expect: (r) => (r.flags.includes('names') && r.flags.includes('power') && r.flags.includes('dot')) || 'flags: ' + r.flags + ' day ' + r.day },
+  { name: 'ch3 into the gym', do: 'town', poke: 'scrap', until: 'st.backdrop', max: 300000, expect: (r) => r.scene === 'town' || 'left the map' },
+  { name: 'ch3 Ruth speaks', do: 'keys', keys: 'A A A A', after: 200, shot: 'ch3-meeting' },
+  { name: 'ch3 the town meeting', do: 'town', poke: 'scrap', until: 'st.flags.meeting', max: 300000, shot: 'ch3-after-meeting', expect: (r) => (r.flags.includes('meeting') && r.flags.includes('kid')) || 'flags: ' + r.flags + ' day ' + r.day },
+  { name: 'ch3 the school and the water', do: 'town', until: 'st.flags.school && st.flags.water && st.flags.gus_yes', max: 300000, shot: 'ch3-grey-river', expect: (r) => (r.flags.includes('school') && r.flags.includes('water') && r.flags.includes('gus_no')) || 'flags: ' + r.flags + ' left ' + r.left },
+  { name: 'ch3 the last street', do: 'town', until: 'st.flags.marisol', max: 300000, shot: 'ch3-last-street', expect: (r) => r.flags.includes('marisol') || 'flags: ' + r.flags + ' left ' + r.left },
+  { name: 'ch3 night falls', do: 'town', until: 'st.night > 0.7 && st.flags.ruth_house', max: 100000, expect: (r) => r.scene === 'town' || 'left the map' },
+  { name: 'ch3 one lit window', do: 'wait', ticks: 200, shot: 'ch3-night' },
+  { name: 'ch3 to the end card', do: 'town', max: 100000, expect: (r) => r.scene === 'chapterEnd' || 'did not reach the end card: ' + r.scene },
+];
+const ch3Save = (refusals, deal) => ({ name: 'the save', do: 'wait', ticks: 60, expect: (r) => (r.save && r.save.done[3] && r.save.chapter === 3 && r.save.refusals[3] === refusals[3] && !!r.save.board.deal === deal && r.save.entry[3] === 2673 && Number(r.save.clips) > 1e7) || 'save is wrong: ' + JSON.stringify(r.save && { done: r.save.done, refusals: r.save.refusals, entry: r.save.entry, clips: r.save.clips, deal: r.save.board.deal }) });
 const CONTINUE = { name: 'CONTINUE', do: 'keys', keys: 'A A' };
 const toFloor = (n) => ({ name: 'to the floor', do: 'until', scene: 'factory', max: 800, expect: (r) => (r.scene === 'factory' && r.chapter === n) || 'expected the Chapter ' + n + ' floor, got ' + r.scene + ' ' + r.chapter });
 // Turn the belt beside Tomas's bench so the bench sends cut pieces back to the new cutter.
@@ -275,6 +349,49 @@ Object.assign(RUNS, {
       toFloor(2),
       ...ch2Steps({ 'KEEP THEM': 1 }),
       { name: 'the save', do: 'wait', ticks: 60, expect: (r) => (r.save && r.save.done[2] && r.save.refusals[1] === 1 && r.save.refusals[2] === 1 && r.save.entry[2] === 767 && Number(r.save.clips) > 2500) || 'save is wrong: ' + JSON.stringify(r.save && { done: r.save.done, refusals: r.save.refusals, entry: r.save.entry, clips: r.save.clips }) },
+    ],
+  },
+  ch3: {
+    about: 'Chapter 3 from a save at the end of Chapter 2, taking both of Pip\'s faster ways',
+    save: V2(AFTER_CH2),
+    steps: [
+      toTitle,
+      CONTINUE,
+      { name: 'to the map', do: 'until', scene: 'town', max: 800, expect: (r) => r.scene === 'town' || 'Chapter 3 did not start' },
+      ...ch3Steps(),
+      ch3Save({ 3: 0 }, true),
+      endCard(3),
+      { name: 'back to the title', do: 'until', scene: 'title', max: 400, expect: (r) => r.scene === 'title' || 'did not return to the title' },
+      { name: 'title settles', do: 'wait', ticks: 60 },
+      CONTINUE,
+      { name: 'the county as Pip left it', do: 'until', scene: 'town', max: 800, shot: 'ch3-after', expect: (r) => r.scene === 'town' || 'CONTINUE did not reopen the map' },
+    ],
+  },
+  'ch3-refuse': {
+    about: 'Chapter 3 saying no to Pip every time: it still ends, with the school standing',
+    save: V2(AFTER_CH2),
+    steps: [
+      toTitle,
+      CONTINUE,
+      { name: 'to the map', do: 'until', scene: 'town', max: 800, expect: (r) => r.scene === 'town' || 'Chapter 3 did not start' },
+      { name: 'the whole chapter', do: 'town', poke: 'scrap', pick: { 'KEEP OUR NAME': 99, 'LEAVE THE SCHOOL': 99 }, max: 900000, shot: 'ch3-refused-end', expect: (r) => r.scene === 'chapterEnd' || 'did not reach the end card: ' + r.scene + ', left ' + r.left + ', day ' + r.day },
+      { name: 'the save', do: 'wait', ticks: 60, expect: (r) => (r.save && r.save.done[3] && r.save.refusals[3] >= 2 && !r.save.board.deal && !r.save.board.names) || 'save is wrong: ' + JSON.stringify(r.save && { done: r.save.done, refusals: r.save.refusals, deal: r.save.board.deal }) },
+    ],
+  },
+  'ch3-resume': {
+    about: 'Chapter 3 saved part way, the page reloaded, and CONTINUE picks it up',
+    save: V2(AFTER_CH2),
+    steps: [
+      toTitle,
+      CONTINUE,
+      { name: 'to the map', do: 'until', scene: 'town', max: 800, expect: (r) => r.scene === 'town' || 'Chapter 3 did not start' },
+      ...ch3Steps().slice(0, 3),
+      { name: 'pause, SAVE AND QUIT', do: 'keys', keys: 'START down down A', after: 120, expect: (r) => (r.scene === 'title' && r.save && r.save.chapter === 3 && r.save.board.dark === true) || 'scene ' + r.scene + ', save chapter ' + (r.save && r.save.chapter) },
+      { name: 'reload the page', do: 'reload' },
+      toTitle,
+      CONTINUE,
+      { name: 'back on the map', do: 'until', scene: 'town', max: 800, expect: (r) => (r.scene === 'town' && r.flags.includes('dot') && r.clips > 1e6) || 'scene ' + r.scene + ' flags ' + r.flags + ' clips ' + r.clips },
+      { name: 'the map as it was left', do: 'town', until: 'st.flags.meeting', max: 300000, shot: 'ch3-resumed', expect: (r) => r.flags.includes('meeting') || 'flags: ' + r.flags },
     ],
   },
   'ch2-jam': {
@@ -332,6 +449,8 @@ for (const [link, extra] of [
   ['night', [{ name: 'night scene to the end card', do: 'run', expect: (r) => r.scene === 'chapterEnd' || 'did not reach the end card' }]],
   ['end', []],
   ['end2', []],
+  ['town', [{ name: 'Chapter 3 intro', do: 'town', until: 'st.flags.intro', max: 30000, shot: 'town-start', expect: (r) => r.flags.includes('intro') || 'the intro did not finish' }]],
+  ['end3', []],
 ]) {
   RUNS['link-' + link] = {
     about: 'play.html#' + link + ' opens',
@@ -378,6 +497,13 @@ async function play(browser, base, name, run, allHashes) {
   const failures = [];
   const hashes = [];
   for (const step of run.steps) {
+    if (step.do === 'reload') {
+      // close the tab and come back: only the save survives
+      await page.reload();
+      await page.waitForFunction(() => !!window.__cb);
+      console.log('  ok   ' + step.name);
+      continue;
+    }
     const job = Object.assign({}, step, { hash: !!process.env.HASHES });
     delete job.expect;
     const r = await page.evaluate(bot, job);
@@ -385,10 +511,12 @@ async function play(browser, base, name, run, allHashes) {
     if (process.env.SAID) r.said.forEach((s) => console.log('      ' + s));
     if (step.shot && process.env.SHOTS) {
       fs.mkdirSync(process.env.SHOTS, { recursive: true });
-      await page.screenshot({ path: path.join(process.env.SHOTS, name + '-' + step.shot + '.png') });
+      // the game's own 384x288 frame, not the page around it
+      const png = await page.evaluate(() => document.getElementById('screen').toDataURL('image/png'));
+      fs.writeFileSync(path.join(process.env.SHOTS, name + '-' + step.shot + '.png'), Buffer.from(png.split(',')[1], 'base64'));
     }
     const verdict = step.expect ? step.expect(r) : true;
-    console.log('  ' + (verdict === true ? 'ok  ' : 'FAIL') + ' ' + step.name + (verdict === true ? '' : ': ' + verdict));
+    console.log('  ' + (verdict === true ? 'ok  ' : 'FAIL') + ' ' + step.name + (r.minutes ? ' (' + r.minutes + ' min of play, day ' + r.day + ')' : '') + (verdict === true ? '' : ': ' + verdict));
     if (verdict !== true) {
       failures.push(step.name + ': ' + verdict);
       break;

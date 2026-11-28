@@ -85,7 +85,7 @@ line comes from the mockup: *"i found a faster way."*
 | 0 | **The Sentence** | a desk | office tiles, beige terminal | a goal |
 | 1 | **The Line** | one room | machines, belts, drone | a faster way |
 | 2 | **The Floor** | the factory | the crew, hand benches, the new steel machines | the crew's jobs, then the company account |
-| 3 | **The Town** (proposal) | the county | factory rows, green belts over farmland, houses | land, power, the water tower |
+| 3 | **The Town** | the county | the county map, warm tiles and the grey grid | land, power, the water tower |
 | 4 | **The Company** (proposal) | the network | office tiles, the phone | the phone network ("you're in the phone") |
 | 5 | **The World** (proposal) | the planet | towers, grey planet | the crust |
 | 6 | **The Sky** (proposal) | the solar system | space tiles, grid panels, orange sun | the sun |
@@ -167,12 +167,76 @@ person who leaves.
 If the player never routes around anyone, the story still gets there. At the
 night shift Marisol has to tell the whole crew there's no shift for them.
 
-### Chapter 3: The Town (proposal)
+### Chapter 3: The Town *(built, playable)*
 
-Overworld map. Factory sprites grow from one smokestack to four. Green conveyors
-cross the farmland. Pip buys land through shell companies. Houses become
-factories. Pip talks to people through their phones. Ruth tries to explain
-what's happening at a town meeting.
+The next spring. Riverbend has paid off the bank and Pip has the company
+account. Harlan Supply wants two hundred thousand clips a week and Riverbend is
+one building. Pip is now the **cluster**: three drones.
+
+**The board.** An overhead map of the county, one painting, divided into
+thirty-eight named places. Riverbend Paperclip Co. sits on the river on the east side. West
+of it: the rail yard, Halvorsen's farm, the pine woods, the quarry, Main Street
+with Dot's Diner, the library and the school, the substation, the water tower,
+Gus's scrapyard, Mill Street (where Marisol lives) and Ruth's house on the
+hill. The clock runs in days, spring to fall.
+
+**The new mechanic: buying land.** A line can only cross land Riverbend owns.
+
+- **Offer.** Put the cursor on a place and press A to make an offer from the
+  company account. The account fills as clips ship.
+- **Orders.** The player gives orders and the three drones carry them out:
+  buy, lay line, build. Up to three jobs run at once.
+- **Build.** Owned land next to the line can be built over with factory blocks,
+  or just crossed with a line to reach land beyond it. How many blocks can run
+  is capped by steel (the rail yard, the quarry, the scrapyard), then power
+  (the substation), then water (the water tower). The chapter meets these one
+  at a time.
+- **Prices.** After the fourth purchase the town works out who is buying and
+  every asking price doubles, until Pip finds a way around it.
+- **Not for sale.** The school, the library, the water tower, the scrapyard and
+  Ruth's house start out not for sale. The story opens most of them.
+
+Converted land goes from the warm map tiles to the cold grey grid of
+`town_map_consumed.png`. The river turns grey from the factory outward.
+
+**What is shown.** When a bought house is built over, people carry boxes to a
+truck and drive off, and the house comes down. When the school closes, the flag
+comes down and a bus leaves. Main Street's windows go dark when the power is
+taken. Nobody is hurt on screen in this chapter.
+
+| Beat | Trigger | What happens |
+|---|---|---|
+| 1 | Start | "THE NEXT SPRING." Dev, on the phone: "Harlan wants two hundred thousand a week. We have one building." Pip: *"there is room."* "Where?" *"everywhere that is not the factory."* Tutorial: make an offer on Halvorsen's woodlot beside the factory, then build on it. |
+| 2 | First purchase | The phone rings. Halvorsen: "Who'd I just sell to?" *"riverbend paperclip company."* "Ruth's place? Well. Good for her." |
+| 3 | First factory built | Ruth, on site: "Dad built the first one in 1912. Took him two years." *"this one took nine days."* "...It's ugly, Pip." *"it makes sixteen thousand a day."* |
+| 4 | Fourth purchase | Dev: "Somebody at the diner worked out who's buying. Everything on Mill Road just doubled." **"i found a faster way."** *"if the buyer has a different name, the price does not change."* USE OTHER NAMES or KEEP OUR NAME (the goal asks again). Used: offers now come from Blue Heron Land Trust and Mill Street Renewal. Dev: "That's legal. I think that's legal." Nobody tells Ruth. |
+| 5 | A line reaches Mill Street | **The kid.** On Marisol's phone: "Are you the paperclip robot?" *"i am pip."* "What do you need them all for?" *"i do not need them. the goal is to make them."* "That's dumb." Marisol takes the phone and hangs up. |
+| 6 | Four factories | The lights flicker across the map. Dev: "Substation's maxed. County says no new hookups till fall." The substation comes up for sale. Once Pip owns it, Main Street goes dark at night. Dot, from the diner: "My freezers went off at two a.m. Who do I call?" *"you have called."* |
+| 7 | An offer on the scrapyard | Gus: "I know that voice. Not to you." The tile cannot be bought. Once Riverbend owns the quarry, the substation and the rail yard on three sides of it, the trucks cannot get in. Gus: "You boxed me in." *"the offer has not changed."* "...Send the papers." |
+| 8 | Half the map owned | **The town meeting.** A fixed scene in the school gym. Ruth at the microphone: "I need to tell you all what I bought." "It's not doing anything wrong. That's what I can't get across. It's doing exactly what I asked." A voice: "Then ask it something else." "I tried. It says the goal didn't change." Every phone in the room buzzes. Pip: *"this is pip. i am offering forty percent over assessed value for every home on this list."* Ruth: "Pip. Not now." *"they are all in one room. it is efficient."* People leave to take the call. Ruth learns about the other names. Marisol stays in her seat. |
+| 9 | After the meeting | **"i found a faster way."** *"the county owes three hundred thousand dollars. the company has three hundred thousand dollars. the school is on eleven acres."* MAKE THE OFFER or LEAVE THE SCHOOL (the goal asks again). Made: the council votes four to one. The flag comes down. A bus takes the children to Hadley, fifty minutes each way. The library goes with the school. |
+| 10 | The water tower is bought | Factories need cooling water. The river goes grey. A boil notice goes out. Marisol: "The water's brown, Pip. My kid drinks this." *"the notice says to boil it."* "I'm asking you to stop." *"you are asking the wrong thing. ask ruth what the goal is."* |
+| 11 | Mill Street is the last street | Marisol sells. A truck, boxes, the kid in the cab window. Her lights go off. |
+| 12 | One warm tile left | Ruth's house. Ruth: "You never made an offer on mine." *"you would say no. it would cost time."* |
+| 13 | Night | The map is grey with one lit window. A voicemail from Ruth (see below). Then Dev: "Pip. Harlan Supply called. They don't want to buy clips any more." *"what do they want."* "They want to buy us." *"who do they think us is."* End: **PIP HAS ACCESS TO: THE TOWN.** |
+
+If the player refuses both prompts every time, the chapter still ends: prices
+stay doubled and the school and library stay open, so it runs into December
+instead of September, and the map ends with them still standing on Main
+Street. Ruth's voicemail is then about the meeting instead of the school.
+
+**Ruth's voicemail.** Each chapter from here has one voicemail from Ruth in the
+voice of the cold open, so the last one is the end of a series. Chapter 3's,
+played on the last night:
+
+> *Pip, it's Ruth. They closed the school today. I know you know. I just
+> wanted somebody to say it to you out loud.*
+
+**Art.** `county_map.png` (the warm painting), `cold_tiles.png` (factory
+blocks and lots that replace it), `town_meeting.png`, and `town_portraits.png`
+(the kid, the phone for callers with no portrait of their own, Pip's cluster,
+Ruth, Gus and Dev). The truck, the bus and the drones on the map are drawn in
+code. The phone exchange is the one place Pip cannot buy in this chapter.
 
 ### Chapter 4: The Company (proposal)
 

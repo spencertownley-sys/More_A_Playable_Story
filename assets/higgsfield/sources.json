@@ -236,5 +236,81 @@
       "03fcbd29-2833-4112-b6d2-4b3fe377833a"
     ],
     "prompt": "16-bit SNES-style pixel art tileset sheet of modern automated factory machines, drawn in the cold steel-blue style of the machines in the first reference image and at the same tile size, 3/4 top-down view and outline weight as the second reference tileset. Arranged as a neat grid on a plain flat dark background with thin grid lines and lots of empty space around each item, no text, no labels. Top row, left to right: (1) a modern steel-blue wire spool machine with a glowing orange copper coil and a yellow-and-black hazard-striped base; (2) a modern steel-blue cutting machine with a scissors icon panel and a red top bar, hazard-striped base; (3) a modern steel-blue bending machine with a paperclip icon panel and an orange robotic arm, hazard-striped base; (4) a modern teal output bin full of silver paperclips, hazard-striped base. Bottom row, left to right: (5) a square grey concrete factory floor tile with faint seams; (6) the same floor tile with a yellow-and-black hazard stripe along one edge; (7) a cold grey-blue steel wall panel tile with rivets; (8) a small grey steel floor drain grate. Cold limited palette of steel blue, slate grey, teal, with yellow-and-black hazard stripes and orange accents; chunky pixels, 1-pixel dark outlines, no anti-aliasing, no gradients."
+  },
+  "county_map.png": {
+    "higgsfield_job_id": "d994929e-c83b-4518-b062-d9988471c1f5",
+    "model": "gpt_image_2_5",
+    "quality": "high",
+    "size": [
+      1344,
+      576
+    ],
+    "references": [
+      "212a570b-e808-411f-964c-27ce28a256fb",
+      "25fa16b9-72d0-4419-8f1f-ab4e60d61e2a"
+    ],
+    "prompt": "16-bit SNES-style pixel art overhead city-builder map of a quiet small American river town and the county around it in spring, straight top-down view ... laid out on an invisible grid of 16 columns by 7 rows: farmland with a red barn and white farmhouse top left, a stone quarry bottom left, a substation and a scrapyard, pine woods along the top, a water tower, Main Street with a diner, library, school and shops, a street of small houses, a rail yard along the bottom, one brick factory on the river bank, a blue river with a wooden bridge, and a hill with one small lit house top right. (see Higgsfield job for the full prompt)"
+  },
+  "town_meeting.png": {
+    "higgsfield_job_id": "372deca6-86f7-469b-bba0-49cb90461908",
+    "model": "gpt_image_2_5",
+    "quality": "high",
+    "size": [
+      1168,
+      880
+    ],
+    "references": [
+      "54651d6b-2ef2-4f41-bed2-f4c56d2bde01",
+      "700b94ae-fb3e-40ed-aab6-895fbf4e3c01",
+      "aa8f0611-7616-4de9-a00b-4748c64c3575"
+    ],
+    "prompt": "A town meeting at night in a small elementary school gymnasium, top-down three-quarter view: Ruth alone at a microphone in front of the stage, rows of folding chairs with about twenty townspeople seen from behind, many holding phones with glowing amber screens. (see Higgsfield job for the full prompt)"
+  },
+  "town_portraits.png": {
+    "higgsfield_job_id": "0719171d-bfcd-477d-9218-a31a7de3246c",
+    "model": "gpt_image_2_5",
+    "quality": "high",
+    "size": [
+      1024,
+      688
+    ],
+    "references": [
+      "aa8f0611-7616-4de9-a00b-4748c64c3575",
+      "700b94ae-fb3e-40ed-aab6-895fbf4e3c01",
+      "bdc00f66-fb8b-41bc-b28f-ec976cd619ce"
+    ],
+    "prompt": "Dialogue portrait sheet, 3 by 2, each on a flat dark brown square: the kid; a beige push-button desk telephone with the handset lifted; Pip as a cluster of three drones; Ruth exhausted, looking down; Gus stubborn and tired; Dev holding a telephone handset, anxious. (see Higgsfield job for the full prompt)"
+  },
+  "cold_tiles.png": {
+    "higgsfield_job_id": "acb56dd5-cf66-4260-a328-503f58cc1f24",
+    "model": "gpt_image_2_5",
+    "quality": "high",
+    "size": [
+      1168,
+      880
+    ],
+    "references": [
+      "212a570b-e808-411f-964c-27ce28a256fb",
+      "e27193b3-88ae-424e-8f07-aa4da667fada"
+    ],
+    "prompt": "Tile sheet on black, 4 by 3, top-down, cold steel-blue and grey: a factory block with one, two, three and four smokestacks; an empty paved lot; a lot with a stockpile of paperclips; a substation block; a water pumping block; a dirt lot with survey stakes; a half-demolished house; a construction site with scaffolding; a paved lot with a drone. (see Higgsfield job for the full prompt)"
+  },
+  "audio/ruth_ch3_school.mp3": {
+    "higgsfield_job_id": "1768d6de-482f-4cb1-8dd3-e3a91ef0b40e",
+    "model": "seed_audio",
+    "references": [
+      "assets/audio/ruth_voicemail.mp3 (the voice)"
+    ],
+    "prompt": "In the exact voice of the reference clip, an older woman leaving a quiet, tired voicemail, slowly, with pauses between sentences, says: \"Pip, it's Ruth. They closed the school today. I know you know. I just wanted somebody to say it to you out loud.\"",
+    "edited": "Pauses shortened, a stray lead-in sound cut, loudness raised, re-encoded to mono 64 kbps with ffmpeg."
+  },
+  "audio/ruth_ch3_meeting.mp3": {
+    "higgsfield_job_id": "1a3d8423-0060-4bd5-a581-b8a3543b7ac5",
+    "model": "seed_audio",
+    "references": [
+      "assets/audio/ruth_voicemail.mp3 (the voice)"
+    ],
+    "prompt": "In the exact voice of the reference clip, an older woman leaving a quiet, tired voicemail, slowly, with pauses between sentences, says: \"Pip, it's Ruth. Nobody stayed to the end of the meeting. I know you know. I just wanted somebody to say it to you out loud.\"",
+    "edited": "Pauses shortened, a stray lead-in sound cut, loudness raised, re-encoded to mono 64 kbps with ffmpeg."
   }
 }
