@@ -20,7 +20,7 @@ writeFileSync(join(root, 'src/data/voicemail-data.js'), out);
 console.log(`wrote src/data/voicemail-data.js (${mp3.length} bytes of audio)`);
 
 // Later voicemails. The name is what a chapter's script asks for.
-const CLIPS = ['ch3_school', 'ch3_meeting'];
+const CLIPS = ['ch3_school', 'ch3_meeting', 'ch4'];
 const lines = CLIPS.map((name) => `    ${name}: '${readFileSync(join(root, `assets/audio/ruth_${name}.mp3`)).toString('base64')}',`);
 writeFileSync(
   join(root, 'src/data/voice-clips.js'),

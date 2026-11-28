@@ -125,6 +125,18 @@ SPEC = [
     dict(name='lot_staked', src=COLD, box=(30, 589, 237, 238), size=(24, 24)),
     dict(name='lot_rubble', src=COLD, box=(319, 589, 238, 238), size=(24, 24)),
     dict(name='lot_scaffold', src=COLD, box=(611, 589, 238, 238), size=(24, 24)),
+    # Chapter 4: the circuit board, its nodes, the breaker room and the spire
+    dict(name='board_bg', src='board_bg.png', size=(384, 168)),
+    dict(name='breaker_bg', src='breaker_room.png', size=(384, 288)),
+    dict(name='spire_bg', src='spire_dawn.png', size=(384, 288)),
+    dict(name='node_pip', src='net_nodes.png', box=(5, 112, 264, 264), size=(22, 22)),
+    dict(name='node_depot', src='net_nodes.png', box=(311, 117, 255, 255), size=(22, 22)),
+    dict(name='node_depot_on', src='net_nodes.png', box=(598, 117, 263, 263), size=(22, 22)),
+    dict(name='node_exchange', src='net_nodes.png', box=(894, 117, 255, 255), size=(22, 22)),
+    dict(name='node_bank', src='net_nodes.png', box=(17, 498, 253, 253), size=(22, 22)),
+    dict(name='node_office', src='net_nodes.png', box=(300, 474, 277, 277), size=(22, 22)),
+    dict(name='node_relay', src='net_nodes.png', box=(603, 498, 252, 252), size=(22, 22)),
+    dict(name='node_dead', src='net_nodes.png', box=(881, 470, 280, 280), size=(22, 22)),
 ]
 
 # Portrait sheets: six busts each, in sheet order, row by row.
@@ -132,6 +144,7 @@ PORTRAITS = {
     'portraits.png': ['ruth', 'dev', 'marisol', 'gus', 'pip1', 'pip2'],
     'crew_portraits.png': ['tomas', 'bea', 'otis', 'marisol_sad', 'gus_angry', 'ruth_night'],
     'town_portraits.png': ['kid', 'phone', 'pip3', 'ruth_tired', 'gus_tired', 'dev_phone'],
+    'company_portraits.png': ['kessler', 'kessler_uneasy', 'ruth_torch', 'gus_torch', 'pip4', 'cell'],
 }
 
 # Sprites whose amber lens should stay lit at night: record the lens bounds.
