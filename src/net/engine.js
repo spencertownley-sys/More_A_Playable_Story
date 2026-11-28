@@ -15,13 +15,13 @@
   const N = M.net;
   // The numbers that set the chapter's pace.
   const TUNE = {
-    day: 2.0, // seconds
+    day: 12, // seconds: the chapter runs from October into November
     speed: 70, // pixels a second along a trace
     gap: 9, // closest two orders can follow each other, in pixels
     every: [1.0, 0.7, 0.45, 0.3], // seconds between orders, by how many locked nodes are open
     stayOn: 20, // seconds a depot runs on one order
     intake: 1.5, // seconds a locked node takes over each order
-    clipsPerDepot: 9000000, // a day
+    clipsPerDepot: 54000000, // a day
     callEvery: [5, 9], // seconds between phone calls
     callFor: [5, 8], // how long one holds its lines
   };
@@ -98,7 +98,10 @@
       for (let k = 0; k < pick.length; k++) {
         const tr = pick[(n.turn + k) % pick.length];
         if (tr.call) {
-          if (!st.priority) continue;
+          if (!st.priority) {
+            waitT += 0.25; // turned away by a call
+            continue;
+          }
           drop(tr.call); // orders first
         }
         if (!room(tr)) continue;
@@ -221,6 +224,7 @@
       st.online = online;
       st.best = Math.max(st.best || 0, online);
       const days = dt / TUNE.day;
+      st.time = (st.time || 0) + dt;
       st.day += days;
       st.clips += online * TUNE.clipsPerDepot * days;
     }

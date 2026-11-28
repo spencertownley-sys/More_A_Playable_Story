@@ -39,11 +39,13 @@ the PAD button toggles it anywhere.
 | Chapter 1 *The Line*: the factory puzzle at Riverbend, nine story beats, night scene | done, Higgsfield art |
 | Chapter 2 *The Floor*: a wider floor, Marisol's crew at hand benches, the new steel machines, the safety limiters, the night shift | done, Higgsfield art |
 | Chapter 3 *The Town*: the county map, buying land, the town meeting, the school, the river, a voicemail from Ruth | done, Higgsfield art and voice |
+| Chapter 4 *The Company*: Harlan's network as a circuit board, switches, phone calls on the lines, the breaker, and the game's second ending | done, Higgsfield art and voice |
 | Chapters 3–6 and the epilogue | planned in `docs/STORY.md` |
 
-Chapters 1, 2 and 3 take about 10, 15 and 15 minutes. Each ending leads
-straight into the next chapter, carrying the clip count over. After Chapter 3
-ends, CONTINUE shows the county as Pip left it. Once Chapter 2 is unlocked,
+Chapters 1 to 4 take about 10, 15, 15 and 15 minutes. Each ending leads
+straight into the next chapter, carrying the clip count over. After Chapter 4
+ends, CONTINUE shows the board as Pip left it. Chapter 4 can also end the
+whole game early (the second ending, described in `docs/STORY.md`). Once Chapter 2 is unlocked,
 CHAPTERS on the title menu starts any unlocked chapter over.
 
 ## Layout
@@ -59,8 +61,9 @@ src/data/             art manifest (generated), music patterns, embedded voicema
 src/story/            cast, voicemail captions, and each chapter's script
 src/factory/          the factory floor: machine definitions, each chapter's floor, the belt engine, drawing
 src/town/             the county map (Chapter 3): every place on it, the land engine, drawing
+src/net/              Harlan's network (Chapter 4): the board, the switching engine, drawing
 src/chapters.js       the chapters in order, and how each one opens
-src/scenes/           boot/cold open/title, prologue, factory, town, chapter end
+src/scenes/           boot/cold open/title, prologue, factory, town, company, chapter end, the second ending
 assets/higgsfield/    the Higgsfield originals, plus sources.json (job IDs and prompts)
 assets/art/           game-ready sprites cut from them by tools/art/build.py
 assets/audio/         Ruth's voicemails (embedded into src/data/ by tools/embed-voicemail.mjs)
@@ -107,6 +110,9 @@ const pick = yield S.choose('pip', 'two clips per wire.', ['CUT SHORTER', 'KEEP 
 - Chapter 3 beats and Ruth's voicemail captions: `src/story/chapter3.js`.
   The places on the map and their prices are in `src/town/places.js`, and the
   numbers that set the chapter's pace are at the top of `src/town/engine.js`.
+- Chapter 4 beats, the rule for the second ending and Ruth's voicemail captions:
+  `src/story/chapter4.js`. The board's nodes and traces are in
+  `src/net/board.js`, and its pace is set at the top of `src/net/engine.js`.
 - The prologue: `src/story/prologue.js`
 
 Pip always speaks in lowercase.
@@ -116,7 +122,8 @@ Pip always speaks in lowercase.
 Deep links skip straight to a scene (press START on the boot screen):
 `#title`, `#prologue`, `#factory`, `#night`, `#end`, `#sandbox`, `#mockup`,
 `#floor` (Chapter 2, without touching your save), `#end2`, `#town` (Chapter 3,
-without touching your save), `#end3`.
+without touching your save), `#end3`, `#company` (Chapter 4, likewise), `#end4`,
+`#endingb` (the second ending).
 
 In the console, `MORE.debug.factory.st.clips = 199` jumps the clip count.
 

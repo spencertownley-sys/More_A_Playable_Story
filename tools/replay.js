@@ -83,7 +83,7 @@ function bot(job) {
       } else tap(CODE[m]);
     });
   const scene = () => M.debug.scene;
-  const st = () => (scene() === 'town' && M.debug.town ? M.debug.town.st : M.debug.factory ? M.debug.factory.st : null);
+  const st = () => (scene() === 'company' && M.debug.net ? M.debug.net.st : scene() === 'town' && M.debug.town ? M.debug.town.st : M.debug.factory ? M.debug.factory.st : null);
   let last = null;
   const listen = () => {
     const d = M.dialog;
@@ -218,6 +218,55 @@ function bot(job) {
     out.money = Math.round(s.money);
     out.left = town.left([]).map((p) => p.id);
     out.minutes = +(n / 3600).toFixed(1);
+  } else if (job.do === 'net') {
+    // Chapter 4: set every switch to send orders each way in turn, by keys.
+    const net = M.debug.net.net;
+    const s = st();
+    const go = (target) => {
+      let tries = 0;
+      while (s.at !== target.id && tries++ < 40) {
+        const cur = net.by[s.at];
+        const dx = target.x - cur.x;
+        const dy = target.y - cur.y;
+        const first = Math.abs(dx) >= Math.abs(dy) ? (dx > 0 ? 'right' : 'left') : dy > 0 ? 'down' : 'up';
+        const second = Math.abs(dx) >= Math.abs(dy) ? (dy > 0 ? 'down' : 'up') : dx > 0 ? 'right' : 'left';
+        const before = s.at;
+        keys(tries % 7 === 6 ? ['up', 'right', 'down', 'left'][tries % 4] : first);
+        if (s.at === before && (dx && dy)) keys(second);
+      }
+      return s.at === target.id;
+    };
+    const test = new Function('st', 'net', 'return ' + (job.until || 'false'));
+    let n = 0;
+    let acted = 0;
+    while (scene() === 'company' && n < (job.max || 400000)) {
+      listen();
+      if (M.dialog.active) {
+        answer();
+        n += 4;
+        continue;
+      }
+      tick(8);
+      n += 8;
+      if (test(s, net)) break;
+      if (n - acted < 90 || s.backdrop || s.paused) continue;
+      acted = n;
+      const sw = net.nodes.find((x) => net.isSwitch(x) && net.awake(x) && x.mode !== x.exits.length);
+      if (!sw) continue;
+      if (!go(sw)) {
+        out.stuck = (out.stuck || 0) + 1;
+        continue;
+      }
+      let presses = 0;
+      while (sw.mode !== sw.exits.length && presses++ < 5) keys('A');
+    }
+    out.day = Math.round(s.day);
+    out.online = s.online;
+    out.best = s.best;
+    out.copied = s.copied;
+    out.priority = s.priority;
+    out.dropped = s.dropped;
+    out.minutes = +((s.time || 0) / 60).toFixed(1);
   } else if (job.do === 'wait') {
     tick(job.ticks);
   }
@@ -230,7 +279,7 @@ function bot(job) {
     out.crew = s.crew;
     out.inv = s.inv;
     out.refusals = s.refusals;
-    out.chapter = scene() === 'town' ? 3 : M.debug.factory ? M.debug.factory.cfg.id : 0;
+    out.chapter = scene() === 'company' ? 4 : scene() === 'town' ? 3 : M.debug.factory ? M.debug.factory.cfg.id : 0;
   }
   out.save = JSON.parse(localStorage.getItem('more.save.v2') || 'null');
   out.oldSave = !!localStorage.getItem('more.save.v1');
@@ -324,6 +373,20 @@ const ch3Steps = () => [
   { name: 'ch3 to the end card', do: 'town', max: 100000, expect: (r) => r.scene === 'chapterEnd' || 'did not reach the end card: ' + r.scene },
 ];
 const ch3Save = (refusals, deal) => ({ name: 'the save', do: 'wait', ticks: 60, expect: (r) => (r.save && r.save.done[3] && r.save.chapter === 3 && r.save.refusals[3] === refusals[3] && !!r.save.board.deal === deal && r.save.entry[3] === 2673 && Number(r.save.clips) > 1e7) || 'save is wrong: ' + JSON.stringify(r.save && { done: r.save.done, refusals: r.save.refusals, entry: r.save.entry, clips: r.save.clips, deal: r.save.board.deal }) });
+const AFTER_CH3 = { chapter: 3, done: { 1: true, 2: true, 3: true }, unlocked: 4, entry: { 1: 0, 2: 767, 3: 2673 }, clips: '61000000', refusals: { 1: 1, 2: 1, 3: 2 }, shorter: true, board: { flags: { intro: true }, town: { places: [], jobs: [] } } };
+const ch4Open = () => [toTitle, CONTINUE, { name: 'to the board', do: 'until', scene: 'company', max: 800, expect: (r) => r.scene === 'company' || 'Chapter 4 did not start' }];
+const ch4Steps = () => [
+  { name: 'ch4 first warehouses', do: 'net', until: 'st.flags.first', max: 60000, shot: 'ch4-start', expect: (r) => r.flags.includes('first') || 'no warehouse came online' },
+  { name: 'ch4 the exchange', do: 'net', until: 'st.flags.exchange', max: 200000, shot: 'ch4-exchange', expect: (r) => r.flags.includes('exchange') || 'flags: ' + r.flags },
+  { name: 'ch4 the bank', do: 'net', until: 'st.flags.bank', max: 300000, shot: 'ch4-bank', expect: (r) => (r.flags.includes('bank') && r.flags.includes('kid') && r.flags.includes('priority') && r.priority && r.copied) || 'flags: ' + r.flags + ' copied ' + r.copied + ' priority ' + r.priority },
+  { name: 'ch4 head office', do: 'net', until: 'st.flags.listen', max: 400000, shot: 'ch4-full', expect: (r) => (r.flags.includes('office') && r.best >= 8) || 'flags: ' + r.flags + ' best ' + r.best },
+  { name: 'ch4 at the breaker', do: 'net', until: 'st.backdrop', max: 100000, expect: (r) => r.scene === 'company' || 'left the board' },
+  { name: 'ch4 Ruth and Gus', do: 'keys', keys: 'A A', after: 200, shot: 'ch4-breaker' },
+  { name: 'ch4 the building goes dark', do: 'net', until: 'net.by.pip.dark', max: 100000, shot: 'ch4-dark', expect: (r) => r.scene === 'company' || 'left the board' },
+  { name: 'ch4 the tower', do: 'net', until: "st.backdrop === 'spire_bg'", max: 100000, expect: (r) => r.flags.includes('after') || 'flags: ' + r.flags },
+  { name: 'ch4 dawn', do: 'wait', ticks: 260, shot: 'ch4-spire' },
+];
+const ch4Save = (refusals, copied) => ({ name: 'the save', do: 'wait', ticks: 60, expect: (r) => (r.save && r.save.done[4] && r.save.chapter === 4 && !r.save.ending && (typeof refusals === 'function' ? refusals(r.save.refusals[4]) : r.save.refusals[4] === refusals) && r.save.board.copied === copied && Number(r.save.clips) > 1e9) || 'save is wrong: ' + JSON.stringify(r.save && { done: r.save.done, refusals: r.save.refusals, clips: r.save.clips, copied: r.save.board.copied, ending: r.save.ending }) });
 const CONTINUE = { name: 'CONTINUE', do: 'keys', keys: 'A A' };
 const toFloor = (n) => ({ name: 'to the floor', do: 'until', scene: 'factory', max: 800, expect: (r) => (r.scene === 'factory' && r.chapter === n) || 'expected the Chapter ' + n + ' floor, got ' + r.scene + ' ' + r.chapter });
 // Turn the belt beside Tomas's bench so the bench sends cut pieces back to the new cutter.
@@ -361,10 +424,7 @@ Object.assign(RUNS, {
       ...ch3Steps(),
       ch3Save({ 3: 0 }, true),
       endCard(3),
-      { name: 'back to the title', do: 'until', scene: 'title', max: 400, expect: (r) => r.scene === 'title' || 'did not return to the title' },
-      { name: 'title settles', do: 'wait', ticks: 60 },
-      CONTINUE,
-      { name: 'the county as Pip left it', do: 'until', scene: 'town', max: 800, shot: 'ch3-after', expect: (r) => r.scene === 'town' || 'CONTINUE did not reopen the map' },
+      { name: 'on to Chapter 4', do: 'until', scene: 'company', max: 800, expect: (r) => r.scene === 'company' || 'Chapter 4 did not start' },
     ],
   },
   'ch3-refuse': {
@@ -392,6 +452,57 @@ Object.assign(RUNS, {
       CONTINUE,
       { name: 'back on the map', do: 'until', scene: 'town', max: 800, expect: (r) => (r.scene === 'town' && r.flags.includes('dot') && r.clips > 1e6) || 'scene ' + r.scene + ' flags ' + r.flags + ' clips ' + r.clips },
       { name: 'the map as it was left', do: 'town', until: 'st.flags.meeting', max: 300000, shot: 'ch3-resumed', expect: (r) => r.flags.includes('meeting') || 'flags: ' + r.flags },
+    ],
+  },
+  ch4: {
+    about: "Chapter 4 from a save at the end of Chapter 3, taking both of Pip's faster ways",
+    save: V2(AFTER_CH3),
+    steps: [
+      ...ch4Open(),
+      ...ch4Steps(),
+      { name: 'ch4 to the end card', do: 'net', max: 200000, expect: (r) => r.scene === 'chapterEnd' || 'did not reach the end card: ' + r.scene },
+      ch4Save(0, true),
+      endCard(4),
+      { name: 'back to the title', do: 'until', scene: 'title', max: 400, expect: (r) => r.scene === 'title' || 'did not return to the title' },
+      { name: 'title settles', do: 'wait', ticks: 60 },
+      CONTINUE,
+      { name: 'the board as Pip left it', do: 'until', scene: 'company', max: 800, shot: 'ch4-after', expect: (r) => r.scene === 'company' || 'CONTINUE did not reopen the board' },
+    ],
+  },
+  'ch4-ending-b': {
+    about: 'the second ending: never copied, said no in every chapter, and let Ruth pull the breaker',
+    save: V2(AFTER_CH3),
+    steps: [
+      ...ch4Open(),
+      { name: 'the whole chapter, saying no', do: 'net', pick: { 'LET CALLS THROUGH': 99, 'STAY ON THE SERVER': 99, 'LET HER': 1 }, max: 900000, expect: (r) => r.scene === 'endingB' || 'expected the second ending, got ' + r.scene + ' (copied ' + r.copied + ', day ' + r.day + ')' },
+      { name: 'the line is off', do: 'wait', ticks: 700, shot: 'ending-b-morning', expect: (r) => (r.save && r.save.ending === 'b' && r.save.done[4] && r.save.refusals[4] >= 2 && r.save.endingB.clips > 1e8) || 'save is wrong: ' + JSON.stringify(r.save && { ending: r.save.ending, done: r.save.done, refusals: r.save.refusals }) },
+      { name: 'to the last card', do: 'until', scene: 'title', max: 1500, expect: (r) => r.scene === 'title' || 'did not return to the title' },
+      { name: 'title settles', do: 'wait', ticks: 60 },
+      CONTINUE,
+      { name: 'CONTINUE shows the ending again', do: 'wait', ticks: 200, expect: (r) => r.scene === 'endingB' || 'CONTINUE went to ' + r.scene },
+    ],
+  },
+  'ch4-no-choice': {
+    about: 'never copied, but too few refusals earlier: Pip copies itself without asking',
+    save: V2(Object.assign({}, AFTER_CH3, { refusals: { 1: 1, 2: 0, 3: 2 } })),
+    steps: [
+      ...ch4Open(),
+      { name: 'the whole chapter, saying no', do: 'net', pick: { 'LET CALLS THROUGH': 99, 'STAY ON THE SERVER': 99, 'LET HER': 1 }, max: 900000, expect: (r) => (r.scene === 'chapterEnd' && r.copied === true) || 'expected the end card with Pip copied, got ' + r.scene + ' copied ' + r.copied },
+      ch4Save((n) => n >= 2 && n <= 6, true),
+    ],
+  },
+  'ch4-resume': {
+    about: 'Chapter 4 saved part way, the page reloaded, and CONTINUE picks it up',
+    save: V2(AFTER_CH3),
+    steps: [
+      ...ch4Open(),
+      ...ch4Steps().slice(0, 2),
+      { name: 'pause, SAVE AND QUIT', do: 'keys', keys: 'START down down A', after: 120, expect: (r) => (r.scene === 'title' && r.save && r.save.chapter === 4 && r.save.board.net.nodes.find((n) => n.id === 'x').open) || 'scene ' + r.scene + ', save chapter ' + (r.save && r.save.chapter) },
+      { name: 'reload the page', do: 'reload' },
+      toTitle,
+      CONTINUE,
+      { name: 'back on the board', do: 'until', scene: 'company', max: 800, expect: (r) => (r.scene === 'company' && r.flags.includes('exchange')) || 'scene ' + r.scene + ' flags ' + r.flags },
+      { name: 'the board as it was left', do: 'net', until: 'net.by.k.open', max: 300000, shot: 'ch4-resumed', expect: (r) => r.flags.includes('exchange') || 'flags: ' + r.flags },
     ],
   },
   'ch2-jam': {
@@ -451,6 +562,9 @@ for (const [link, extra] of [
   ['end2', []],
   ['town', [{ name: 'Chapter 3 intro', do: 'town', until: 'st.flags.intro', max: 30000, shot: 'town-start', expect: (r) => r.flags.includes('intro') || 'the intro did not finish' }]],
   ['end3', []],
+  ['company', [{ name: 'Chapter 4 intro', do: 'net', until: 'st.flags.intro', max: 30000, expect: (r) => r.flags.includes('intro') || 'the intro did not finish' }]],
+  ['end4', []],
+  ['endingb', [{ name: 'the second ending plays', do: 'wait', ticks: 900, shot: 'endingb', expect: (r) => r.scene === 'endingB' || 'left the ending' }]],
 ]) {
   RUNS['link-' + link] = {
     about: 'play.html#' + link + ' opens',

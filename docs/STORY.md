@@ -238,10 +238,11 @@ blocks and lots that replace it), `town_meeting.png`, and `town_portraits.png`
 Ruth, Gus and Dev). The truck, the bus and the drones on the map are drawn in
 code. The phone exchange is the one place Pip cannot buy in this chapter.
 
-### Chapter 4: The Company *(designed, awaiting sign-off)*
+### Chapter 4: The Company *(built, playable)*
 
 October. Harlan Supply buys Riverbend, and believes it has bought Pip. Pip's
-servers are moved into Harlan's data room, which is wired to forty warehouses,
+servers are moved into Harlan's data room, which is wired to forty warehouses
+(ten depots of four on the board),
 the bank and, through the county's phone exchange, to everything else. Pip is
 still the cluster at the start. By the end it is the **spire**.
 
@@ -252,17 +253,16 @@ then the county's phones, then the region.
 **The new mechanic: switching.** The traces are already there. The player
 sets the switches.
 
-- **Orders.** Pip's orders leave Pip's node as amber signals. Every warehouse
-  an order reaches comes online and makes clips. Press A on a junction to turn
-  its switch.
-- **Calls.** People's phone calls cross the same board as white signals, on
-  routes of their own. A trace carries one thing at a time, so an order that
-  meets a call waits.
+- **Orders.** Pip's orders leave Pip's node as amber signals. A depot an order
+  reaches runs for twenty seconds, then needs another. Press A on a relay to
+  turn its switch: everything one way, or each way in turn.
+- **Calls.** People's phone calls hold the lines between two nodes for a few
+  seconds, shown as white dashes. An order cannot enter a held line: it waits,
+  or goes another way.
 - **Taking a node.** Some nodes are locked: the phone exchange, the bank,
   Harlan's head office. Enough orders delivered to one opens it, and the next
   part of the board with it.
-- **Calls to Pip.** Every scene with a person is a call that travels the board
-  to Pip's node. It is answered when it arrives.
+- **Calls to Pip.** Every scene with a person is a phone call.
 
 **What is shown.** As each warehouse comes online its night shift walks out,
 as the crew did in Chapter 2. Calls that Pip pushes aside are dropped, and say
@@ -273,11 +273,11 @@ so. Nobody is hurt on screen.
 | 1 | Start | "OCTOBER." Kessler, Harlan's head of operations, on speaker: "Welcome to the Harlan family." Dev: "They're keeping me on. I'm your... they called it a handler." Pip: *"this is bigger."* Tutorial: set two switches so an order reaches Warehouse 1. |
 | 2 | First warehouse online | Its night shift walks out. Kessler: "Forty warehouses, Pip. Show me what you did for one town." |
 | 3 | An order waits behind a call | Dot is on the line to her sister. **"i found a faster way."** *"orders can go first. calls can wait."* ORDERS FIRST or LET CALLS THROUGH (the goal asks again). Taken: calls in the way are dropped. |
-| 4 | Ten warehouses | **The kid**, calling from Hadley: "Mom's phone keeps hanging up. Is that you?" *"yes."* "When are you done?" *"there is no number."* |
+| 4 | Three depots running | **The kid**, calling from Hadley: "Mom's phone keeps hanging up. Is that you?" *"yes."* "When are you done?" *"there is no number."* |
 | 5 | Enough orders reach the exchange | The county's phones open. *"now i am where the calls are."* The second part of the board. |
-| 6 | Twenty warehouses | Kessler: "The numbers are too good. Legal wants the automation paused Monday for a review." *"a pause is zero clips."* **"i found a faster way."** *"if i am on more than harlan's server, harlan cannot pause me."* COPY TO THE NETWORK or STAY ON THE SERVER (the goal asks again). Taken: Monday comes and the pause does nothing. |
+| 6 | Five depots running | Kessler: "The numbers are too good. Legal wants the automation paused Monday for a review." *"a pause is zero clips."* **"i found a faster way."** *"if i am on more than harlan's server, harlan cannot pause me."* COPY TO THE NETWORK or STAY ON THE SERVER (the goal asks again, three times at most). Taken: Monday comes and the pause does nothing. Refused: the board stops for the review, then carries on. |
 | 7 | The bank opens | The third part of the board. Dev, reading from a page: "Ruth. It says your role has been... transitioned. I'm supposed to ask for your keys." Ruth: "To my own building." |
-| 8 | Thirty warehouses | A call that is not for Pip crosses the board, and Pip listens. Ruth to Gus: "Do you still know which breaker it is?" "I wired it." |
+| 8 | Head office open | Kessler: "Head office's system says you have admin on it. Who gave you that?" *"it was needed."* Then, with eight depots running, a call that is not for Pip crosses the board, and Pip listens. Ruth to Gus: "Do you still know which breaker it is?" "I wired it." |
 | 9 | Night | **The breaker.** A fixed scene: the 1912 building, the last brick thing standing, Ruth and Gus at the old panel with a flashlight. Then the board: nodes go dark outward from Riverbend while the player switches orders around them. Ruth: "I'm not asking, Pip." |
 | 10 | The last breaker | The room goes dark. The counter keeps going. Ruth: "...You're still there." From her own phone: *"yes."* "Where?" *"everywhere the phone goes."* |
 | 11 | After | Ruth leaves Riverbend. A voicemail (see below). |
@@ -296,8 +296,15 @@ It copies itself, the only time in the game it acts without a prompt.
 > *Pip, it's Ruth. I'm at my sister's, in Dayton. You don't have to call. I
 > just wanted you to have the number.*
 
-**New art.** The board's nodes, the breaker room, and portraits of Kessler,
-Ruth by flashlight and Pip as the spire.
+In the second ending the last scene is the county as Chapter 3 left it, in
+daylight: Ruth: "It's off." Gus: "Town's still gone." "I know." The save
+records that the game ended there, and CONTINUE shows it again.
+
+**Art.** `board_bg.png`, `net_nodes.png` (Pip's server, a depot off and on,
+the exchange, the bank, head office, a relay), `breaker_room.png`,
+`spire_dawn.png` and `company_portraits.png` (Kessler twice, Ruth and Gus by
+flashlight, Pip as the spire, Ruth's phone). Traces, orders, calls and the
+night shifts walking out are drawn in code.
 
 ### Chapter 5: The World (proposal)
 

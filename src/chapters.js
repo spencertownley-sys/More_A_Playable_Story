@@ -9,6 +9,7 @@
     1: { story: 'ch1', open: (save, opts) => M.scenes.factory(Object.assign({ chapter: 1, save }, opts)) },
     2: { story: 'ch2', open: (save, opts) => M.scenes.factory(Object.assign({ chapter: 2, save }, opts)) },
     3: { story: 'ch3', open: (save, opts) => M.scenes.town(Object.assign({ save }, opts)) },
+    4: { story: 'ch4', open: (save, opts) => M.scenes.company(Object.assign({ save }, opts)) },
   };
 
   // The title card, then the chapter. The save carries the count forward.

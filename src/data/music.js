@@ -178,6 +178,38 @@
       ],
     },
 
+    // Harlan's network: E minor, quick and even, like a relay ticking.
+    company: {
+      bpm: 126,
+      stepsPerBeat: 4,
+      channels: [
+        {
+          instr: 'arp',
+          pattern: join(
+            'E4 B4 E5 B4 G4 B4 E5 B4 E4 B4 E5 B4 G4 B4 E5 B4',
+            'C4 G4 C5 G4 E4 G4 C5 G4 C4 G4 C5 G4 E4 G4 C5 G4',
+            'A3 E4 A4 E4 C4 E4 A4 E4 A3 E4 A4 E4 C4 E4 A4 E4',
+            'B3 F#4 B4 F#4 D#4 F#4 B4 F#4 B3 F#4 B4 F#4 D#4 F#4 B4 F#4'
+          ),
+        },
+        {
+          instr: 'bass',
+          pattern: join('E2 . . E2 . . E2 . E2 . . E2 . . D2 .', 'C2 . . C2 . . C2 . C2 . . C2 . . B1 .', 'A1 . . A1 . . A1 . A1 . . A1 . . G1 .', 'B1 . . B1 . . B1 . B1 . . B1 . . F#2 .'),
+        },
+        {
+          instr: 'lead',
+          pattern: join(
+            rest(64),
+            'B5 - - - - - G5 - E5 - - - - - . .',
+            'C6 - - - - - G5 - E5 - - - - - . .',
+            'A5 - - - - - E5 - C5 - - - D5 - E5 -',
+            'F#5 - - - - - D#5 - B4 - - - - - . .'
+          ),
+        },
+        { drum: true, pattern: 'k . c . s . c c k . c k s . c .' },
+      ],
+    },
+
     // Night: the line is off. A clock and a hum.
     night: {
       bpm: 60,
